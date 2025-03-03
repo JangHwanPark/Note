@@ -22,7 +22,7 @@ npm install --save-dev @babel/preset-env @babel/preset-react babel-jest @babel/c
 @babel/plugin-proposal-class-properties @babel/preset-env
 ```
 
-또는 
+또는
 
 ```shell
 yarn add --save-dev @babel/preset-env @babel/preset-react babel-jest @babel/core 
@@ -45,12 +45,12 @@ yarn add --save-dev @babel/preset-env @babel/preset-react babel-jest @babel/core
 
 - `@babel/preset-env`는 최신 JavaScript 문법을 구형 브라우저나 환경에서도 동작할 수 있도록 변환한다. preset-env는 브라우저 호환성을 고려하여 필요한 변환을 자동으로 적용한다.
 
-- `@babel/preset-react`는 React 코드(JSX 및 기타 React 관련 구문)를 일반 JavaScript로 변환합니다. 이를 통해 React 코드를 트랜스파일하고 실행할 수 있다.  
+- `@babel/preset-react`는 React 코드(JSX 및 기타 React 관련 구문)를 일반 JavaScript로 변환합니다. 이를 통해 React 코드를 트랜스파일하고 실행할 수 있다.
 
 플러그인은 개별적으로 적용할 변환 기능을 정의한다. 플러그인은 특정 기능이나 문법을 지원하기 위해 사용된다.
 
 - `@babel/plugin-proposal-class-properties`는 클래스 필드 문법을 지원한다.  
-    예를들어 클래스 내부에서 필드를 정의하는 구문을 사용할 수 있게 해준다.
+  예를들어 클래스 내부에서 필드를 정의하는 구문을 사용할 수 있게 해준다.
 
 ### <br>Jest 설정 파일 (jest.config.js) 확인
 ```shell
