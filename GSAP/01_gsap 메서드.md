@@ -141,17 +141,18 @@ return <div ref={boxRef} className="w-20 h-20 bg-green-500">Box</div>;
 
 
 실전 예제: ScrollTrigger + to() vs from() vs fromTo()
+
 ```js
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollTrigger } from "GSAP/ScrollTrigger/01_ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Example = () => {
-  const boxRef = useRef<HTMLDivElement | null>(null);
-
+  const boxRef = useRef < HTMLDivElement | null > (null);
+  
   useGSAP(() => {
     gsap.from(boxRef.current, {
       opacity: 0,
@@ -165,7 +166,7 @@ const Example = () => {
       }
     });
   }, []);
-
+  
   return <div ref={boxRef} className="w-20 h-20 bg-purple-500">Box</div>;
 };
 
