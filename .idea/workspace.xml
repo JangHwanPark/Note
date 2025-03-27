@@ -4,8 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ee14ccef-6cf5-4a01-8a7b-7dbc91623694" name="변경" comment=":memo: useRef">
-      <change beforePath="$PROJECT_DIR$/Network/주소체계.md" beforeDir="false" afterPath="$PROJECT_DIR$/Network/주소체계.md" afterDir="false" />
+    <list default="true" id="22cc3243-98fa-4ff3-980b-54ac8177935e" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Canvas/GSAP &amp; Canvas.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Canvas/canvas 애니메이션 유형.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NextJS/시작하기.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/React/단계별 Form 생성하기.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ReactQuery/useQuery 에서 여러개의 데이터 호출하기.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GSAP/애니메이션 종류.md" beforeDir="false" afterPath="$PROJECT_DIR$/GSAP/애니메이션 종류.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,78 +31,53 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/JangHwanPark/Note.git&quot;,
-    &quot;accountId&quot;: &quot;3ab21c1b-fdde-4d68-8c2e-71c1e6e3de30&quot;
+    &quot;accountId&quot;: &quot;90b7a8bb-a45e-481b-9651-b48fdae39455&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 8
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 6
 }</component>
-  <component name="ProjectId" id="2uLyhdXDTy6boffcsKitMXpu5BR" />
+  <component name="ProjectId" id="2uAJPJfY0zn6ufuMEugCfikZ5NT" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-WS-243.25659.40" />
+        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-WS-243.23654.157" />
       </set>
     </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="애플리케이션 수준" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="디폴트 작업">
-      <changelist id="ee14ccef-6cf5-4a01-8a7b-7dbc91623694" name="변경" comment="" />
-      <created>1742042269446</created>
+      <changelist id="22cc3243-98fa-4ff3-980b-54ac8177935e" name="변경" comment="" />
+      <created>1741685420025</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1742042269446</updated>
-      <workItem from="1742042270565" duration="273000" />
-      <workItem from="1742093013473" duration="610000" />
-      <workItem from="1742165463804" duration="879000" />
-      <workItem from="1742610060717" duration="21000" />
-      <workItem from="1742690664889" duration="1693000" />
+      <updated>1741685420025</updated>
+      <workItem from="1741685421701" duration="217000" />
+      <workItem from="1741687203379" duration="21000" />
+      <workItem from="1741701348082" duration="767000" />
     </task>
-    <task id="LOCAL-00001" summary=":memo: ts any, never 타입">
-      <option name="closed" value="true" />
-      <created>1742042537922</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1742042537922</updated>
-    </task>
-    <task id="LOCAL-00002" summary=":memo: useRef">
-      <option name="closed" value="true" />
-      <created>1742166278181</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1742166278181</updated>
-    </task>
-    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value=":memo: ts any, never 타입" />
-    <MESSAGE value=":memo: useRef" />
-    <option name="LAST_COMMIT_MESSAGE" value=":memo: useRef" />
   </component>
 </project>
