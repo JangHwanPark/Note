@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="22cc3243-98fa-4ff3-980b-54ac8177935e" name="변경" comment=":memo: 주소체계">
-      <change afterPath="$PROJECT_DIR$/K8S/K8S Master 컴포넌트.md" afterDir="false" />
+    <list default="true" id="22cc3243-98fa-4ff3-980b-54ac8177935e" name="변경" comment=":memo: K8S 마스터 컴포넌트">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,6 +68,15 @@
       <workItem from="1741687203379" duration="21000" />
       <workItem from="1741701348082" duration="767000" />
     </task>
+    <task id="LOCAL-00001" summary=":memo: K8S 마스터 컴포넌트">
+      <option name="closed" value="true" />
+      <created>1743037071587</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1743037071587</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -75,6 +84,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value=":memo: 주소체계" />
-    <option name="LAST_COMMIT_MESSAGE" value=":memo: 주소체계" />
+    <MESSAGE value=":memo: K8S 마스터 컴포넌트" />
+    <option name="LAST_COMMIT_MESSAGE" value=":memo: K8S 마스터 컴포넌트" />
   </component>
 </project>
