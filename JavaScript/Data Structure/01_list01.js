@@ -23,6 +23,7 @@ class SinglyLinkedList {
     // this.length++;
     // 2. 새로운 노드를 생성
     const newNode = new Node(val);
+    // 3.
     if (!this.head) {
       this.head = newNode;
       this.tail = this.head;
