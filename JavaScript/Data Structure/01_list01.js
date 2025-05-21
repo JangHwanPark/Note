@@ -71,6 +71,41 @@ class SinglyLinkedList {
       current = current.next;
     }
   }
+  
+  // shift 메소드는 아무런 인자를 받지 않음
+  shift() {
+    // 1. 리스트에 노드가 없을경우 (비어있는 경우) undefined 를 반환
+    if (!this.head) return undefined;
+    // 2. head 의 next 값을 변수에 저장 (this.head 와 같도록)
+    let currentHead = this.head;
+    // 3. head 를 현재 head 의 다음 노드를 가리키도록 이동
+    this.head = currentHead.next;
+    // 4. 길이를 1만큼 감소
+    this.length--;
+    // tail 을 null 로 만들고 싶다면 조건 추가
+    if (this.length === 0) {
+      this.tail = null;
+    }
+    return currentHead;
+  }
+  
+  // unshift 는 추가하려는 값을 인자로 받음
+  unshift(val) {
+    // 1. 새로운 노드 생성
+    let newNode = new Node(val);
+    // 2. 헤드가 없다면 헤드와 테일 모두 새로운 노드를 가리키도록 함
+    if (!this.head) {
+      this.head = newNode;
+      this.tail = this.head;
+    } else {
+      newNode.next = this.head;
+      this.head = newNode;
+    }
+    newNode.next = this.head;
+    this.head = newNode;
+    this.length++;
+    return this;
+  }
 }
 
 // 노드를 활용한 단방향 리스트 정의
@@ -86,11 +121,12 @@ firstSinglyLinkedList.push("SinglyLinkedList");
 firstSinglyLinkedList.push("World");
 firstSinglyLinkedList.push("!");
 console.log(firstSinglyLinkedList);
-firstSinglyLinkedList.pop();
-console.log(firstSinglyLinkedList);
 
 firstSinglyLinkedList.pop();
 firstSinglyLinkedList.pop();
+
+firstSinglyLinkedList.shift();
 console.log(firstSinglyLinkedList);
-firstSinglyLinkedList.pop();
+
+firstSinglyLinkedList.unshift(35);
 console.log(firstSinglyLinkedList);
