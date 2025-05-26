@@ -106,6 +106,75 @@ class SinglyLinkedList {
     this.length++;
     return this;
   }
+  
+  // 인덱스를 인자로 받음
+  get(index) {
+    // 인덱스가 유효한지 확인해야함
+    // 인덱스가 유효하지 않을경우 (음수거나 리스트 길이보다 클경우)
+    // null 을 반환해야함
+    if (index < 0 || index >= this.length) {
+      return null;
+    }
+    
+    let counter = 0;
+    let current = this.head;
+    
+    while (counter !== index) {
+      current = current.next;
+      counter++;
+    }
+    return current;
+  }
+  
+  // set 은 인덱스와 업데이트할 값 두개를 인자로 받음
+  set(index, val) {
+    let foundNode = this.get(index);
+    if (foundNode) {
+      foundNode.val = val;
+      return true;
+    }
+    return false;
+  }
+  
+  insert(index, val) {
+    if (index < 0 || index > this.length) {
+      return false;
+    }
+    
+    // 인덱스가 길이와 같은경우
+    // !! : 불리언으로 반환
+    if (index === this.length) {
+      return !!this.push(val);
+    }
+    
+    // 인덱스가 0 일경우
+    if (index === 0) {
+      return !!this.unshift(val);
+    }
+    
+    let newNode = new Node(val);
+    let prev = this.get(index - 1);
+    let temp = prev.next;
+    prev.next = newNode;
+    newNode.next = temp;
+    this.length++;
+    return true;
+  }
+  
+  // remove
+  // 1. 인덱스 값이 0보다 작거나, 리스트 길이보다 클 경우 undefined 를 반환한다.
+  // 인덱스가 0일 경우 shift 메소드를 사용한다.
+  // 그게 아니라면 get 메소드를 사용한다.
+  remove(index) {
+  
+  }
+  
+  // reverse
+  // 헤드를 테일로 설정해야함.
+  // 값을 덮어쓰지말고 임시 저장할 변수가 필요함
+  reverse() {
+  
+  }
 }
 
 // 노드를 활용한 단방향 리스트 정의
@@ -130,3 +199,5 @@ console.log(firstSinglyLinkedList);
 
 firstSinglyLinkedList.unshift(35);
 console.log(firstSinglyLinkedList);
+
+console.log(firstSinglyLinkedList.get(1));
