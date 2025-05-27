@@ -162,18 +162,61 @@ class SinglyLinkedList {
   }
   
   // remove
-  // 1. 인덱스 값이 0보다 작거나, 리스트 길이보다 클 경우 undefined 를 반환한다.
+  // 엣지 케이스
+  // 인덱스 값이 0보다 작거나, 리스트 길이보다 클 경우 undefined 를 반환한다.
   // 인덱스가 0일 경우 shift 메소드를 사용한다.
   // 그게 아니라면 get 메소드를 사용한다.
   remove(index) {
+    if (index < 0 || index >= this.length) {
+      return undefined;
+    }
+    
+    if (index === 0) {
+      return this.shift();
+    }
+    
+    if (index === this.length - 1) {
+      return this.pop();
+    }
+    
+    let previousNode = this.get(index - 1);
+    let removedNode = previousNode.next;
+    previousNode.next = removedNode.next;
+    this.length--;
+    return removedNode;
+  }
   
+  // print - 효율과 무관하게 reverse 에서 어떤 일이 발생하는지
+  // 확인하기 위한 용도
+  print() {
+    let arr = [];
+    let current = this.head;
+    
+    while (current) {
+      arr.push(current.val);
+      current = current.next;
+    }
+    console.log(arr);
   }
   
   // reverse
   // 헤드를 테일로 설정해야함.
   // 값을 덮어쓰지말고 임시 저장할 변수가 필요함
   reverse() {
-  
+    let node = this.head; // 상태 추적을 위한 변수
+    this.head = this.tail;
+    this.tail = node;
+    
+    let next;
+    let prev = null;
+    for (let i = 0; i < this.length; i++) {
+      next = node.next;
+      node.next = prev;
+      prev = node;
+      node = next;
+    }
+    
+    return this;
   }
 }
 
