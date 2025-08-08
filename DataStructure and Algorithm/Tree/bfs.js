@@ -16,14 +16,36 @@ class Node {
 function bfs(root) {
   if (!root) return [];
   
+  // 탐색을 통해 방문한 노드의 값을 순서대로 기록
+  // 순서대로 저장된 값은 나중에 그대로 사용할 수 있기떄문에 배열 사용
   const result = [];
+  // JS 에서 배열은 기본적으로 push, shift 메서드를 제공하여
+  // 큐 클래스를 만들필요없이 큐 동작을 구현할 수 있기때문에 배열을 사용
   const queue =  [root];
   
   while (queue.length > 0) {
+    // 루프가 한번 실행될 때마다 큐 맨앞에 있는 노드를 꺼내서 currentNode 변수에 저장한다.
+    // 큐에 있는 노드들 중에서 제일 먼저 탐색해야할 노드를 특정하기 위해 꺼낸다.
+    // 큐에 들어간 순서대로 노드를 처리해야하기 떄문에 shift 를 사용해 맨 앞의 노드를 꺼낸다.
+    
+    // 변수에 담는 이유는 꺼낸노드는 현재 방문중인 노드가 된다. 이 노드의 값(currentNode.value)을
+    // result 배열에 저장하거나 노드의 자식들(currentNode.children)을 큐에 추가하는등의 작업을
+    // 편하게 하기위해 currentNode 변수에 노드를 저장한다.
     const currentNode = queue.shift();
     if (currentNode) {
       result.push(currentNode.value);
       
+      // 현재 노드의 모든 자식 노드들을 순회
+      // 1. 다음레벨의 노드들을 큐에 넣음
+      // 큐에서 꺼낸 currentNode는 방문이 끝난 노드다.
+      // BFS는 너비를 우선탐색하기 떄문에 다음으로 방문할 노드들은
+      // currentNode 의 자식이다.
+      // for 루프는 currentNode 의 children 배열을 하나씩 돌면서
+      // 자식노드(child)를 큐에 넣는다.
+      
+      // 2. while 루프는 큐에 노드가 남아있으면 계속 실행됨
+      // for 루프는 queue.push(child)를 통해 새로운 노드를 추가하기 때문에
+      // while 루프가 중단되지않고 다음 레벨의 노드를 탐색할 수 있음
       for (const child of currentNode.children) {
         queue.push(child);
       }
