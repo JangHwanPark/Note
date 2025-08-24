@@ -12,3 +12,10 @@ const fs = require("fs");
 const [n, arr] = fs.readFileSync(0, "utf8").trim().split("\n");
 const N = Number(n);
 const numbers = arr.split(" ").map(Number);
+
+// 두 개의 데이터 입력받기
+const fs = require("fs");
+const input = fs.readFileSync(0, "utf8").trim().split(" ").map(Number);
+
+const a = input[0];
+const b = input[1];

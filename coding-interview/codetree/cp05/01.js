@@ -1,3 +1,4 @@
+// 정수를 입력받아서 배수 출력하기
 const fs = require("fs");
 const input = fs.readFileSync(0, 'utf8').trim();
 const num = Number(input);
