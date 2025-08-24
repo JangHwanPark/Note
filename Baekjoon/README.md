@@ -1,3 +1,21 @@
+## 웹스톰 사용하여 테스트 (정규식 사용)
+### 로컬(WebStorm, input.txt 테스트용)
+```js
+const fs = require("fs");
+const input = fs.readFileSync("input.txt", "utf8").trim().split(/\r?\n/);
+```
+
+### 백준 제출용 (Linux 서버 환경)
+```js
+const fs = require("fs");
+const input = fs.readFileSync("/dev/stdin", "utf8").trim().split("\n");
+```
+또는
+```js
+const fs = require("fs");
+const input = fs.readFileSync(0, "utf8").trim().split("\n");
+```
+
 ## 한줄 입력
 ```js
 const fs = require("fs");
