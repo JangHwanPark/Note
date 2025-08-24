@@ -1,0 +1,1 @@
+vercel 및 netlify 배포시 GSAP가 동작하지않는 문제.
