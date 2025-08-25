@@ -66,3 +66,30 @@ const arr = input[1].split(" ").map(Number); // [10, 20, 30, 40, 50]
 console.log(n, arr);
 ```
 - \n으로 줄 자르고, 각 줄은 다시 " "로 쪼갬.
+
+<br/>
+
+## N이 문제에서 "고정"되어 있음 (예: 항상 10개 입력)
+```text
+3
+5
+7
+9
+11
+13
+15
+17
+19
+21
+23
+```
+```js
+const fs = require("fs");
+const input = fs.readFileSync(0, "utf8").trim().split("\n");
+
+// 문제에서 항상 10개 입력이라면 그냥 전부 읽으면 됨
+const arr = input.map(Number);
+
+console.log(arr);
+```
+- 이때는 첫 줄에 N이 주어지는 게 아니라, 그냥 문제 설명에 "항상 10개"라고 쓰여 있는 거라서 직접 arr.length가 10인 걸 전제로 처리****
