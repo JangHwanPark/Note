@@ -22,8 +22,6 @@ const fs = require("fs");
 const input = fs.readFileSync(0, "utf8").trim().split(" ");
 const a = Number(input[0]);
 const b = Number(input[1]);
-
-console.log(a + b);
 ```
 - split(" ") 으로 공백 단위 분리.
 
@@ -44,8 +42,6 @@ const input = fs.readFileSync(0, "utf8").trim().split("\n");
 
 const n = Number(input[0]);           // 첫 번째 줄
 const arr = input.slice(1).map(Number); // 나머지 줄들
-
-console.log(n, arr);
 ```
 - split("\n") 으로 줄 단위 분리.
 
@@ -62,8 +58,6 @@ const input = fs.readFileSync(0, "utf8").trim().split("\n");
 
 const n = Number(input[0]); // 5
 const arr = input[1].split(" ").map(Number); // [10, 20, 30, 40, 50]
-
-console.log(n, arr);
 ```
 - \n으로 줄 자르고, 각 줄은 다시 " "로 쪼갬.
 
@@ -89,7 +83,5 @@ const input = fs.readFileSync(0, "utf8").trim().split("\n");
 
 // 문제에서 항상 10개 입력이라면 그냥 전부 읽으면 됨
 const arr = input.map(Number);
-
-console.log(arr);
 ```
 - 이때는 첫 줄에 N이 주어지는 게 아니라, 그냥 문제 설명에 "항상 10개"라고 쓰여 있는 거라서 직접 arr.length가 10인 걸 전제로 처리****
