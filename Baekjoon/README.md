@@ -1,3 +1,18 @@
+## 잡지식
+### 1. fs.readFileSync(0, "utf8")
+- `fs`는 Node.js의 파일 시스템 모듈
+- `readFileSync(경로, 인코딩)`은 파일을 동기적으로 읽음
+- 0은 표준입력(stdin)을 가리키며 utf8은 텍스트로 읽겠다는 의미
+
+### 2. .trim()
+- 입력 마지막에 보통`\n`이 붙는데 이걸 지워줌
+
+### 3. .split(" ")
+- 문자열을 공백`" "`기준으로 잘라서 배열로 만듦
+
+### 4. .map(Number)
+- 배열에 저장된 요소(입력받은건 문자열로 저장됨)를 정수로 바꿈
+
 ## 웹스톰 사용하여 테스트 (정규식 사용)
 ### 로컬(WebStorm, input.txt 테스트용)
 ```js
@@ -47,7 +62,7 @@ const arr = input.slice(1).map(Number); // 나머지 줄들
 
 <br/>
 
-## 한 줄에 여러 개, 여러 줄 입력
+## 한 줄에 여러 개(or 공백으로 구분), 여러 줄 입력
 ```text
 5
 10 20 30 40 50
@@ -60,6 +75,13 @@ const n = Number(input[0]); // 5
 const arr = input[1].split(" ").map(Number); // [10, 20, 30, 40, 50]
 ```
 - \n으로 줄 자르고, 각 줄은 다시 " "로 쪼갬.
+
+<br/>
+
+```js
+const fs = require("fs");
+const input = fs.readFileSync(0, "utf8").trim().split(" ").map(Number);
+```
 
 <br/>
 
