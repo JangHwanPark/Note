@@ -87,6 +87,21 @@ const input = fs.readFileSync(0, "utf8").trim().split(" ").map(Number);
 
 <br/>
 
+## 안전하게 n개만 받기
+```text
+6
+3 1 4 5 6 2
+```
+```js
+const fs = require("fs");
+const tokens = fs.readFileSync(0, "utf8").trim().split(/\s+/).map(Number);
+
+const n = tokens[0];            // 첫 줄의 N
+const arr = tokens.slice(1, 1 + n); // N개만 잘라서 배열로
+```
+
+<br/>
+
 ## N이 문제에서 "고정"되어 있음 (예: 항상 10개 입력)
 ```text
 3
