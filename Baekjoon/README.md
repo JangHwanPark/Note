@@ -40,6 +40,15 @@ const input = fs.readFileSync(0, "utf8").trim().split(" ");
 const a = Number(input[0]);
 const b = Number(input[1]);
 ```
+
+### 숫자로 한줄 입력받기
+```text
+6 2 4 5 4 1
+```
+```js
+const fs = require("fs");
+const n = fs.readFileSync(0, "utf8").trim().split(" ").map(Number);
+```
 - split(" ") 으로 공백 단위 분리.
 
 <br/>
