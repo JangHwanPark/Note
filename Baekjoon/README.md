@@ -135,3 +135,26 @@ const input = fs.readFileSync(0, "utf8").trim().split("\n");
 const arr = input.map(Number);
 ```
 - 이때는 첫 줄에 N이 주어지는 게 아니라, 그냥 문제 설명에 "항상 10개"라고 쓰여 있는 거라서 직접 arr.length가 10인 걸 전제로 처리****
+
+<br/>
+
+## 줄 단위로 주어지는 복합 입력
+```text
+Y 38
+N 36
+Y 40
+...
+```
+```js
+const fs = require("fs");
+const input = fs.readFileSync(0, "utf8").trim().split("\n");
+
+// 각 줄을 공백 단위로 다시 나눔
+for (let i = 0; i < input.length; i++) {
+    const [ch, num] = input[i].split(" ");
+    console.log(ch, Number(num));
+}
+```
+- split("\n") → 입력을 줄 단위로 배열에 저장. (["Y 38", "N 36", "Y 40"])
+- 각 줄을 split(" ") → 문자와 숫자를 분리. ("Y 38" → ["Y", "38"])
+- 문자(ch)는 그대로 두고 숫자(num)는 Number(num)으로 변환.
