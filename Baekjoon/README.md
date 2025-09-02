@@ -59,6 +59,24 @@ let [a, b] = fs.readFileSync(0).toString().trim().split(" ").map(Number)
 
 <br/>
 
+## 2줄 입력 문제 (첫 줄에 n과 m이 주어지고, 두 번째 줄에 n개의 숫자가 주어짐)
+```text
+10 3
+1 2 3 4 5 3 7 8 3 10
+```
+```js
+const fs = require("fs");
+const input = fs.readFileSync(0, "utf8").trim().split("\n");
+
+// 첫 줄 처리
+let [n, m] = input[0].split(" ").map(Number);
+
+// 두 번째 줄 처리
+let arr = input[1].split(" ").map(Number);
+```
+
+<br/>
+
 ## 여러 줄 입력 (줄 단위)
 ```text
 5
