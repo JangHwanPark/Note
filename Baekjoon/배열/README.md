@@ -40,7 +40,6 @@ n.forEach(el => {
 });
 console.log("최대값(-Infinity 초기화):", maxVal2);
 ```
-<br/>
 
 #### 요약
 - 배열 순회하면서 if (el > maxVal)일 때 maxVal을 갱신한다.
@@ -82,7 +81,6 @@ n.forEach(el => {
 });
 console.log("최솟값(Infinity 초기화):", minVal2);
 ```
-<br/>
 
 #### 요약
 - 배열 순회하면서 if (el < minVal)일 때 minVal을 갱신한다.
