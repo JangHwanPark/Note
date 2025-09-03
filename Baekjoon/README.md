@@ -35,7 +35,7 @@ const input = fs.readFileSync(0, "utf8").trim().split("\n");
 
 <br/>
 
-## 한줄 입력
+## 하나의 값을 입력받을 때
 ```js
 const fs = require("fs");
 const input = fs.readFileSync(0, "utf8").trim().split(" ");
@@ -43,7 +43,7 @@ const a = Number(input[0]);
 const b = Number(input[1]);
 ```
 
-### 숫자로 한줄 입력받기
+### 공백으로 구분된 숫자로 한줄 입력받기
 ```text
 6 2 4 5 4 1
 ```
@@ -73,6 +73,14 @@ let [n, m] = input[0].split(" ").map(Number);
 
 // 두 번째 줄 처리
 let arr = input[1].split(" ").map(Number);
+```
+
+<br/>
+
+## 첫 번째 줄에 자연수 n을 입력받고, 그 다음줄부터 n개의 줄에 걸쳐 한 줄에 하나의 값을 입력받을 때
+```js
+const fs = require("fs");
+const [n, ...arr] = fs.readFileSync(0, "utf8").trim().split("\n");
 ```
 
 <br/>
@@ -110,13 +118,6 @@ const n = Number(input[0]); // 5
 const arr = input[1].split(" ").map(Number); // [10, 20, 30, 40, 50]
 ```
 - \n으로 줄 자르고, 각 줄은 다시 " "로 쪼갬.
-
-<br/>
-
-```js
-const fs = require("fs");
-const input = fs.readFileSync(0, "utf8").trim().split(" ").map(Number);
-```
 
 <br/>
 
