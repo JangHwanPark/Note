@@ -181,3 +181,24 @@ for (let i = 0; i < input.length; i++) {
 - split("\n") → 입력을 줄 단위로 배열에 저장. (["Y 38", "N 36", "Y 40"])
 - 각 줄을 split(" ") → 문자와 숫자를 분리. ("Y 38" → ["Y", "38"])
 - 문자(ch)는 그대로 두고 숫자(num)는 Number(num)으로 변환.
+
+<br/>
+
+## 까다로운 입력방법
+```text
+aba 2
+1 1 2
+2 a c
+```
+```js
+const fs = require("fs");
+const input = fs.readFileSync(0, "utf8").trim().split("\n");
+
+const [s, q] = input[0].split(" ");
+const queries = input.slice(1).map(line => line.split(" "));
+```
+첫 줄: 문자열 S 와 정수 Q
+
+"aba" / "2"
+
+이후 Q줄: 질의
