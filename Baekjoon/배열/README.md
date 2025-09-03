@@ -4,7 +4,77 @@
 
 ## Count 배열(배열내 빈도수 세기)
 
+<br/>
+
+## 배열 카운팅
+보통 배열에 있는 값들이 몇 번 나왔는지 세는 것
+
+```js
+[3, 1, 4, 5, 7, 9, 6]
+```
+입력 예시가 이고 범위가 1~10 사이라고 하면
+- 길이 11짜리 배열(count)을 준비 (0으로 초기화). 
+- 각 원소가 나오면 count[값]++. 
+- 마지막에 count[i]가 0이면 한 번도 안 나온 것, 1이면 한 번 나온 것.
+
+## 예시 (JavaScript)
+```js
+const arr = [3, 1, 4, 5, 7, 9, 6];
+const count = new Array(11).fill(0); // 인덱스 0~10, 0으로 초기화
+
+for (let num of arr) {
+  count[num]++; // 해당 숫자 등장 횟수 +1
+}
+
+console.log(count);
+/*
+출력:
+[0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0]
+*/
+```
+예를 들어 count[1] = 1 (1이 한 번 나옴), count[2] = 0 (2는 안 나옴), count[3] = 1, count[7] = 1 …
+
+<br/>
+
 ## 탐색
+
+<br/>
+
+**## 배열 거꾸로 탐색
+N 개의 숫자를 입력받아 거꾸로 출력하는 방법
+```text
+// 입력
+1 2 4 2 5 7 8 5 8 3
+3 8 5 8 7 5 2 4 2 1
+```
+- for 루프를 거꾸로 돌려서 출력하면 됨
+
+```js
+let arr = fs.readFileSync(0).toString().trim().split(" ");
+
+let str = "";
+for (let i = 9; i >= 0; i--) {
+    str += arr[i] + " ";
+}
+
+console.log(str);
+```
+
+- JS 내장함수인 reverse() 함수를 사용해도 됨
+```js
+let arr = [1, 2, 3, 4, 5];
+arr.reverse();
+
+let str = "";
+for (let i = 0; i < 5; i++) {
+    str1 += arr[i] + " ";
+}
+
+>> 5 4 3 2 1
+```
+**
+
+<br/>
 
 ## Min/Max
 ### 최대값 구하기
