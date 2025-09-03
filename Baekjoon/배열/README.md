@@ -5,6 +5,52 @@
 <br/>
 
 ## 인덱스 참조
+인덱스 0 → 1번째 문자(요소)
+
+인덱스 1 → 2번째 문자(요소)
+
+따라서 문제에서 "짝수 번째"라고 하면 인덱스는 홀수가 된다.
+- i % 2 === 0 → 인덱스 기준 짝수 → 사람 기준 홀수 번째
+- i % 2 === 1 → 인덱스 기준 홀수 → 사람 기준 짝수 번째
+
+### 범위 에러(Undefined) 방지
+문자열 길이를 len이라고 할 때,
+
+인덱스는 0 ~ len-1
+
+따라서 i+1, i+2 같은 걸 참조할 땐 반드시 경계 조건을 확인해야 한다.
+
+```js
+if (i + 1 < str.length) {
+  temp += str[i + 1];
+}
+```
+
+사람 기준으로 짝수번째 문자 뽑기
+```js
+const str = "hello";
+let res = "";
+
+// 사람 기준 짝수 → 인덱스 홀수
+for (let i = 1; i < str.length; i += 2) {
+  res += str[i];
+}
+console.log(res); // "el"
+```
+
+짝수 번째 문자 역순 출력
+```js
+const str = "hello";
+let res = "";
+
+// 마지막 인덱스가 짝수냐 홀수냐에 따라 시작점 결정
+let start = (str.length % 2 === 0) ? str.length - 1 : str.length - 2;
+
+for (let i = start; i >= 1; i -= 2) {
+  res += str[i];
+}
+console.log(res); // "le"
+```
 
 <br/>
 
