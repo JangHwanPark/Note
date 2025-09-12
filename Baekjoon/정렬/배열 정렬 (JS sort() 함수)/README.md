@@ -57,3 +57,59 @@ prev - cur라는 단순한 수학 연산으로 위의 if문 로직과 동일한 
 arr.sort((a, b) => a - b);  // 오름차순
 arr.sort((a, b) => b - a);  // 내림차순
 ```
+
+<br/>
+
+## 객체 배열 정렬하기
+배열의 객체 요소들을 정렬하기 위해서는 객체 내의 속성을 키(key)로서 잡고 기준으로 정렬할지를 지정해야 한다.
+
+students 객체 배열내부에는 name, height, weight 라는 속성이 존재하는데 이를 이용하여 각각 이름, 키, 몸무게 순으로 정렬할 수 있다.
+```js
+const students = [
+  { name: 'lee',  height: 167, weight: 40.1 },
+  { name: 'kim',  height: 149, weight: 32.9 },
+  { name: 'park', height: 161, weight: 53.1 },
+  { name: 'choi', height: 183, weight: 70.3 },
+  { name: 'jung', height: 155, weight: 45.7 },
+];
+```
+
+### 키순으로 정렬하기 (숫자로된 객체 배열 정렬)
+```js
+// 내림차순
+students.sort((a, b) => b.height - a.height);
+console.log(students);
+
+// 오름차순
+students.sort((a, b) => a.height - b.height);
+console.log(students);
+```
+
+### 이름순으로 정렬하기 (문자열로된 객체 배열 정렬)
+불리언을 숫자로 강제(true→1, false→0)해서 -1/0/1을 만들어냄
+```js
+function cmpDown(a, b) {
+    if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+    if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+    return 0;
+}
+
+function cmpUp(a, b) {
+    if (a.name.toLowerCase() > b.name.toLowerCase()) return -1;
+    if (a.name.toLowerCase() < b.name.toLowerCase()) return 1;
+    return 0;
+}
+
+// 내림차순
+students.sort(cmpDown);
+console.log(students);
+
+// 오름차순
+students.sort(cmpUp);
+console.log(students);
+```
+
+이걸 간단하게 바꾸면
+```js
+students.sort((a, b) => (a.name > b.name) - (a.name < b.name));
+```
