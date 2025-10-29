@@ -5,7 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="22cc3243-98fa-4ff3-980b-54ac8177935e" name="변경" comment=":memo: K8S 마스터 컴포넌트">
+      <change afterPath="$PROJECT_DIR$/Algorithm/완전 탐색/ 물체 단위로 완전탐색/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Algorithm/완전 탐색/값을 기준으로 완전탐색/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/프로젝트/디에듀/03.지라 프로세스 개선/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/프로젝트/디에듀/03.지라 프로세스 개선/img_1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/프로젝트/디에듀/03.지라 프로세스 개선/img_2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/프로젝트/디에듀/03.지라 프로세스 개선/img_3.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/프로젝트/디에듀/스터디룸 생성/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/프로젝트/디에듀/02.스터디룸 생성/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/프로젝트/디에듀/스터디룸 초대(다이얼 로그)/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/프로젝트/디에듀/01.스터디룸 초대(다이얼 로그)/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,18 +50,21 @@
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/wkd58/WebstormProjects/Note",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.editor",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-WS-243.23654.157" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-WS-252.27397.92" />
       </set>
     </attachedChunks>
   </component>
@@ -69,6 +80,7 @@
       <workItem from="1741687203379" duration="21000" />
       <workItem from="1741701348082" duration="767000" />
       <workItem from="1747010235763" duration="5016000" />
+      <workItem from="1761693996029" duration="23000" />
     </task>
     <task id="LOCAL-00001" summary=":memo: K8S 마스터 컴포넌트">
       <option name="closed" value="true" />
