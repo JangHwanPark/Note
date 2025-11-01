@@ -21,7 +21,7 @@
 
 ```js
 import gsap from "gsap";
-import { ScrollTrigger } from "GSAP/ScrollTrigger/01_ScrollTrigger";
+import {ScrollTrigger} from "Libraries/GSAP/ScrollTrigger/01_ScrollTrigger";
 
 // ScrollTrigger 플러그인 등록
 gsap.registerPlugin(ScrollTrigger);
@@ -97,9 +97,9 @@ gsap.utils.toArray(".item").forEach((item, i) => {
 Next.js 및 React에서 사용하려면 useEffect를 활용해야 합니다.
 
 ```js
-import { useEffect } from "react";
+import {useEffect} from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "GSAP/ScrollTrigger/01_ScrollTrigger";
+import {ScrollTrigger} from "Libraries/GSAP/ScrollTrigger/01_ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -117,8 +117,8 @@ export default function Home() {
   }, []);
   
   return (
-    <div style={{ height: "200vh", padding: "50px" }}>
-      <div className="box" style={{ width: "100px", height: "100px", background: "red" }}></div>
+    <div style={{height: "200vh", padding: "50px"}}>
+      <div className="box" style={{width: "100px", height: "100px", background: "red"}}></div>
     </div>
   );
 }
