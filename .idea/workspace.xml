@@ -4,16 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="22cc3243-98fa-4ff3-980b-54ac8177935e" name="변경" comment=":memo: K8S 마스터 컴포넌트">
-      <change afterPath="$PROJECT_DIR$/Algorithm/완전 탐색/ 물체 단위로 완전탐색/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Algorithm/완전 탐색/값을 기준으로 완전탐색/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/프로젝트/디에듀/03.지라 프로세스 개선/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/프로젝트/디에듀/03.지라 프로세스 개선/img_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/프로젝트/디에듀/03.지라 프로세스 개선/img_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/프로젝트/디에듀/03.지라 프로세스 개선/img_3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/프로젝트/디에듀/스터디룸 생성/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/프로젝트/디에듀/02.스터디룸 생성/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/프로젝트/디에듀/스터디룸 초대(다이얼 로그)/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/프로젝트/디에듀/01.스터디룸 초대(다이얼 로그)/README.md" afterDir="false" />
+    <list default="true" id="22cc3243-98fa-4ff3-980b-54ac8177935e" name="변경" comment=":memo: note - the edu 지라 개선 회고 및 폴더 정리">
+      <change afterPath="$PROJECT_DIR$/프로젝트/디에듀/04.좌충우돌 기획 및 기술부채 청산기/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/프로젝트/디에듀/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/프로젝트/디에듀/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +44,7 @@
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/wkd58/WebstormProjects/Note",
+    "last_opened_file_path": "C:/Users/wkd58/WebstormProjects/Note/프로젝트/디에듀/04.좌충우돌 기획 및 기술부채 청산기",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -61,6 +54,11 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\wkd58\WebstormProjects\Note\프로젝트\디에듀\04.좌충우돌 기획 및 기술부채 청산기" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -90,7 +88,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743037071587</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary=":memo: note - the edu 지라 개선 회고 및 폴더 정리">
+      <option name="closed" value="true" />
+      <created>1761697094314</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1761697094314</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -99,6 +105,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value=":memo: 주소체계" />
     <MESSAGE value=":memo: K8S 마스터 컴포넌트" />
-    <option name="LAST_COMMIT_MESSAGE" value=":memo: K8S 마스터 컴포넌트" />
+    <MESSAGE value=":memo: note - the edu 지라 개선 회고 및 폴더 정리" />
+    <option name="LAST_COMMIT_MESSAGE" value=":memo: note - the edu 지라 개선 회고 및 폴더 정리" />
   </component>
 </project>
