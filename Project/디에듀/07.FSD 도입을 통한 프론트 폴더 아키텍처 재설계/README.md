@@ -83,6 +83,41 @@ sequenceDiagram
 
 위와 같이 데이터의 흐름을 단순화해 “API 응답 → entity 모델링 → feature UI 전달” 순서로 고정했다. feature는 entity를 통해서만 타입을 얻고, UI는 feature가 건네준 모델만 바라보도록 강제해 순환참조를 끊었다.
 
+```mermaid
+graph TB
+    %% BEFORE STRUCTURE
+    subgraph before[Before: dedu-client/study-room 기준]
+        pages_index["pages/study-room/index.tsx<br/>(API + UI + validation 혼합)"] --> types_study["types/study.ts<br/>(raw response 그대로 export)"]
+        pages_index --> utils_date["utils/date.ts<br/>(UI 포맷터 + 도메인 파서 혼합)"]
+        components_card["components/ProfileCard.tsx"] --> types_study
+        utils_date --> components_card
+        components_card --> pages_index
+    end
+
+    %% AFTER STRUCTURE
+    subgraph after["After: FSD + Entities 적용"]
+        feature_list["features/study-room/list/index.tsx"] --> entity_room["entities/study-room/model.ts"]
+        feature_detail["features/study-room/detail/view.tsx"] --> entity_room
+        feature_list --> shared_http["shared/http/client.ts"]
+        entity_room --> shared_utils["shared/utils/date.ts"]
+    end
+
+    pages_index -. 폴더 분리 .-> feature_list
+    types_study -. 도메인 분리 .-> entity_room
+```
+
+위 다이어그램은 dedu-client에서 실제로 순환하던 `study-room` 관련 import를 기준으로 Before/After를 함께 보여준다. 기존에는 pages가 타입·유틸·UI를 직접 끌어다 썼지만, 개편 후에는 entity가 API 응답을 도메인 모델로 변환한 뒤 feature가 그것만 바라보고, 공유 유틸은 shared로 단방향 참조된다.
+
+```text
+// dedu-client 실제 경로 매핑 (Before → After)
+pages/study-room/index.tsx        → features/study-room/list/index.tsx
+types/study.ts (raw 응답)          → entities/study-room/model.ts (domain 변환 + 검증)
+components/ProfileCard.tsx        → shared/components/profile-card (UI 전용 컴포넌트만 유지)
+utils/date.ts (포맷+파서 혼합)      → shared/utils/date.ts (UI 포맷터) + entities/study-room/time.ts (도메인 규칙)
+```
+
+위와 같이 경로를 짝지어 보여주면 “무엇을 어디로 옮겼는가”를 코드 레벨에서 바로 확인할 수 있고, 기능이 entity에 의존하고 shared를 단방향으로 참조한다는 FSD의 기본 원칙이 더 명확해진다.
+
 <br/>
 
 ## 폴더 아키텍처 재편 과정
@@ -121,7 +156,7 @@ src
 graph TB
   subgraph Before: 경계 없음
     pages[pages/*] --직접 import--> types[types/*]
-    pages --직접 import--> utils[utils/* (도메인·UI 혼합)]
+    pages --직접 import--> utils["utils/* (도메인·UI 혼합)"]
     components[components/*] --상태·API 포함--> pages
     pages --서로 타입 재사용--> pages
   end

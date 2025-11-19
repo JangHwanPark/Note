@@ -32,12 +32,12 @@
 
 ```mermaid
 graph LR
-  subgraph Before: 기능↔기능 순환 의존
-    FeatureA[Feature A UI·API·로직 뒤섞임] --공유 타입 없이 직접 참조--> FeatureB[Feature B 내부 타입]
-    FeatureB --직접 의존--> FeatureC[Feature C API 응답 그대로 재사용]
-    FeatureC --역참조·순환--> FeatureA
-    SharedPseudo[shared 라고 불리지만 특정 기능 로직 포함] --암묵적 의존--> FeatureB
-  end
+    subgraph before_cycle["Before: 기능 ↔ 기능 순환 의존"]
+        FeatureA["Feature A<br/>UI·API·로직 뒤섞임"] -- " 공유 타입 없이 직접 참조 " --> FeatureB["Feature B 내부 타입"]
+        FeatureB -- " 직접 의존 " --> FeatureC["Feature C<br/>API 응답 그대로 재사용"]
+        FeatureC -- " 역참조 · 순환 " --> FeatureA
+        SharedPseudo["shared 라고 불리지만<br/>특정 기능 로직 포함"] -- " 암묵적 의존 " --> FeatureB
+    end
 ```
 
 위와 같은 흐름에서 한 기능의 타입이나 API 응답이 변하면 다른 기능이 연쇄적으로 깨지고 shared 안에서도 특정 기능 전용 로직을 건드리다 보니 순환참조와 타입 꼬임이 실제로 발생했다.
@@ -49,6 +49,22 @@ graph LR
 컴포넌트 안에는 `UI`, `도메인 로직`, `API`, `가공`, `검증`, `상태처리`이 모든게 뒤섞여 있었고 라이브러리 영역 역시 공용 함수와 특정 도메인의 로직이 뒤섞여 들어가 있었다.
 
 공통 기능이라고 생각했던 파일 안에 사실 특정 화면 전용 코드가 들어있거나 화면 전용 유틸인 줄 알았던 코드가 또 다른 기능에서 쓰이고 이런 흐름이 계속되면서 `로직의 집` 위치라는 개념조차 사라졌다.
+
+```mermaid
+graph LR
+    subgraph tangled["실제 import 기반 의존 얽힘 · dedu-client 예시"]
+        pages_study["pages/study-room/index.tsx"] --> types_study["types/study.ts"]
+        pages_report["pages/report/useReport.ts"] --> types_study
+        pages_report --> utils_date["utils/date.ts"]
+        utils_date --> components_calendar["components/Calendar.jsx"]
+        components_calendar --> pages_study
+        shared_pseudo["shared/useMember.ts"] -. feature 내부 상태 참조 .-> pages_study
+    end
+
+%% 위 import 화살표가 기능 ↔ 기능, UI ↔ 도메인 로직을 서로 끌어당기며 순환 루프를 형성
+```
+
+위 그래프는 dedu-client(D'edu - mpv-front) 초기 코드에서 실제 import 경로를 따라 그린 예시로, `pages → types → utils → components → pages`로 순환하는 루프가 어떻게 만들어졌는지 보여준다. API 응답을 그대로 노출한 `types/study.ts`에 기능들이 직접 의존했고, UI 유틸이 다시 기능 상태와 결합하면서 의존 방향이 거꾸로 뒤틀렸다.
 
 <br/>
 
