@@ -107,6 +107,9 @@ for (let i = 1; i <= 9; i++) {
   let cnt = 0;
   let limit = 100; // 무한루프 방지용
   
+  // num이 1보다 크면 반복
+  // 종료 조건이 num <= 1일 때 반복이 멈춤
+  // 1 이하가 되면 종료 상태
   while (num > 1 && limit--) {
     if (num % 3 === 0) num = num / 3;
     else if (num % 2 === 0) num = num - 2;
