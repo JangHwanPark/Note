@@ -1,19 +1,26 @@
-# 디에듀 팀 프로젝트 기록
-이 저장소는 디에듀 프로젝트를 진행하면서 경험한 설계, 기획, 협업 방식, 아키텍처, 문서화 등의 다양한 작업을 구조적으로 정리한 아카이브입니다. 각 기능이나 개선 작업이 어떤 문제 인식에서 시작되었고, 어떤 방식으로 해결되었는지, 그 과정에서 어떤 시행착오가 있었는지를 기록하는 것을 목표로 합니다.
+# D'edu (디에듀) Project Archive
+단순 구현을 넘어, 지속 가능한 구조와 문화를 고민합니다.
 
-문서들은 독립적으로 읽을 수 있지만, 전체적으로는 기획 → 개발 → 협업 → 구조 개선의 흐름을 따라 프로젝트가 어떻게 발전해 왔는지 한눈에 확인할 수 있습니다.
+이 저장소는 초기 스타트업 규모(12명)의 사이드 팀 프로젝트 `디에듀`를 진행하며 경험한 기술적 의사결정과 협업 프로세스 개선 과정을 기록한 아카이브입니다.
+
+단순한 기능 구현 코드가 아니라, `왜 이 문제가 발생했는가?`에 대한 문제 인식부터 해결 과정, 그리고 그 결과로 얻은 기술적/문화적 인사이트를 중점적으로 정리했습니다.
 
 ## 프로젝트 관련 링크
-- [D`edu Team Notion](https://gaan.notion.site/12cfbb391d7980d2a686c98584c13d1d?source=copy_link)
-- [프로젝트 리포지토리(Front, dedu-client)](https://github.com/JangHwanPark/dedu-client)
-- [D`edu 배포(prod)](https://www.d-edu.site/)
-- [D`edu 배포(dev)](dev.the-edu.site)
+- **D'edu Team Notion**: [D`edu Team Notion](https://gaan.notion.site/12cfbb391d7980d2a686c98584c13d1d?source=copy_link)
+- **Code Archive**: [Frontend Source (dedu-client)](https://github.com/JangHwanPark/dedu-client)
+  > *본 프로젝트에서 제가 담당하고 작업한 프론트엔드 코드를 정리한 저장소입니다.*
+- **Service (Prod)**: [D`edu 배포(prod)](https://www.d-edu.site/)
+- **Service (Dev)**: [D`edu 배포(dev)](https://dev.the-edu.site)
 
-## 문서 목록 (바로가기)
-- [01.스터디룸 초대(다이얼 로그)](https://github.com/JangHwanPark/Note/tree/main/Project/%EB%94%94%EC%97%90%EB%93%80/01.%EC%8A%A4%ED%84%B0%EB%94%94%EB%A3%B8%20%EC%B4%88%EB%8C%80(%EB%8B%A4%EC%9D%B4%EC%96%BC%20%EB%A1%9C%EA%B7%B8))
-- [02.스터디룸 생성](https://github.com/JangHwanPark/Note/tree/main/Project/%EB%94%94%EC%97%90%EB%93%80/02.%EC%8A%A4%ED%84%B0%EB%94%94%EB%A3%B8%20%EC%83%9D%EC%84%B1)
-- [03.지라 프로세스 개선](https://github.com/JangHwanPark/Note/tree/main/Project/%EB%94%94%EC%97%90%EB%93%80/03.%EC%A7%80%EB%9D%BC%20%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4%20%EA%B0%9C%EC%84%A0)
-- [04.문서작성 프로세스 개선](https://github.com/JangHwanPark/Note/tree/main/Project/%EB%94%94%EC%97%90%EB%93%80/05.%EB%AC%B8%EC%84%9C%EC%9E%91%EC%84%B1%20%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4%20%EA%B0%9C%EC%84%A0)
-- [05.로그인 아키텍처 개선(JWT도입)](https://github.com/JangHwanPark/Note/tree/main/Project/%EB%94%94%EC%97%90%EB%93%80/05.%EB%A1%9C%EA%B7%B8%EC%9D%B8%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98%20%EA%B0%9C%EC%84%A0(JWT%EB%8F%84%EC%9E%85))
-- [06. 명세 부재와 기능 중심 속도전으로 인한 구조적 문제 분석](https://github.com/JangHwanPark/Note/tree/main/Project/%EB%94%94%EC%97%90%EB%93%80/06.%20%EB%AA%85%EC%84%B8%20%EB%B6%80%EC%9E%AC%EC%99%80%20%EA%B8%B0%EB%8A%A5%20%EC%A4%91%EC%8B%AC%20%EC%86%8D%EB%8F%84%EC%A0%84%EC%9C%BC%EB%A1%9C%20%EC%9D%B8%ED%95%9C%20%EA%B5%AC%EC%A1%B0%EC%A0%81%20%EB%AC%B8%EC%A0%9C%20%EB%B6%84%EC%84%9D)
-- [07.FSD 도입을 통한 프론트 폴더 아키텍처 재설계](https://github.com/JangHwanPark/Note/tree/main/Project/%EB%94%94%EC%97%90%EB%93%80/07.FSD%20%EB%8F%84%EC%9E%85%EC%9D%84%20%ED%86%B5%ED%95%9C%20%ED%94%84%EB%A1%A0%ED%8A%B8%20%ED%8F%B4%EB%8D%94%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98%20%EC%9E%AC%EC%84%A4%EA%B3%84)
+## 기록 목록 (Archives)
+> 프로젝트 진행 순서에 따른 기록입니다. 문서들은 독립적으로 읽을 수 있지만, 전체적으로는 기획 → 개발 → 협업 → 구조 개선의 흐름을 따라 프로젝트가 어떻게 발전해 왔는지 한눈에 확인할 수 있습니다.
+- [01.스터디룸 초대(다이얼 로그)](./01.스터디룸%20초대(다이얼%20로그))
+- [02.스터디룸 생성](./02.스터디룸%20생성)
+- [03.지라 프로세스 개선](./03.지라%20프로세스%20개선)
+- [04.문서작성 프로세스 개선](./04.문서작성%20프로세스%20개선)
+- [05.로그인 아키텍처 개선(JWT도입)](./05.로그인%20아키텍처%20개선(JWT도입))
+- [06. 명세 부재와 기능 중심 속도전으로 인한 구조적 문제 분석](./06.%20명세%20부재와%20기능%20중심%20속도전으로%20인한%20구조적%20문제%20분석)
+- [07.FSD 도입을 통한 프론트 폴더 아키텍처 재설계](./07.FSD%20도입을%20통한%20프론트%20폴더%20아키텍처%20재설계)
+- [08. Next.js를 Next.js답게 - BFF 기반 아키텍처 전환기](./08.%20Next.js를%20Next.js답게%20-%20BFF%20기반%20아키텍처%20전환기)
+- [09. SVG Import 오류 해결 → 빌드, 인프라 안정화](./09.%20SVG%20Import%20오류%20해결%20→%20빌드,%20인프라%20안정화)
+- [10. 구조와 문화 함께 만드는 팀 - 마지막 회고](./10.%20구조와%20문화%20함께%20만드는%20팀%20-%20마지막%20회고)
