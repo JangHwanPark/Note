@@ -14,6 +14,10 @@ FSD를 도입하면 다음과 같은 정리가 가능하다. 기능이 독립적
 
 이 판단이 FSD 도입의 결정적 전환점이 되었다.
 
+### 코드 베이스 위치
+- 프론트엔드 리포지토리: [dedu-client](https://github.com/JangHwanPark/dedu-client)
+- 위 리포지토리의 폴더 개편 커밋을 기준으로 이후 리팩토링 사례와 코드 흐름을 검토했다.
+
 <br/>
 
 ## 새로운 구조를 설계하기 시작하다
@@ -48,8 +52,7 @@ FSD의 전체 구성을 이해하는 데 시간은 걸렸지만 이 계층을 �
 이 모든 문제의 공통 원인은 하나였다.
 도메인을 관리하는 계층이 없다는 점이었다.
 
-그래서 나는 FSD의 원칙에 따라 `feature`와 `shared`사이에 `entities`계층을 넣어
-도메인 모델을 프로젝트 전체의 통합 기준으로 만드는 작업을 시작했다.
+그래서 나는 FSD의 원칙에 따라 `feature`와 `shared`사이에 `entities`계층을 넣어 도메인 모델을 프로젝트 전체의 통합 기준으로 만드는 작업을 시작했다.
 
 Entities는 단순한 타입 저장소가 아니라 디에듀의 데이터 흐름을 책임지는 새로운 중추 역할을 맡았다.
 - API 응답을 domain 모델로 변환
@@ -63,51 +66,80 @@ Entities가 도입되자 기능들은 더 이상 서로의 타입을 훔쳐 쓰�
 
 기능 개발은 그 이후의 일이었다. 먼저 데이터의 집을 세우고 그 위에 기능이 올라가는 구조가 만들어졌다. 그리고 그때부터 디에듀는 비로소 확장 가능한 형태로 바뀌기 시작했다.
 
+```mermaid
+sequenceDiagram
+    participant API as 백엔드 API
+    participant Entities as Entities 계층
+    participant Features as Feature 로직
+    participant UI as UI/컴포넌트
+
+    API->>Entities: raw response
+    Entities->>Entities: 도메인 변환·검증·규칙 적용
+    Entities->>Features: domain model 전달
+    Features->>UI: 화면 표현을 위한 props/state 가공
+    UI-->>Features: 사용자 액션
+    Features-->>API: 필요한 경우 API 호출
+```
+
+위와 같이 데이터의 흐름을 단순화해 “API 응답 → entity 모델링 → feature UI 전달” 순서로 고정했다. feature는 entity를 통해서만 타입을 얻고, UI는 feature가 건네준 모델만 바라보도록 강제해 순환참조를 끊었다.
+
+<br/>
+
 ## 폴더 아키텍처 재편 과정
+FSD의 원칙과 entities 계층의 필요성을 이해하고 나자 이제는 실제로 이 구조를 디에듀에 적용해야 했다. 그리고 이 과정은 내가 예상했던 것보다 훨씬 섬세한 판단을 요구했다.
 
-FSD의 원칙과 entities 계층의 필요성을 이해하고 나자
-이제는 실제로 이 구조를 디에듀에 적용해야 했다.
-그리고 이 과정은 내가 예상했던 것보다 훨씬 섬세한 판단을 요구했다.
+이 작업만 해도 시간이 꽤 걸렸다. 왜냐하면 디에듀의 파일들은 대부분 한 파일 안에 모든 것이 뒤섞여 있었기 때문이다. 이 문제를 하나씩 분해하면서 처음으로 `정말 이 프로젝트는 구조를 다시 만들어야 한다`는 확신이 생겼다.
 
-단순히 폴더를 몇 개 나누는 것이 아니라
-기능과 도메인 사이의 경계를 다시 정의하는 작업이었기 때문이다.
+그렇게 기능과 도메인을 분리한 뒤 나는 다음 기준에 따라 폴더 구조를 새로 설계했다.
 
-나는 먼저 기존 파일들을 전부 훑으면서
-각 코드 조각이
-UI인지,
-도메인 로직인지,
-API 요청인지,
-공통 로직인지,
-상태 관리인지,
-하나씩 분류했다.
+- UI는 features 내부에만 존재해야 한다 
+- 도메인 로직과 데이터 구조는 entities가 책임진다 
+- 공통 로직은 shared에서 관리한다 
+- API 호출은 feature에서만 이루어지고 
+- 응답 모델링은 entity에서만 이루어진다
 
-이 작업만 해도 시간이 꽤 걸렸다.
-왜냐하면 디에듀의 파일들은 대부분 한 파일 안에 모든 것이 뒤섞여 있었기 때문이다.
-이 문제를 하나씩 분해하면서
-처음으로 “정말 이 프로젝트는 구조를 다시 만들어야 한다”는 확신이 생겼다.
-
-그렇게 기능과 도메인을 분리한 뒤
-나는 다음 기준에 따라 폴더 구조를 새로 설계했다.
-
-UI는 features 내부에만 존재해야 한다
-
-도메인 로직과 데이터 구조는 entities가 책임진다
-
-공통 로직은 shared에서 관리한다
-
-API 호출은 feature에서만 이루어지고
-
-응답 모델링은 entity에서만 이루어진다
-
-이 구조가 완성되자
-처음으로 디에듀 코드는
-**“각자의 자리에 머무르는 질서”**라는 것을 갖기 시작했다.
-
+이 구조가 완성되자 처음으로 디에듀 코드는 src  각자의 자리에 머무르는 질서라는 것을 갖기 시작했다.
+  
 폴더 아키텍처의 1차 개편안은 이런 모양새였다.
+  ```js
+// 개편 전 실제 혼재 사례 (일부)
+src
+  components
+    Calendar.jsx          // 특정 화면 전용 상태·API 호출 포함
+    ProfileCard.tsx       // member 타입을 내장하고 다른 화면이 참조
+  utils
+    date.ts               // UI 포맷터와 API 파서가 섞임
+  pages
+    study-room
+      index.tsx           // API 호출 + 도메인 변환 + UI가 한 파일
+    report
+      useReport.ts        // 다른 feature의 타입을 import
+  types
+    study.ts              // API 응답 그대로 export, 여러 feature에서 재정의
+```
+```mermaid
+graph TB
+  subgraph Before: 경계 없음
+    pages[pages/*] --직접 import--> types[types/*]
+    pages --직접 import--> utils[utils/* (도메인·UI 혼합)]
+    components[components/*] --상태·API 포함--> pages
+    pages --서로 타입 재사용--> pages
+  end
+
+  subgraph After: FSD + Entities
+    features[features/*]
+    entities[entities/*]
+    shared[shared/*]
+    features --> entities
+    features --> shared
+    entities --> shared
+  end
+```
+
 ```js
-src  
-  entities  
-    member  
+src
+  entities
+    member
     study-room  
     study-note  
   features  
@@ -124,6 +156,8 @@ src
     components
 ```
 
+<br/>
+
 ## 실제 리팩토링 중 겪은 문제들
 폴더 구조를 정리하고 나서야 이제 본격적인 리팩토링이 시작됐다. 그리고 이 과정은 정말 말 그대로 전쟁이었다. 가장 먼저 터진 문제는 타입이었다. 기존 기능은 서로의 타입을 몰래 참조하고 있었고 API 응답 형태를 화면마다 다르게 해석하고 있었다. 이걸 entities로 통합하는 순간 기존 기능의 상당수가 에러를 뿜기 시작했다.
 
@@ -138,6 +172,8 @@ src
 또 한 가지 문제는 공통 로직을 shared로 이동했을 때 생겼다. 기존 기능들은 shared라는 개념 없이 그냥 눈에 보이는 파일에서 필요한 로직을 그대로 가져다 썼기 때문에 폴더 구조 변경만으로도 기능들이 무너졌다.
 
 경로가 바뀌고 의존 방향이 바뀌고 도메인 모델이 생기면서 화면에서 직접 데이터를 처리할 수 없게 되자 UI 컴포넌트들이 대거 오류를 일으켰다. 리팩토링 내내 하나를 고치면 다른 하나가 깨지고 그걸 고치면 또 다른 기능이 터졌다. 하지만 그 혼란 속에서도 구조는 점점 더 정제되고 코드의 책임이 확실히 자리 잡기 시작했다.
+
+<br/>
 
 ## 개편 이후 체감된 변화
 리팩토링이 어느 정도 안정되기 시작하면서 변화는 예상 이상으로 확실하게 느껴졌다.
@@ -163,6 +199,8 @@ entities → features → shared
 네 번째는 리뷰와 유지보수가 쉬워졌다는 점이다.
 
 코드를 읽는 시간이 줄었고 어떤 파일이 어떤 책임을 가져야 하는지 이제는 자연스럽게 알게 되었다. 아무리 작은 변화라도 코드 전체의 안정성이 눈에 띄게 높아졌다.
+
+<br/>
 
 ## 최종 회고
 돌아보면 이번 아키텍처 개편 작업은 단순히 폴더 구조를 바꾸는 일이 아니었다.
