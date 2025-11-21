@@ -4,26 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="22cc3243-98fa-4ff3-980b-54ac8177935e" name="변경" comment=":memo: note - the edu 지라 개선 회고 및 폴더 정리">
-      <change afterPath="$PROJECT_DIR$/Architecture/BFF(Backend For Frontend)/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Architecture/FSD(Feature-Sliced Design)/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Architecture/아키텍처 종류/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CS_Basic/함수 설계 원리(Function Design Principles)/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JavaScript/클로저와 변수참조/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NextJS/CSR과 SSR/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NextJS/Next.js에서 React Query 요청 위치 정리(서버 vs 클라이언트)/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NextJS/레이아웃 children에 props를 왜 못내릴까/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/디에듀/05.로그인 아키텍처 개선(JWT도입)/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/디에듀/06.FSD 도입을 통한 프론트 폴더 아키텍처 재설계(ing...)/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/디에듀/NextJS BFF 적용해보기/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/디에듀/SVG 임포트 (React Error #130)및 Next.js의 빌드 설정 문제/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/React/01. 상태관리가 뭘까/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/React/02. 서버상태와 클라이언트 상태/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/React/리렌더링과 최적화(렌더링 제어)/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/React/리액트 Fragment가 뭘까/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Algorithm/완전 탐색/상황을 일일이 가정해보고 진행하는 완전탐색/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/Algorithm/완전 탐색/상황을 일일이 가정해보고 진행하는 완전탐색/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JavaScript/Closuer.md" beforeDir="false" afterPath="$PROJECT_DIR$/JavaScript/클로저와 변수참조/Closuer.md" afterDir="false" />
-    </list>
+    <list default="true" id="22cc3243-98fa-4ff3-980b-54ac8177935e" name="변경" comment=":memo: note - the edu 지라 개선 회고 및 폴더 정리" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -41,7 +22,7 @@
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/JangHwanPark/Note.git",
-    "accountId": "2e390a6f-a7b6-4695-bd02-2431377b25bb"
+    "accountId": "7f45bf63-005b-4ad5-b4c6-97082fed3636"
   }
 }]]></component>
   <component name="ProjectColorInfo">{
@@ -78,8 +59,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.27397.103" />
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.27397.103" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-WS-252.27397.92" />
       </set>
     </attachedChunks>
   </component>
@@ -97,6 +77,7 @@
       <workItem from="1747010235763" duration="5016000" />
       <workItem from="1761693996029" duration="23000" />
       <workItem from="1763340366774" duration="233000" />
+      <workItem from="1763598803798" duration="22000" />
     </task>
     <task id="LOCAL-00001" summary=":memo: K8S 마스터 컴포넌트">
       <option name="closed" value="true" />
