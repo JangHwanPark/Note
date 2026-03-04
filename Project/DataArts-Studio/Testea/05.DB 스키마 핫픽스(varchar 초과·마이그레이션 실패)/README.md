@@ -46,7 +46,7 @@ bfdccc7  On dev: dev-wip-before-hotfix
 bf6ca3a  hotfix(schema): varchar → text 컬럼 타입 변경으로 문자열 초과 오류 수정
 ```
 
-컬럼을 두 가지 기준으로 분류해서 처리했다:
+컬럼을 두 가지 기준으로 분류해서 처리했다.
 
 **콘텐츠성 컬럼 → `text`로 변경:**
 
@@ -59,7 +59,7 @@ bf6ca3a  hotfix(schema): varchar → text 컬럼 타입 변경으로 문자열 �
 
 사용자가 자유롭게 입력하는 필드는 길이 제한이 불필요하다. `text` 타입이 적합하다.
 
-**enum성 컬럼 → `varchar(length)` 명시적 지정:**
+**enum성 컬럼 → `varchar(length)` 명시적 지정**
 
 | 테이블 | 컬럼 | length |
 |---|---|---|
@@ -69,7 +69,7 @@ bf6ca3a  hotfix(schema): varchar → text 컬럼 타입 변경으로 문자열 �
 
 상태값·분류값은 길이가 예측 가능하므로 명시적 제한을 두는 것이 맞다. 잘못된 데이터 유입을 DB 레벨에서 방지할 수 있다.
 
-마이그레이션 SQL:
+마이그레이션 SQL
 
 ```sql
 -- PostgreSQL에서 ALTER TYPE varchar → text는 데이터 손실 없이 즉시 수행됩니다.
@@ -99,7 +99,7 @@ ALTER TABLE "test_case_templates" ALTER COLUMN "test_type" SET DATA TYPE varchar
 
 ## 근본 원인 분석
 
-이 이슈는 세 가지 문제가 겹쳐서 발생했다:
+이 이슈는 세 가지 문제가 겹쳐서 발생했다.
 
 **1. ORM 기본값에 대한 가정**
 

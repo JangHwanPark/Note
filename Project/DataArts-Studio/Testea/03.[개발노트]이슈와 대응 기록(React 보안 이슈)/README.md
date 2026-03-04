@@ -32,7 +32,7 @@ Next.js App Router가 RSC 프로토콜을 사용하는 과정에서 발생하는
 
 ### 왜 Testea에 치명적이었나
 
-Testea는 이 취약점의 모든 조건을 충족하고 있었다:
+Testea는 이 취약점의 모든 조건을 충족하고 있었다.
 
 1. **Next.js App Router** 사용 — Pages Router는 영향 없지만, App Router는 직격
 2. **React Server Components** 전면 활용 — 모든 페이지가 기본적으로 서버 컴포넌트
@@ -56,7 +56,7 @@ Testea는 이 취약점의 모든 조건을 충족하고 있었다:
 
 CVE-2025-66478(Next.js 측 취약점)이 먼저 확인되어, Next.js를 16.0.3에서 16.0.7로 업데이트했다. 이 시점에서는 Next.js 측 패치가 React 코어의 문제까지 완전히 해결하지는 못했다.
 
-**변경 내역:**
+**변경 내역**
 - `next`: 16.0.3 → 16.0.7
 - `@types/testing-library__jest-dom` 제거 (자체 타입 내장으로 불필요)
 
@@ -69,7 +69,7 @@ CVE-2025-66478(Next.js 측 취약점)이 먼저 확인되어, Next.js를 16.0.3�
 
 React 코어 패치가 릴리스된 후, 전체 의존성을 일괄 업데이트했다. 커밋 메시지에 `[긴급]` 태그를 붙인 유일한 커밋이다.
 
-**핵심 변경:**
+**핵심 변경**
 
 | 패키지 | Before | After |
 |---|---|---|
@@ -77,7 +77,7 @@ React 코어 패치가 릴리스된 후, 전체 의존성을 일괄 업데이트
 | `react-dom` | 19.2.0 | **19.2.3** |
 | `next` | 16.0.7 | **16.0.10** |
 
-**동시 업데이트된 의존성:**
+**동시 업데이트된 의존성**
 
 | 패키지 | Before | After |
 |---|---|---|
@@ -132,7 +132,7 @@ HTTP POST 요청 하나로 서버 장악이 가능했다. 특별한 도구나 �
 
 ## 이 프로젝트에서 왜 Server Actions가 위험했나
 
-Testea의 Server Actions 사용 범위를 보면 왜 이 취약점이 치명적이었는지 체감할 수 있다:
+Testea의 Server Actions 사용 범위를 보면 왜 이 취약점이 치명적이었는지 체감할 수 있다.
 
 ```
 src/entities/milestone/api/server-actions.ts
