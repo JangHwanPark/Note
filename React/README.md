@@ -1,0 +1,1 @@
+- [React TypeScript 치트시트](https://react-typescript-cheatsheet.netlify.app/)
