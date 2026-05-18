@@ -12,14 +12,12 @@
 
 ### 테스트 실행 명령어
 ```text
+// apps/web 디렉터리에서 실행 (root에서 안됨)
 // 전체 테스트
 npx playwright test
 
 // 특정 디렉터리에서
 pnpm e2e e2e/tests/access/project-access.spec.ts
-
-// 레포 루트에서 실행
-pnpm --filter web e2e e2e/tests/access/project-access.spec.ts
 
 // 파일 내부에서 제목으로 특정 테스트 1개
 pnpm e2e e2e/tests/access/project-access.spec.ts -g "title contains"
@@ -29,4 +27,14 @@ pnpm e2e e2e/tests/access/project-access.spec.ts --headed
 
 // UI 모드
 pnpm e2e:ui e2e/tests/access/project-access.spec.ts
+
+// ── 레포 루트(어디서나) 실행
+// 전체 테스트
+pnpm --filter web exec playwright test
+
+// 인증 setup 만 따로 돌리기
+pnpm --filter web exec playwright test --project=setup
+
+// 레포 루트에서 실행
+pnpm --filter web e2e e2e/tests/access/project-access.spec.ts
 ```
