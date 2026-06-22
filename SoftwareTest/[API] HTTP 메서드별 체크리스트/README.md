@@ -1,7 +1,7 @@
 # HTTP 메서드별 API 테스트 체크리스트
 Postman 기준으로 메서드별 검증 포인트와 예시 코드를 정리한 노트다.
 
-예시는 Restful-booking API의 booking 리소스를 기준으로 작성했다.
+예시는 [Restful-booking](https://restful-booker.herokuapp.com/) API의 booking 리소스를 기준으로 작성했다.
 
 ## GET (조회)
 목적은 데이터를 올바르게 반환하는지 확인하는 것이다.
