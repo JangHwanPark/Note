@@ -14,7 +14,7 @@ select
     u.uid, u.uname, o.oid
 from
     User as u
-inner join Orders as o on u.uid = o.oid;
+inner join Orders as o on u.uid = o.uid;
 ```
 
 ### <br>Left Join
@@ -53,5 +53,5 @@ select
     u.uid, o.oid
 from
     User as u
-full join Orders as o on u.uid = o.oid;
+full join Orders as o on u.uid = o.uid;
 ```

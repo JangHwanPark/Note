@@ -24,7 +24,7 @@ const pathName = useMemo(() => pathMap[location.pathname] || "페이지 없음",
 ### 배열 정렬 캐싱 예제
 list가 변경되지 않으면 정렬 연산을 다시 수행하지 않음
 ```js
-const sortedList = useMemo(() => list.sort((a, b) => a.value - b.value), [list]);
+const sortedList = useMemo(() => [...list].sort((a, b) => a.value - b.value), [list]);
 ```
 
 
@@ -89,7 +89,7 @@ useEffect(() => {
   - API에서 받은 데이터를 정렬/필터링하여 캐싱
 ```js
 const sortedData = useMemo(() => {
-  return data.sort((a, b) => a.name.localeCompare(b.name));
+  return [...data].sort((a, b) => a.name.localeCompare(b.name));
 }, [data]);
 ```
 

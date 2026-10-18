@@ -24,38 +24,11 @@
 | parser    | auto | 사용할 파서 (babel, typescript, json, html 등) |
 | filepath  | ""   | 파일 경로를 기반으로 적절한 파서를 선택                   |
 
-## JSON 관련 속성
-| 속성                | 기본값   | 설명                       |
-|-------------------|-------|--------------------------|
-| jsonRecursiveSort | false | JSON 내의 키를 재귀적으로 정렬할지 여부 |
-| jsonSortKeys      | false | JSON 객체 키를 정렬할지 여부       |
-
-## 마크다운 관련 속성
-| 속성                            | 기본값        | 설명                                                 |
-|-------------------------------|------------|----------------------------------------------------|
-| proseWrap                     | "preserve" | 마크다운 텍스트 자동 줄바꿈 설정 ("always", "never", "preserve") |
-| markdownWhitespaceSensitivity | "strict"   | 마크다운 공백 처리 방식                                      |
-
-## HTML & JSX 관련 속성
-| 속성                        | 기본값   | 설명                                        |
-|---------------------------|-------|-------------------------------------------|
-| htmlWhitespaceSensitivity | "css" | HTML 공백 처리 방식 ("css", "strict", "ignore") |
-| jsxSingleQuote            | false | JSX에서 작은 따옴표(')를 사용할지 여부                  |
-| bracketSameLine           | false | JSX에서 >를 마지막 줄에 배치                        |
-
-## TypeScript & Flow 관련 속성
-| 속성                              | 기본값   | 설명                          |
-|---------------------------------|-------|-----------------------------|
-| typescript.format.imports.sort  | false | TypeScript의 import 문 정렬 여부  |
-| typescript.format.imports.group | false | import 문을 그룹화할지 여부          |
-| flowStrictMode                  | false | Flow의 @flow strict 모드 적용 여부 |
-
 ## Prettier 실행 관련 옵션
 | 속성               | 기본값   | 설명                                                          |
 |------------------|-------|-------------------------------------------------------------|
 | requirePragma    | false | /** @prettier */ 또는 /* prettier-ignore */ 같은 주석이 있어야만 포맷 적용 |
 | insertPragma     | false | 파일 상단에 @format 같은 주석을 자동 추가                                 |
-| disableLanguages | []    | Prettier가 적용되지 않을 언어 목록                                     |
 
 ## .prettierignore 파일 (Prettier가 무시할 파일 설정)
 .prettierignore 파일을 사용하면 특정 파일을 포맷팅 대상에서 제외할 수 있습니다.

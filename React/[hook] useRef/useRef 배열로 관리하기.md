@@ -65,7 +65,7 @@ gsap.to(elements, {
   duration: 1,
 });
 ```
-- utils.toArray()는 NodeList를 배열로 변환하여 쉽게 반복문을 돌릴 수 있음 '
+- utils.toArray()는 NodeList를 배열로 변환하여 쉽게 반복문을 돌릴 수 있음
 - stagger 옵션을 활용하면 각 요소를 순차적으로 애니메이션 적용 가능
 - 같은 애니메이션을 단순하게 여러 요소에 적용할 때 적합
 

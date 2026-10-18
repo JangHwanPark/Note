@@ -33,6 +33,14 @@ const fs = require("fs");
 const input = fs.readFileSync(0, "utf8").trim().split("\n");
 ```
 
+### 백준 Node.js 입력 템플릿
+```js
+// 백준 JS 입력 템플릿
+const fs = require('fs');
+const input = fs.readFileSync('/dev/stdin').toString().trim().split('\n');
+const [n, m] = input[0].split(' ').map(Number);
+```
+
 <br/>
 
 ## 하나의 값을 입력받을 때
@@ -157,7 +165,7 @@ const input = fs.readFileSync(0, "utf8").trim().split("\n");
 // 문제에서 항상 10개 입력이라면 그냥 전부 읽으면 됨
 const arr = input.map(Number);
 ```
-- 이때는 첫 줄에 N이 주어지는 게 아니라, 그냥 문제 설명에 "항상 10개"라고 쓰여 있는 거라서 직접 arr.length가 10인 걸 전제로 처리****
+- 이때는 첫 줄에 N이 주어지는 게 아니라, 그냥 문제 설명에 "항상 10개"라고 쓰여 있는 거라서 직접 arr.length가 10인 걸 전제로 처리
 
 <br/>
 

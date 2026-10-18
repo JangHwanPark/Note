@@ -27,7 +27,7 @@
 - `animation-duration`: 애니메이션이 진행되는 시간을 지정한다.
 - `animation-timing-function`: 애니메이션의 속도 곡선을 지정한다.
 - `animation-delay`: 애니메이션이 시작되기 전 대기시간을 지정한다.
-- `animation-iteration-count`: 애니메이션 반복횟수를 지정한다.
+- `animation-iteration-count`: 애니메이션 반복횟수를 지정한다. (숫자, infinite)
 - `animation-direction`: 애니메이션 진행 방향을 지정한다. (normal, reverse, alternate, alternate-reverse)
 - `animation-fill-mode`: 애니메이션이 끝난 후 상태를 지정한다. (none, forwards, backwards, both)
 
@@ -43,4 +43,3 @@
 - `ease-out`: 빠르게 시작해서 점점 느려진다.
 - `ease-in-out`: 천천히 시작해서 중간에 빨라지고 다시 천천히 끝난다.
 - `cubic-bezier()`: 사용자가 속도 곡선을 정의 할 수 있다.
-- `infinite`: 애니메이션의 반복 횟수를 지정할 때 사용되는 값으로 애니메이션을 무한하게 반복한다.

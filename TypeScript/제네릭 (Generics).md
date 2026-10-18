@@ -176,7 +176,7 @@ function createPair<T = string, U = number>(a: T, b: U) {
   return { a, b };
 }
 
-const pair1 = createPair(); // { a: string, b: number } (기본값 적용)
+const pair1 = createPair<boolean>(true, 10); // { a: boolean, b: number } (U는 기본값 적용)
 const pair2 = createPair<boolean, string>(true, "Yes"); // { a: boolean, b: string }
 ```
 제네릭의 기본값을 설정하여 더 유연하게 사용할 수 있다.

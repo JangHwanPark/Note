@@ -100,11 +100,11 @@ function cmpUp(a, b) {
     return 0;
 }
 
-// 내림차순
+// 오름차순
 students.sort(cmpDown);
 console.log(students);
 
-// 오름차순
+// 내림차순
 students.sort(cmpUp);
 console.log(students);
 ```

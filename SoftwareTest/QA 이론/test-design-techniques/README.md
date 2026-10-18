@@ -48,9 +48,7 @@
 ## 경험 기반 기법
 
 ### 1. 탐색적 테스팅 (Exploratory)
-- 학습 + 설계 + 실행을 **동시에**
-- TC 미리 만들지 않음
-- **살충제 패러독스 해결책**
+[탐색적 테스트](../exploratory-testing/README.md) 노트에 정리했다.
 
 ### 2. 오류 추측 (Error Guessing)
 - 결함이 자주 발생하는 곳을 직관으로 추측
@@ -66,11 +64,11 @@
 
 ## 실무 적용 우선순위
 - 사전과제에서 가장 많이 묻는 건 **경계값 분석** + **상태전이** + **결정 테이블**
-- 본 레포 [T-01](../../../../Test-Automation/assignment/testcases/tc01/README.md) 의 작성 조건에 "경계값 케이스 명시" 가 들어있는 이유
+- Test-Automation 레포 [T-01](https://github.com/JangHwanPark/Test-Automation/blob/main/QA-Portfolio/assignment/testcases/tc01/README.md) 의 작성 조건에 "경계값 케이스 명시" 가 들어있는 이유
 - 크림 입찰/검수 같은 상태 흐름 도메인은 **상태전이** 가 핵심
 
 ## 관련 개념
 - [Black / White / Grey Box](../black-white-grey-box/README.md) — 기법 분류 기준
 - [커버리지](../coverage/README.md) — White box 기법 상세
 - [살충제 패러독스](../pesticide-paradox/README.md) — 탐색적 테스팅 필요 이유
-- [T 카테고리 (TC 작성)](../../../../Test-Automation/assignment/testcases/README.md) — 기법 실전 적용
+- [T 카테고리 (TC 작성)](https://github.com/JangHwanPark/Test-Automation/blob/main/QA-Portfolio/assignment/testcases/README.md) — 기법 실전 적용

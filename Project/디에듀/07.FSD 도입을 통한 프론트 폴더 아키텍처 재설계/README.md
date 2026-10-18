@@ -86,7 +86,7 @@ sequenceDiagram
 ```mermaid
 graph TB
     %% BEFORE STRUCTURE
-    subgraph before[Before: dedu-client/study-room 기준]
+    subgraph before["Before: dedu-client/study-room 기준"]
         pages_index["pages/study-room/index.tsx<br/>(API + UI + validation 혼합)"] --> types_study["types/study.ts<br/>(raw response 그대로 export)"]
         pages_index --> utils_date["utils/date.ts<br/>(UI 포맷터 + 도메인 파서 혼합)"]
         components_card["components/ProfileCard.tsx"] --> types_study
@@ -154,14 +154,14 @@ src
 ```
 ```mermaid
 graph TB
-  subgraph Before: 경계 없음
+  subgraph before["Before: 경계 없음"]
     pages[pages/*] --직접 import--> types[types/*]
     pages --직접 import--> utils["utils/* (도메인·UI 혼합)"]
     components[components/*] --상태·API 포함--> pages
     pages --서로 타입 재사용--> pages
   end
 
-  subgraph After: FSD + Entities
+  subgraph after["After: FSD + Entities"]
     features[features/*]
     entities[entities/*]
     shared[shared/*]

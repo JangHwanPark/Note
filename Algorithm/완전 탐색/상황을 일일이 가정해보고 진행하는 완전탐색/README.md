@@ -190,7 +190,7 @@ for (let i = 0; i < n; i++) {
     arr[i] /= 2;
 }
 
-console.log(maxDiff);
+console.log(res);
 ```
 #### 일반 패턴 - 먼저 보여주고 예시 코드 배치
 ```js
@@ -258,7 +258,7 @@ for (let d = 0; d < n; d++) {          // 1.두 배 인덱스 선택
       score += Math.abs(remain[i + 1] - remain[i]);
     }
 
-    res = Math.max(best, score);      // 7.결과 갱신
+    res = Math.max(res, score);      // 7.결과 갱신
   }
 }
 
@@ -271,11 +271,7 @@ console.log(res);
 </details>
 
 ## 루프 선택 기준 (for vs while)
-- 반복 횟수 명확(N번 고정) → for 
-- Ex: 명령 N개를 순서대로 처리
-
-- 종료 시점 불명확(상태가 만들 때까지) → while 
-- Ex: n이 1이 될 때까지, 빙산이 분리될 때까지
+반복 횟수가 정해져 있는지에 따라 for와 while을 고르는 기준은 [반복문](../../반복문/README.md)에 정리했다.
 
 ## 상태(state) 다루기 — 배열/객체 변경 vs 복사
 시뮬 시나리오마다 상태를 직접 수정(in-place) 할지, 복사(copy-on-write) 할지 결정해야 한다.

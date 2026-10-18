@@ -18,12 +18,12 @@
 
 ## 캐싱의 종류
 ### 클라이언트 측 캐싱
-브라우저 캐시: HTML, CSS, JavaScript 등의 정적 자원을 브라우저에 저장
-LocalStorage/SessionStorage: 자바스크립트를 이용해 데이터 저장 및 재사용
+- 브라우저 캐시: HTML, CSS, JavaScript 등의 정적 자원을 브라우저에 저장
+- LocalStorage/SessionStorage: 자바스크립트를 이용해 데이터 저장 및 재사용
 
 ### 서버 측 캐싱
-메모리 캐시: Redis, Memcached 등 인메모리 데이터 저장소를 사용
-파일 시스템 캐시: 파일 단위로 결과를 저장하여 재사용
+- 메모리 캐시: Redis, Memcached 등 인메모리 데이터 저장소를 사용
+- 파일 시스템 캐시: 파일 단위로 결과를 저장하여 재사용
 
 ### CDN 캐싱
 정적 자원을 전 세계 분산 서버에 저장해 사용자에게 가까운 서버에서 제공

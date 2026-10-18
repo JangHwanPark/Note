@@ -45,5 +45,5 @@
 - **자동화 회귀 테스트**: P0~P1 영역은 자동화 1순위
 
 ## 관련 개념
-- [B 카테고리 (버그 리포트)](../../../../Test-Automation/assignment/bugreports/README.md) — 양식에 Severity / Priority 분리 필드
-- [P 카테고리 (시나리오 우선순위)](../../../../Test-Automation/assignment/scenarios/README.md) — P0~P3 분포 사고
+- [B 카테고리 (버그 리포트)](https://github.com/JangHwanPark/Test-Automation/blob/main/QA-Portfolio/assignment/bugreports/README.md) — 양식에 Severity / Priority 분리 필드
+- [P 카테고리 (시나리오 우선순위)](https://github.com/JangHwanPark/Test-Automation/blob/main/QA-Portfolio/assignment/scenarios/README.md) — P0~P3 분포 사고

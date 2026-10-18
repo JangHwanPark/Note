@@ -31,7 +31,7 @@
 ## 실무 적용
 - QA 기능 테스트 = Black box 중심
 - SDET / 자동화 = White / Grey 자주 사용
-- API 테스트 ([packages/api-suite/](../../../packages/api-suite/)) = Grey Box 대표 예시
+- API 테스트 ([Test-Automation/packages/api-suite](https://github.com/JangHwanPark/Test-Automation/tree/main/packages/api-suite)) = Grey Box 대표 예시
 
 ## 관련 개념
 - [테스트 설계 기법](../test-design-techniques/README.md) — Black box 기법 상세

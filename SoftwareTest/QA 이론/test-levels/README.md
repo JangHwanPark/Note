@@ -30,7 +30,7 @@
 - **전체 시스템 동작** 검증 (End-to-End)
 - 사용자 시나리오 기반
 - **기능 + 비기능** 모두 포함 (성능 / 보안 / 호환성)
-- 본 레포의 [packages/playwright-suite/](../../../packages/playwright-suite/), [apps/demo-web/](../../../apps/demo-web/) 이 여기 해당
+- Test-Automation 레포의 [packages/playwright-suite](https://github.com/JangHwanPark/Test-Automation/tree/main/packages/playwright-suite), [apps/demo-web](https://github.com/JangHwanPark/Test-Automation/tree/main/apps/demo-web) 이 여기 해당
 
 ## 인수 테스트 (Acceptance)
 - **사용자 / 비즈니스 관점**에서 요구사항 충족 여부

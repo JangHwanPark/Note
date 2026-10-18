@@ -45,9 +45,9 @@ const HomeFeatureItem = ({
 
   return (
     <li
-      {/* ref 콜백 함수는 인자로 해당 DOM 요소(el)를 받는데, */}
-      {/* 이 el은 DOM 요소이거나 컴포넌트가 언마운트될 때는 null이 될 수 있다. */}
-      {/* 따라서 HTMLLIElement | null로 타입을 명시하는 것이 좋다. */}
+      /* ref 콜백 함수는 인자로 해당 DOM 요소(el)를 받는데, */
+      /* 이 el은 DOM 요소이거나 컴포넌트가 언마운트될 때는 null이 될 수 있다. */
+      /* 따라서 HTMLLIElement | null로 타입을 명시하는 것이 좋다. */
       ref={(el: HTMLLIElement | null) => { // 콜백 함수의 el 타입도 명시적으로 지정
         if (el) {
           contentRef.current[index] = el;

@@ -50,5 +50,5 @@ P0~P3 분류 시 "**일정 내 모든 결함을 잡을 수 없다**" 는 전제�
 
 ## 관련 개념
 - [ISTQB 7원칙](../istqb-principles/README.md) — 2번 (완전 테스팅 불가) + 4번 (결함 군집)
-- [P 카테고리 (시나리오 우선순위)](../../../../Test-Automation/assignment/scenarios/README.md) — 제약 안에서의 우선순위 산정
+- [P 카테고리 (시나리오 우선순위)](https://github.com/JangHwanPark/Test-Automation/blob/main/QA-Portfolio/assignment/scenarios/README.md) — 제약 안에서의 우선순위 산정
 - [Severity vs Priority](../severity-vs-priority/README.md) — 결함의 트레이드오프 의사결정

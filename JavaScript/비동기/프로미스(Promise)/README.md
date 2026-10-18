@@ -74,6 +74,9 @@ doTaskP("작업1", 1)
   .catch(console.error);
 ```
 
+프로미스는 하나의 상자고 비동기 작업이 완료, 실패에 따라 결과물로 채워서 반환한다.  
+비동기작업은 완료될때까지 시간이 소요된다.
+
 ### 프로미스 상태
 #### 대기 (Pending)
 아직 결과(성공/실패)가 정해지지 않은 상태. (쉽게 말해 기다리는 중)
@@ -265,14 +268,4 @@ Promise.any([p1, p2])
 ### Promise.reject(err)
 즉시 실패
 
-### Promise.all([...])
-모두 성공해야 이행 (하나 실패 → 거부)
-
-### Promise.allSettled([...])
-성공/실패 상관없이 전체 결과 배열
-
-### Promise.race([...])
-가장 먼저 끝난 결과 반환
-
-### Promise.any([...])
-가장 먼저 성공한 결과 반환 (전부 실패 → AggregateError)
+all, allSettled, race, any는 [프로미스 병렬 처리](#프로미스-병렬-처리)에서 다룬다.

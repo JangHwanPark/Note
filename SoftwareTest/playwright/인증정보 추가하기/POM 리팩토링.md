@@ -42,7 +42,7 @@ e2e/
 
 ```ts
 // e2e/pages/LoginPage.ts
-import { type Page, type Locator, expect } from '@playwright/test';
+import { type Page, type Locator } from '@playwright/test';
 
 export class LoginPage {
   // 셀렉터를 readonly Locator로 한 곳에 모아 소유
@@ -60,18 +60,12 @@ export class LoginPage {
     await this.page.goto('/login');
   }
 
-  /** 로그인 폼 작성 → 제출 → 인증 완료까지를 한 행동으로 캡슐화 */
+  /** 로그인 폼 작성 → 제출까지를 한 행동으로 캡슐화. 결과 확인은 호출한 쪽이 한다 */
   async login(email: string, password: string) {
     await this.goto();
     await this.emailInput.fill(email);
     await this.passwordInput.fill(password);
     await this.submitButton.click();
-
-    // 쿠키가 실제로 심길 때까지 기다리는 책임도 페이지 객체가 가진다
-    await this.page.waitForURL('**/dashboard');
-    await expect(
-      this.page.getByRole('heading', { name: 'Dashboard' }),
-    ).toBeVisible();
   }
 }
 ```
@@ -82,7 +76,7 @@ export class LoginPage {
 
 ```ts
 // e2e/tests/auth.setup.ts
-import { test as setup } from '@playwright/test';
+import { test as setup, expect } from '@playwright/test';
 import path from 'path';
 import { LoginPage } from '../pages/LoginPage';
 
@@ -94,11 +88,16 @@ setup('authenticate', async ({ page }) => {
     process.env.TEST_USER_EMAIL!,
     process.env.TEST_USER_PASSWORD!,
   );
+
+  // 쿠키가 실제로 심긴 뒤에 저장해야 하므로 로그인 성공을 여기서 확인한다
+  await page.waitForURL('**/dashboard');
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+
   await page.context().storageState({ path: authFile });
 });
 ```
 
-setup의 책임이 **"로그인 시킨다(LoginPage) + 상태를 저장한다(storageState)"** 두 줄로 정리됐다. 셀렉터 변경은 이제 `LoginPage.ts`만 건드린다. `playwright.config.ts`의 `projects` / `dependencies` 설정은 [기본 노트](./README.md#2-config에서-setup--테스트-의존성-연결)와 동일하게 유지.
+setup의 책임이 "**로그인 시킨다(LoginPage)**, **성공을 확인한다**, **상태를 저장한다(storageState)**" 세 단계로 정리됐다. `login()`은 제출까지만 하므로, 저장 전에 대시보드 진입을 setup에서 확인한다. 셀렉터 변경은 이제 `LoginPage.ts`만 건드린다. `playwright.config.ts`의 `projects` / `dependencies` 설정은 [기본 노트](./README.md#2-config에서-setup--테스트-의존성-연결)와 동일하게 유지.
 
 ## 4. (한 단계 더) fixture로 LoginPage 자동 주입
 
@@ -133,13 +132,13 @@ test('잘못된 비밀번호면 에러 메시지', async ({ loginPage, page }) =
 | --- | --- |
 | 셀렉터는 page object 안에서만 정의 | 변경 지점을 1곳으로 — POM의 존재 이유 |
 | 메서드는 "행동" 단위 (`login`), getter 남발 X | spec이 셀렉터를 다시 알게 되면 캡슐화 깨짐 |
-| `expect` 단언은 신중히 — 행동 보장용만 | 페이지 객체에 테스트별 검증까지 넣으면 재사용성 하락. 일반 검증은 spec에 |
+| POM 안에서는 `expect` 금지 | 단언은 spec에서만 한다. 페이지 객체는 행동과 대기(`waitFor`)까지만 책임진다 |
 | page object는 상태를 갖지 않게 | 테스트 간 누수 방지. 데이터는 인자로 받기 |
 
 ## 결론
 
 - 절차형 setup의 `fill/click` 나열을 **`LoginPage` 클래스**로 캡슐화 → 셀렉터 변경은 한 파일로 국소화, setup은 의도만 남는다.
-- setup은 `new LoginPage(page).login()` + `storageState()` 두 줄. config 연결은 기본 노트와 동일.
+- setup은 `new LoginPage(page).login()`, 로그인 성공 확인, `storageState()` 세 단계. config 연결은 기본 노트와 동일.
 - 반복 생성이 거슬리면 **fixture로 LoginPage 주입**까지 진행.
 - 핵심 규칙: **셀렉터는 page object가 독점, 외부엔 행동만 노출**.
 

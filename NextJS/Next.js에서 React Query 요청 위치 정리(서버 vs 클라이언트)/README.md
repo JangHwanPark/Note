@@ -9,3 +9,5 @@
 ## Next.js의 향상된 fetch()가 하는 일
 
 ## React Query의 역할 (클라이언트 중심)
+
+서버에서 prefetch한 데이터를 클라이언트에서 같은 queryKey로 재사용하는 흐름은 [React Query SSR + Hydration 정리](../../Libraries/ReactQuery/NextJS%20SSR.md)에 정리했다.

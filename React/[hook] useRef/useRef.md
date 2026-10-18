@@ -57,30 +57,7 @@ const RenderCount = () => {
 };
 ```
 
-ref 를 사용하여 이전값을 기억하는 예제
-```javascript
-import React, { useState, useRef, useEffect } from 'react';
-
-const PreviousValue = () => {
-  const [count, setCount] = useState(0);
-  
-  // useRef를 사용하여 이전 count 값을 저장
-  const prevCountRef = useRef(0);
-
-  // count 값이 변경될 때마다 useEffect가 실행됨
-  useEffect(() => {
-    prevCountRef.current = count;
-  }, [count]);
-
-  return (
-    <div>
-      <p>현재 카운트: {count}</p>
-      <p>이전 카운트: {prevCountRef.current}</p>
-      <button onClick={() => setCount(count + 1)}>증가</button>
-    </div>
-  );
-};
-```
+ref 를 사용하여 이전값을 기억하는 예제는 아래 [이전 상태(previous state) 값 저장](#이전-상태previous-state-값-저장)에 있다.
 
 ### <br>useRef 의 리랜더링
 
@@ -132,39 +109,7 @@ const LoginForm = () => {
 - useRef를 활용하면 React 상태 변화와 관계없이 애니메이션을 적용할 수 있음.
 - 여러 개의 요소에 애니메이션을 적용해야 하면 useRef([]) 배열 방식으로 관리.
 
-예제: GSAP를 활용한 리스트 애니메이션
-```tsx
-import { useRef, useEffect } from "react";
-import gsap from "gsap";
-
-const AnimatedList = () => {
-  const itemsRef = useRef([]); // 여러 요소를 배열로 관리
-
-  useEffect(() => {
-    gsap.to(itemsRef.current, {
-      opacity: 1,
-      y: -20,
-      stagger: 0.2, // 요소들을 순차적으로 애니메이션
-      duration: 1,
-    });
-  }, []);
-
-  return (
-    <div>
-      {[...Array(5)].map((_, i) => (
-        <div
-          key={i}
-          ref={(el) => (itemsRef.current[i] = el)}
-          className="item"
-          style={{ opacity: 0 }}
-        >
-          Item {i + 1}
-        </div>
-      ))}
-    </div>
-  );
-};
-```
+예제: GSAP를 활용한 리스트 애니메이션은 [useRef 배열로 관리하기](useRef%20배열로%20관리하기.md#useref-배열로-관리하는법)에 있다.
 사용 이유
 - 클래스로 선택하는 방식보다 안정적이며, 요소 개별 관리가 가능함. 
 - useRef를 사용하면 React 상태와 관계없이 애니메이션을 적용할 수 있음.
@@ -233,7 +178,7 @@ const Counter = () => {
 
 <br/>
 
-스크롤 위치 감지 및 조작
+#### 스크롤 위치 감지 및 조작
 상황: 특정 요소로 스크롤 이동을 구현할 때
 
 useRef를 활용하면 DOM 요소를 직접 참조하여 scrollIntoView() 등을 활용 가능.

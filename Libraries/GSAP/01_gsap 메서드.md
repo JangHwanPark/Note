@@ -119,6 +119,28 @@ return <div ref={boxRef} className="w-20 h-20 bg-green-500">Box</div>;
 - 처음에는 x: -100px, opacity: 0에서 시작
 - 1.5초 동안 x: 100px, opacity: 1로 변함.
 
+#### GSAP 예제 (텍스트 애니메이션)
+```tsx
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+
+export default function GSAPAnimation() {
+  const textRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    gsap.fromTo(
+      textRef.current,
+      { opacity: 0, y: 50 },
+      { opacity: 1, y: 0, duration: 1.5, ease: "power2.out" }
+    );
+  }, []);
+
+  return <h1 ref={textRef} className="text-4xl font-bold">Hello, GSAP!</h1>;
+}
+```
+opacity: 0 → 1, y: 50 → 0으로 자연스럽게 올라오는 애니메이션
+power2.out을 사용하여 부드럽게 감속
+
 
 ### to(), from(), fromTo() 비교
 | 메서드 | 설명 | 	예제 |
@@ -128,11 +150,13 @@ return <div ref={boxRef} className="w-20 h-20 bg-green-500">Box</div>;
 | fromTo() | 초기값과 최종값을 모두 지정 | gsap.fromTo(".box", { x: -100 }, { x: 100 }) |
 
 
-언제 to(), from(), fromTo()를 사용할까?
-사용 상황	적절한 메서드
-현재 상태에서 특정 위치로 이동	gsap.to()
-특정 위치에서 현재 상태로 이동	gsap.from()
-특정 시작 상태에서 특정 종료 상태로 이동	gsap.fromTo()
+#### 언제 to(), from(), fromTo()를 사용할까?
+| 사용 상황 | 적절한 메서드 |
+|---|---|
+| 현재 상태에서 특정 위치로 이동 | gsap.to() |
+| 특정 위치에서 현재 상태로 이동 | gsap.from() |
+| 특정 시작 상태에서 특정 종료 상태로 이동 | gsap.fromTo() |
+
 예를 들어,
 
 홈페이지에서 Fade-in 효과를 줄 때: gsap.from()
@@ -140,18 +164,18 @@ return <div ref={boxRef} className="w-20 h-20 bg-green-500">Box</div>;
 스크롤 시 특정 상태에서 특정 상태로 이동할 때: gsap.fromTo()
 
 
-실전 예제: ScrollTrigger + to() vs from() vs fromTo()
+### 실전 예제: ScrollTrigger + to() vs from() vs fromTo()
 
 ```js
 import {useRef} from "react";
 import {useGSAP} from "@gsap/react";
 import {gsap} from "gsap";
-import {ScrollTrigger} from "Libraries/GSAP/ScrollTrigger/01_ScrollTrigger";
+import {ScrollTrigger} from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Example = () => {
-  const boxRef = useRef < HTMLDivElement | null > (null);
+  const boxRef = useRef<HTMLDivElement | null>(null);
   
   useGSAP(() => {
     gsap.from(boxRef.current, {
@@ -174,7 +198,7 @@ export default Example;
 ```
 
 
-결론
+### 결론
 현재 상태에서 애니메이션을 실행하려면 → to()
 애니메이션을 시작할 때 초기 위치를 지정하려면 → from()
 특정 시작 상태에서 특정 종료 상태로 애니메이션을 실행하려면 → fromTo()

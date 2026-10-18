@@ -18,8 +18,8 @@ Vitest에서 React 테스트를 위해 jsdom이 필요
 <br/>
 
 ### Vitest 설정
-- `pakage.json`수정 : Vitest 실행을 위한 test 스크립트를 추가
-```
+- `package.json`수정 : Vitest 실행을 위한 test 스크립트를 추가
+```json
 "scripts": {
   "dev": "vite",
   "build": "tsc -b && vite build",
@@ -29,7 +29,7 @@ Vitest에서 React 테스트를 위해 jsdom이 필요
 }
 ```
 - `vitest.config.ts` 생성
-```
+```ts
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -52,5 +52,5 @@ export default defineConfig({
 - `npx vitest src/components/Button.test.tsx`
 
 #### 캐시 삭제 후 실행
-- `npx vitest --clear`
+- `npx vitest --clearCache`
 - `npm test`
