@@ -196,7 +196,7 @@ socket.on('data', (data) => {
 
 ## 더 볼 것 (TODO)
 - TCP 연결 과정 (3-way handshake)과 connect, accept 사이에서 일어나는 일
-- 서버가 여러 연결을 동시에 처리하는 방식 (멀티 프로세스, 멀티 스레드, 이벤트 루프)
+- [서버가 여러 연결을 동시에 처리하는 방식](../../서버의%20동시%20처리%20방식(Server%20Concurrency)/README.md)
 - 블로킹 I/O와 논블로킹 I/O
 - 소켓 상태 변화 (ESTABLISHED, TIME_WAIT 등)
 - NAT와 포트 포워딩
