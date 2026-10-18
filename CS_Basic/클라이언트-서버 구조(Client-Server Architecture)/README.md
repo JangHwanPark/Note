@@ -217,7 +217,7 @@ flowchart TB
 ## 더 볼 것 (TODO)
 - [프론트엔드 관점의 클라이언트-서버](../클라이언트-서버%20구조%20프론트엔드%20관점(Frontend)/README.md)
 - [게임 관점의 클라이언트-서버](../클라이언트-서버%20구조%20게임%20관점(Game)/README.md)
-- 소켓(Socket)과 포트, 서버가 연결을 받는 과정 (bind, listen, accept)
+- [소켓(Socket)과 포트, 서버가 연결을 받는 과정](../Network/소켓(Socket)/README.md)
 - 서버가 여러 요청을 동시에 처리하는 방식 (멀티 프로세스, 멀티 스레드, 이벤트 루프)
 - HTTP 메서드와 상태 코드
 - TCP 연결 과정 (3-way handshake)
