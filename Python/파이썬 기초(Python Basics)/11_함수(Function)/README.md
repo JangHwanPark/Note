@@ -139,4 +139,4 @@ sorted(users, key=lambda u: u[1])  # 나이 기준 [('lee', 20), ('kim', 30)]
 
 <br/>
 
-[목차](..) | [이전: 딕셔너리와 집합](../10_딕셔너리와%20집합(Dictionary%20and%20Set))
+[목차](..) | [이전: 딕셔너리와 집합](../10_딕셔너리와%20집합(Dictionary%20and%20Set)) | [다음: 예외 처리](../12_예외%20처리(Exception%20Handling))

@@ -17,11 +17,12 @@
 9. [리스트와 튜플](./09_리스트와%20튜플(List%20and%20Tuple)) : 순서가 있는 값의 묶음
 10. [딕셔너리와 집합](./10_딕셔너리와%20집합(Dictionary%20and%20Set)) : 키로 찾는 묶음과 중복 없는 묶음
 11. [함수](./11_함수(Function)) : 코드 묶음에 이름을 붙여 다시 쓰기
+12. [예외 처리](./12_예외%20처리(Exception%20Handling)) : try, except, else, finally, raise
 
 <br/>
 
 ## 더 볼 것 (TODO)
-- 예외 처리 (try, except, finally)
+- 사용자 정의 예외 (클래스를 배운 뒤 Exception 상속으로 만들기)
 - 모듈과 패키지 (import, pip, 가상환경 venv)
 - 파일 입출력 (open, with)
 - 클래스와 객체 (class, self, 상속)
