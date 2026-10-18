@@ -19,13 +19,15 @@
 11. [함수](./11_함수(Function)) : 코드 묶음에 이름을 붙여 다시 쓰기
 12. [예외 처리](./12_예외%20처리(Exception%20Handling)) : try, except, else, finally, raise
 13. [모듈과 패키지](./13_모듈과%20패키지(Module%20and%20Package)) : import, 표준 라이브러리, pip, 가상환경
+14. [파일 입출력](./14_파일%20입출력(File%20Input%20and%20Output)) : open, with, 읽기와 쓰기, 경로, JSON
 
 <br/>
 
 ## 더 볼 것 (TODO)
 - 사용자 정의 예외 (클래스를 배운 뒤 Exception 상속으로 만들기)
 - 상대 경로 import (from . import), 패키지 배포 (pyproject.toml)
-- 파일 입출력 (open, with)
+- 경로를 객체로 다루는 pathlib, CSV 파일과 csv 모듈
+- 컨텍스트 매니저 직접 만들기 (with 문이 내부에서 하는 일)
 - 클래스와 객체 (class, self, 상속)
 - 가변(mutable)과 불변(immutable) 자료형, 얕은 복사와 깊은 복사
 - 이터레이터와 제너레이터 (yield)
