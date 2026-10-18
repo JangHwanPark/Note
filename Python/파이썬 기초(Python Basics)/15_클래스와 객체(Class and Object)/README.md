@@ -266,4 +266,4 @@ class Account:
 
 <br/>
 
-[목차](..) | [이전: 파일 입출력](../14_파일%20입출력(File%20Input%20and%20Output))
+[목차](..) | [이전: 파일 입출력](../14_파일%20입출력(File%20Input%20and%20Output)) | [다음: 가변과 불변 자료형](../16_가변과%20불변%20자료형(Mutable%20and%20Immutable))
