@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["C:/Users/wkd58/WebstormProjects/Note/.claude/hooks/check-note-style.js"],
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
