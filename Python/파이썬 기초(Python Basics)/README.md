@@ -22,6 +22,7 @@
 14. [파일 입출력](./14_파일%20입출력(File%20Input%20and%20Output)) : open, with, 읽기와 쓰기, 경로, JSON
 15. [클래스와 객체](./15_클래스와%20객체(Class%20and%20Object)) : class, self, 상속, 사용자 정의 예외, 캡슐화
 16. [가변과 불변 자료형](./16_가변과%20불변%20자료형(Mutable%20and%20Immutable)) : 이름표로서의 변수, is와 ==, 인자 전달, 얕은 복사와 깊은 복사
+17. [이터레이터와 제너레이터](./17_이터레이터와%20제너레이터(Iterator%20and%20Generator)) : iter와 next, for 문의 내부 동작, yield, 제너레이터 표현식
 
 <br/>
 
@@ -34,7 +35,8 @@
 - 다중 상속과 메서드 탐색 순서 (MRO)
 - 객체 지향 설계 원칙 (별도 문서)
 - 해시(hash)와 해시 테이블 동작 원리 (딕셔너리와 집합이 빠른 이유)
-- 이터레이터와 제너레이터 (yield)
+- 제너레이터의 send()와 yield from
+- itertools 모듈 (count, chain, islice 등)
 - 데코레이터
 - 타입 힌트 (Type Hint)
 - 자바스크립트와 문법 비교 (별도 문서)
