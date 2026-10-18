@@ -18,12 +18,13 @@
 10. [딕셔너리와 집합](./10_딕셔너리와%20집합(Dictionary%20and%20Set)) : 키로 찾는 묶음과 중복 없는 묶음
 11. [함수](./11_함수(Function)) : 코드 묶음에 이름을 붙여 다시 쓰기
 12. [예외 처리](./12_예외%20처리(Exception%20Handling)) : try, except, else, finally, raise
+13. [모듈과 패키지](./13_모듈과%20패키지(Module%20and%20Package)) : import, 표준 라이브러리, pip, 가상환경
 
 <br/>
 
 ## 더 볼 것 (TODO)
 - 사용자 정의 예외 (클래스를 배운 뒤 Exception 상속으로 만들기)
-- 모듈과 패키지 (import, pip, 가상환경 venv)
+- 상대 경로 import (from . import), 패키지 배포 (pyproject.toml)
 - 파일 입출력 (open, with)
 - 클래스와 객체 (class, self, 상속)
 - 가변(mutable)과 불변(immutable) 자료형, 얕은 복사와 깊은 복사

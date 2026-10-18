@@ -207,4 +207,4 @@ except ValueError:
 
 <br/>
 
-[목차](..) | [이전: 함수](../11_함수(Function))
+[목차](..) | [이전: 함수](../11_함수(Function)) | [다음: 모듈과 패키지](../13_모듈과%20패키지(Module%20and%20Package))
