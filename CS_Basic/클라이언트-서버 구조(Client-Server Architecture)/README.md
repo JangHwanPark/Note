@@ -220,5 +220,5 @@ flowchart TB
 - [소켓(Socket)과 포트, 서버가 연결을 받는 과정](../Network/소켓(Socket)/README.md)
 - [서버가 여러 요청을 동시에 처리하는 방식](../서버의%20동시%20처리%20방식(Server%20Concurrency)/README.md)
 - HTTP 메서드와 상태 코드
-- TCP 연결 과정 (3-way handshake)
+- [TCP 연결 과정 (3-way handshake)](../Network/TCP%20연결%20과정(TCP%20Handshake)/README.md)
 - 로드 밸런싱 알고리즘
