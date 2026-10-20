@@ -219,6 +219,6 @@ flowchart TB
 - [게임 관점의 클라이언트-서버](../클라이언트-서버%20구조%20게임%20관점(Game)/README.md)
 - [소켓(Socket)과 포트, 서버가 연결을 받는 과정](../Network/소켓(Socket)/README.md)
 - [서버가 여러 요청을 동시에 처리하는 방식](../서버의%20동시%20처리%20방식(Server%20Concurrency)/README.md)
-- HTTP 메서드와 상태 코드
+- [HTTP 메서드와 상태 코드](../WEB/HTTP%20메서드와%20상태%20코드(HTTP%20Methods%20and%20Status%20Codes)/README.md)
 - [TCP 연결 과정 (3-way handshake)](../Network/TCP%20연결%20과정(TCP%20Handshake)/README.md)
 - [로드 밸런싱 알고리즘](../로드%20밸런싱(Load%20Balancing)/README.md)

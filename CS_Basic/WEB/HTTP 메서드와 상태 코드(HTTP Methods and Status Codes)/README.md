@@ -1,0 +1,299 @@
+## HTTP 메서드와 상태 코드란 ?
+- HTTP 메서드는 클라이언트가 요청할 때 "무엇을 하고 싶은지"를 서버에 알리는 표시다. 조회, 생성, 수정, 삭제 같은 의도를 담는다
+- HTTP 상태 코드는 서버가 응답할 때 "요청이 어떻게 처리되었는지"를 알리는 세 자리 숫자다
+- [클라이언트-서버 구조](../../클라이언트-서버%20구조(Client-Server%20Architecture)/README.md)의 요청-응답에서 요청 쪽 첫 단어가 메서드, 응답 쪽 첫 숫자가 상태 코드다
+
+### HTTP (HyperText Transfer Protocol)
+Hyper는 넘어선, Text는 글, Transfer는 옮기다, Protocol은 원래 외교에서 지키는 의례나 절차를 뜻한다.
+공학적으로는 웹에서 클라이언트와 서버가 데이터를 주고받을 때 지키는 약속이다. 링크로 다른 문서로 건너뛸 수 있는 글(하이퍼텍스트)을 옮기려고 만들어졌고, 지금은 글뿐 아니라 이미지, JSON 등 거의 모든 데이터를 옮긴다.
+
+### 메서드 (Method)
+사전적 의미는 방법, 방식이다.
+공학적으로는 요청 대상(자원)을 어떤 방식으로 다룰지를 말한다. 같은 주소 /users/1에 보내더라도 GET이면 보여 달라는 뜻이고, DELETE면 지워 달라는 뜻이 된다.
+
+### 상태 코드 (Status Code)
+Status는 상태, Code는 약속된 기호다.
+공학적으로는 요청을 처리한 결과 상태를 정해진 숫자로 나타낸 것이다. 숫자로 정해 두었기 때문에 사람이 아니라 프로그램도 결과를 바로 판단할 수 있다.
+
+<br/>
+
+## 식당 주문으로 이해하기
+식당에서 직원에게 말을 거는 방식은 몇 가지로 정해져 있다. 메뉴를 보여 달라, 이걸 주문하겠다, 주문을 바꾸겠다, 주문을 취소하겠다. 직원의 대답도 몇 가지로 정해져 있다. 나왔습니다, 그 메뉴는 없어요, 주방에 문제가 생겼어요.
+
+| 식당 | HTTP |
+| --- | --- |
+| 메뉴 보여 주세요 | GET (조회) |
+| 이거 주문할게요 | POST (생성) |
+| 주문을 통째로 바꿀게요 | PUT (전체 수정) |
+| 음료만 바꿀게요 | PATCH (부분 수정) |
+| 주문 취소할게요 | DELETE (삭제) |
+| 나왔습니다 | 200 OK |
+| 그런 메뉴는 없어요 | 404 Not Found |
+| 주방에 문제가 생겼어요 | 500 Internal Server Error |
+
+손님이 할 말과 직원이 할 대답을 미리 정해 두면, 처음 가는 식당에서도 주문이 막히지 않는다. HTTP도 메서드와 상태 코드를 표준으로 정해 두었기 때문에 처음 보는 서버와도 대화할 수 있다.
+
+<br/>
+
+## 요청과 응답 생김새
+HTTP 요청과 응답은 사람이 읽을 수 있는 글자로 되어 있다. 아래는 HTTP/1.1 기준이다.
+
+```http
+GET /users/1 HTTP/1.1
+Host: example.com
+Accept: application/json
+```
+
+첫 줄은 요청 줄이다. 메서드(GET), 대상 경로(/users/1), HTTP 버전 순서로 쓴다. 그 아래 줄들은 헤더로, 요청에 붙는 부가 정보다.
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"id":1,"name":"철수"}
+```
+
+응답 첫 줄은 상태 줄이다. HTTP 버전, 상태 코드(200), 사람이 읽기 위한 설명(OK) 순서로 쓴다. 헤더 다음 빈 줄 아래가 실제 데이터인 본문(Body)이다.
+
+```mermaid
+sequenceDiagram
+    participant C as 클라이언트
+    participant S as 서버
+    C->>S: GET /users/1 (1번 사용자 보여 줘)
+    S-->>C: 200 OK + 사용자 정보
+    C->>S: GET /users/99 (99번 사용자 보여 줘)
+    S-->>C: 404 Not Found (그런 사용자 없음)
+    C->>S: DELETE /users/1 (1번 사용자 지워 줘)
+    S-->>C: 204 No Content (지웠음, 돌려줄 내용 없음)
+```
+
+<br/>
+
+## 자주 쓰는 메서드
+### GET
+Get은 얻다, 가져오다라는 뜻이다. 자원을 조회한다. 서버의 데이터를 바꾸지 않는다. 브라우저 주소창에 주소를 입력하거나 링크를 누르면 GET 요청이 나간다. 보낼 조건은 본문 대신 주소 뒤 [쿼리스트링](../쿼리스트링(Query%20String)/README.md)에 붙인다.
+
+### POST
+Post는 우편으로 부치다, 게시판에 붙이다라는 뜻이다. 서버에 데이터를 보내 새 자원을 만들거나 처리를 맡긴다. 회원가입, 글쓰기, 결제처럼 보낼 데이터가 본문에 담긴다.
+
+### PUT
+Put은 놓다, 두다라는 뜻이다. 지정한 자리에 보낸 내용을 통째로 놓는다. 이미 있으면 보낸 내용으로 전부 바꾸고, 보내지 않은 항목은 사라질 수 있다. 서버에 따라 없으면 새로 만들기도 한다.
+
+### PATCH
+Patch는 옷에 덧대는 헝겊 조각, 땜질이라는 뜻이다. 자원의 일부만 고친다. 이름만 바꾸고 싶으면 이름만 보낸다. 해진 곳에만 천을 덧대는 것과 같다.
+
+### DELETE
+Delete는 지우다라는 뜻이다. 자원을 삭제한다.
+
+### 그 밖의 메서드
+HEAD는 GET과 같은데 본문 없이 헤더만 받는다. 파일 크기나 수정 시각만 확인할 때 쓴다. OPTIONS는 그 자원에 어떤 메서드를 쓸 수 있는지 묻는다. 브라우저가 다른 출처로 요청하기 전에 미리 허락을 묻는 [CORS 사전 요청](../../클라이언트-서버%20구조%20프론트엔드%20관점(Frontend)/README.md)이 이 메서드를 쓴다.
+
+| 메서드 | 하는 일 | 본문 | 예시 |
+| --- | --- | --- | --- |
+| GET | 조회 | 보통 없음 | GET /users/1 |
+| POST | 생성, 처리 요청 | 있음 | POST /users |
+| PUT | 전체 교체 | 있음 | PUT /users/1 |
+| PATCH | 일부 수정 | 있음 | PATCH /users/1 |
+| DELETE | 삭제 | 보통 없음 | DELETE /users/1 |
+
+### PUT과 PATCH의 차이
+사용자 정보가 이름, 이메일, 나이로 되어 있다고 해 보자. 이름만 바꾸고 싶을 때 PATCH로는 이름만 보내면 된다. PUT은 통째로 교체하므로 이름, 이메일, 나이를 모두 보내야 한다. PUT에 이름만 보내면 이메일과 나이가 비어 버릴 수 있다.
+
+메서드는 약속일 뿐이라 서버가 GET 요청에 데이터를 지우도록 만들 수도 있다. 하지만 그러면 브라우저, 캐시, 검색 엔진 로봇처럼 이 약속을 믿고 움직이는 프로그램들이 오작동한다. 링크를 따라가며 GET을 보내는 검색 로봇이 데이터를 지워 버리는 식이다. 그래서 메서드는 뜻에 맞게 쓴다.
+
+<br/>
+
+## 안전과 멱등
+메서드를 구분할 때 중요한 성질이 두 가지 있다.
+
+### 안전 (Safe)
+안전한 메서드는 서버의 데이터를 바꾸지 않는 메서드다. GET, HEAD, OPTIONS가 여기에 해당한다. 메뉴판은 몇 번을 봐도 식당에 아무 일도 생기지 않는 것과 같다. 그래서 브라우저나 캐시는 안전한 요청을 마음 놓고 미리 보내거나 다시 보낸다.
+
+### 멱등 (Idempotent)
+멱(冪)은 거듭제곱, 등(等)은 같다는 뜻이다. 거듭해도 같다는 말이 된다. 영어 Idempotent도 라틴어 idem(같은)과 potent(힘)를 합친 말이다. 수학에서는 여러 번 적용해도 한 번 적용한 것과 결과가 같은 연산을 말한다. 절댓값을 두 번 구해도 한 번 구한 것과 같은 식이다.
+공학적으로는 같은 요청을 여러 번 보내도 서버의 최종 상태가 한 번 보낸 것과 같은 메서드를 말한다.
+
+- DELETE /users/1은 한 번 보내면 1번이 지워진다. 두 번 보내도 1번이 지워진 상태 그대로다. 멱등이다
+- PUT /users/1에 같은 내용을 여러 번 보내도 같은 내용으로 덮어쓸 뿐이다. 멱등이다
+- POST /users를 두 번 보내면 사용자가 두 명 만들어진다. 멱등이 아니다
+
+응답까지 같을 필요는 없다. DELETE를 두 번 보내면 첫 번째는 204, 두 번째는 404가 올 수 있지만, 서버 상태는 같으므로 멱등이다.
+
+### 왜 중요할까
+요청을 보냈는데 응답이 오기 전에 네트워크가 끊겼다고 해 보자. 클라이언트는 서버가 요청을 처리했는지 알 수 없다. 멱등한 요청이면 그냥 다시 보내면 된다. 이미 처리됐어도 결과가 같기 때문이다. 멱등하지 않은 POST를 다시 보내면 주문이 두 번 들어가거나 결제가 두 번 될 수 있다. 결제 버튼을 두 번 누르지 말라는 안내가 붙는 이유다.
+
+```mermaid
+sequenceDiagram
+    participant C as 클라이언트
+    participant S as 서버
+    C->>S: POST /orders (주문)
+    Note over S: 주문 1 생성
+    S--xC: 응답이 오다가 끊김
+    Note over C: 처리됐는지 모름, 다시 보냄
+    C->>S: POST /orders (같은 주문)
+    Note over S: 주문 2 생성 (중복 주문)
+    S-->>C: 201 Created
+```
+
+| 메서드 | 안전 | 멱등 |
+| --- | --- | --- |
+| GET, HEAD, OPTIONS | 예 | 예 |
+| PUT, DELETE | 아니오 | 예 |
+| POST | 아니오 | 아니오 |
+| PATCH | 아니오 | 보장하지 않음 |
+
+PATCH는 "나이를 30으로 바꿔"처럼 쓰면 여러 번 보내도 같지만, "나이를 1 늘려"처럼 쓰면 보낼 때마다 결과가 달라진다. 그래서 표준은 PATCH를 멱등으로 보장하지 않는다.
+
+<br/>
+
+## 상태 코드 읽는 법
+상태 코드는 첫 자리 숫자만 봐도 큰 뜻을 알 수 있다.
+
+| 범위 | 뜻 | 식당으로 치면 |
+| --- | --- | --- |
+| 1xx | 정보. 처리 중이니 계속하라 | 주문 받았어요, 잠시만요 |
+| 2xx | 성공 | 나왔습니다 |
+| 3xx | 리다이렉션. 다른 곳으로 가라 | 그 메뉴는 2층에서 팔아요 |
+| 4xx | 클라이언트 오류. 요청이 잘못됐다 | 주문을 잘못하셨어요 |
+| 5xx | 서버 오류. 서버가 처리하지 못했다 | 주방에 문제가 생겼어요 |
+
+4xx와 5xx를 구분하는 게 특히 중요하다. 4xx는 요청을 고쳐야 하고, 5xx는 요청은 맞는데 서버 쪽 문제다. 오류가 났을 때 어느 쪽을 봐야 하는지 이 숫자로 먼저 갈린다.
+
+```mermaid
+flowchart TB
+    R["응답 상태 코드"] --> A["2xx: 성공"]
+    R --> B["3xx: 다른 곳으로 가라"]
+    R --> C["4xx: 요청이 잘못됨"]
+    R --> D["5xx: 서버가 실패함"]
+    C --> C1["요청을 고친다 (주소, 입력값, 로그인)"]
+    D --> D1["서버를 확인한다 (로그, 장애)"]
+```
+
+<br/>
+
+## 자주 보는 상태 코드
+### 2xx 성공
+- **200 OK**: 요청이 성공했다. 조회 결과 등을 본문에 담는다
+- **201 Created**: 새 자원을 만들었다. POST로 생성에 성공했을 때 쓴다
+- **204 No Content**: 성공했지만 돌려줄 본문이 없다. 삭제에 성공했을 때 자주 쓴다
+
+### 3xx 리다이렉션
+Redirect는 다른 방향으로 돌리다라는 뜻이다. 응답의 Location 헤더에 새 주소를 담아 주면, 브라우저가 그 주소로 다시 요청한다.
+
+- **301 Moved Permanently**: 주소가 영원히 바뀌었다. 가게가 이사 간 것과 같다. 검색 엔진도 새 주소를 기억한다
+- **302 Found**: 잠시 다른 주소로 가라. 로그인하지 않은 사용자를 로그인 페이지로 보낼 때 자주 쓴다
+- **304 Not Modified**: 지난번에 받은 것에서 바뀌지 않았다. 본문 없이 이 코드만 보내면 브라우저가 저장해 둔 사본을 쓴다. [캐싱](../../캐싱(Caching)/README.md)에서 쓰인다
+
+### 4xx 클라이언트 오류
+- **400 Bad Request**: 요청 형식이 잘못됐다. 필수 값이 빠졌거나 JSON이 깨졌을 때
+- **401 Unauthorized**: 누구인지 확인되지 않았다. 로그인이 필요하다
+- **403 Forbidden**: 누구인지는 아는데 권한이 없다. 일반 회원이 관리자 페이지에 들어갈 때
+- **404 Not Found**: 요청한 자원이 없다
+- **405 Method Not Allowed**: 그 자원에 그 메서드는 쓸 수 없다. 조회만 되는 주소에 DELETE를 보낼 때
+- **409 Conflict**: 지금 서버 상태와 충돌한다. 이미 있는 아이디로 가입하려 할 때
+- **429 Too Many Requests**: 짧은 시간에 요청을 너무 많이 보냈다
+
+401과 403은 자주 헷갈린다. 401은 신분증을 안 보여 준 것이고, 403은 신분증은 확인했는데 출입 명단에 없는 것이다. 401의 이름은 Unauthorized(권한 없음)지만 실제 뜻은 인증되지 않음(Unauthenticated)에 가깝다. 이름이 뜻과 어긋나서 헷갈리는 것이다.
+
+### 5xx 서버 오류
+- **500 Internal Server Error**: 서버 안에서 예상하지 못한 오류가 났다. 서버 코드에서 처리하지 못한 예외가 대표적이다
+- **502 Bad Gateway**: 중간에서 요청을 넘겨주는 서버(게이트웨이)가 뒤쪽 서버에게서 잘못된 응답을 받았다. [로드 밸런서](../../로드%20밸런싱(Load%20Balancing)/README.md) 뒤의 서버가 꺼져 있을 때 자주 본다
+- **503 Service Unavailable**: 서버가 지금 요청을 받을 수 없다. 점검 중이거나 과부하일 때
+- **504 Gateway Timeout**: 중간 서버가 뒤쪽 서버의 응답을 기다리다 시간이 지났다
+
+```mermaid
+flowchart LR
+    C["클라이언트"] --> G["게이트웨이 (로드 밸런서, 프록시)"]
+    G -- "뒤쪽 서버가 이상한 응답" --> E1["502 Bad Gateway"]
+    G -- "뒤쪽 서버가 응답이 없음" --> E2["504 Gateway Timeout"]
+    G -- "뒤쪽 서버 코드에서 오류" --> E3["500 Internal Server Error"]
+```
+
+### 성공했는데 실패라고 말하는 응답
+오류가 났는데도 상태 코드는 200으로 보내고 본문에만 실패라고 쓰는 서버가 있다. 이러면 클라이언트는 본문을 열어 보기 전까지 실패인지 알 수 없고, 캐시나 모니터링 도구는 성공으로 착각한다. 상태 코드는 실제 결과에 맞게 보낸다.
+
+<br/>
+
+## 코드로 보기
+Node.js의 http 모듈로 만든 작은 서버다. 메서드와 주소를 보고 처리한 뒤, 결과에 맞는 상태 코드를 보낸다.
+
+```js
+// server.js
+const http = require('http');
+
+const users = { 1: { id: 1, name: '철수' } };
+let nextId = 2;
+
+function send(res, status, body) {
+  res.writeHead(status, { 'Content-Type': 'application/json' });
+  res.end(body ? JSON.stringify(body) : '');
+}
+
+http.createServer((req, res) => {
+  const match = req.url.match(/^\/users\/(\d+)$/);
+
+  // GET /users/1: 조회
+  if (req.method === 'GET' && match) {
+    const user = users[match[1]];
+    return user ? send(res, 200, user) : send(res, 404, { message: '없는 사용자' });
+  }
+
+  // POST /users: 생성
+  if (req.method === 'POST' && req.url === '/users') {
+    let data = '';
+    req.on('data', (part) => (data += part));
+    req.on('end', () => {
+      try {
+        const { name } = JSON.parse(data);
+        if (!name) return send(res, 400, { message: '이름이 필요함' });
+        const user = { id: nextId++, name };
+        users[user.id] = user;
+        send(res, 201, user);
+      } catch {
+        send(res, 400, { message: 'JSON 형식이 아님' });
+      }
+    });
+    return;
+  }
+
+  // DELETE /users/1: 삭제
+  if (req.method === 'DELETE' && match) {
+    if (!users[match[1]]) return send(res, 404, { message: '없는 사용자' });
+    delete users[match[1]];
+    return send(res, 204);
+  }
+
+  send(res, 404, { message: '없는 주소' });
+}).listen(3000);
+```
+
+```js
+// client.js
+const base = 'http://localhost:3000';
+
+async function call(method, path, body) {
+  const res = await fetch(base + path, { method, body });
+  console.log(method, path, res.status, res.statusText);
+}
+
+(async () => {
+  await call('GET', '/users/1');                          // GET /users/1 200 OK
+  await call('POST', '/users', '{"name":"영희"}');        // POST /users 201 Created
+  await call('POST', '/users', '이름');                   // POST /users 400 Bad Request
+  await call('DELETE', '/users/1');                       // DELETE /users/1 204 No Content
+  await call('DELETE', '/users/1');                       // DELETE /users/1 404 Not Found
+  await call('GET', '/users/1');                          // GET /users/1 404 Not Found
+})();
+```
+
+DELETE를 두 번 보낸 부분을 보면, 응답은 204와 404로 다르지만 1번 사용자가 없는 상태는 같다. 앞에서 본 멱등의 뜻 그대로다.
+
+<br/>
+
+## 더 볼 것 (TODO)
+- HTTP 헤더 (Content-Type, Authorization, Cache-Control 등)
+- HTTP 버전별 차이 (HTTP/1.1, HTTP/2, HTTP/3)
+- HTTPS와 TLS
+- REST API 설계 원칙
+- 멱등하지 않은 요청을 안전하게 다시 보내는 방법 (멱등 키)
+- [HTTP 메서드별 API 테스트 체크리스트](../../../SoftwareTest/[API]%20HTTP%20메서드별%20체크리스트/README.md)
