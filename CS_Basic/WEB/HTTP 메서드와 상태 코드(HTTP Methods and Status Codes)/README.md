@@ -292,7 +292,7 @@ DELETE를 두 번 보낸 부분을 보면, 응답은 204와 404로 다르지만 
 <br/>
 
 ## 더 볼 것 (TODO)
-- HTTP 헤더 (Content-Type, Authorization, Cache-Control 등)
+- [HTTP 헤더 (Content-Type, Authorization, Cache-Control 등)](../HTTP%20헤더(HTTP%20Headers)/README.md)
 - HTTP 버전별 차이 (HTTP/1.1, HTTP/2, HTTP/3)
 - HTTPS와 TLS
 - HTTP 캐시와 조건부 요청 (ETag, Last-Modified)
