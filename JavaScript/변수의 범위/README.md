@@ -63,3 +63,36 @@ console.log(count)
 <br/>
 
 ## 호이스팅 (Hoisting)
+hoist는 "끌어올리다"라는 뜻이다. 자바스크립트에서 호이스팅은 변수와 함수 선언이 스코프 맨 위로 끌어올려진 것처럼 동작하는 현상을 말한다. 코드가 실제로 옮겨지는 것은 아니고, 엔진이 코드를 실행하기 전에 스코프 안의 선언을 먼저 등록하기 때문에 생긴다.
+
+### var
+var로 선언한 변수는 등록과 동시에 undefined로 초기화된다. 그래서 선언보다 위에서 읽어도 오류 없이 undefined가 나온다.
+
+```javascript
+console.log(a); // undefined
+var a = 1;
+console.log(a); // 1
+```
+
+### let, const
+let과 const도 호이스팅되지만 초기화는 선언문에 도달했을 때 일어난다. 스코프 시작부터 선언문까지의 구간을 TDZ(Temporal Dead Zone, 일시적 사각지대)라고 하고, 이 구간에서 접근하면 ReferenceError가 난다.
+
+```javascript
+console.log(b); // ReferenceError
+let b = 2;
+```
+
+### 함수 선언문과 함수 표현식
+함수 선언문은 함수 전체가 호이스팅되어 선언보다 위에서 호출할 수 있다. 변수에 함수를 담는 함수 표현식은 변수의 규칙을 따르므로 선언 전에는 호출할 수 없다.
+
+```javascript
+hello(); // "hello"
+function hello() {
+  console.log("hello");
+}
+
+bye(); // ReferenceError
+const bye = () => console.log("bye");
+```
+
+함수 표현식을 var로 선언했다면 bye는 undefined라서 호출할 때 TypeError가 난다.

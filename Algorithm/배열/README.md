@@ -111,6 +111,31 @@ Count 배열의 개념, 예시, 활용 패턴은 [빈도수 세기](../빈도수
 <br/>
 
 ## 탐색
+배열에서 원하는 값을 찾을 때는 앞에서부터 하나씩 비교하는 선형 탐색(Linear Search)을 쓴다. 최악의 경우 원소를 전부 봐야 하므로 시간 복잡도는 O(n)이다.
+
+```js
+const arr = [4, 7, 1, 9, 3];
+const target = 9;
+
+let idx = -1;
+for (let i = 0; i < arr.length; i++) {
+  if (arr[i] === target) {
+    idx = i;
+    break; // 찾았으면 나머지는 볼 필요가 없다
+  }
+}
+console.log(idx); // 3
+```
+
+JS 내장 메서드도 내부적으로는 같은 방식으로 앞에서부터 찾는다.
+```js
+arr.indexOf(9);              // 3 (없으면 -1)
+arr.includes(9);             // true
+arr.find(el => el > 5);      // 7 (조건을 만족하는 첫 값, 없으면 undefined)
+arr.findIndex(el => el > 5); // 1 (조건을 만족하는 첫 인덱스, 없으면 -1)
+```
+
+정렬된 배열이라면 탐색 범위를 절반씩 줄이는 이분 탐색(Binary Search)으로 O(log n)에 찾을 수 있다.
 
 <br/>
 

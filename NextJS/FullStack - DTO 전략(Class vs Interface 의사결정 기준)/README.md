@@ -22,3 +22,25 @@ await db.insert(projects).values(dto);
 
 ## 그럼 어디서 클래스를 쓰는가?
 ### 값에 규칙이나 검증이 붙는 도메인 모델
+값이 만들어질 때부터 규칙을 지켜야 하는 경우에는 클래스가 낫다. 생성자에서 검증하면 잘못된 값으로는 객체 자체가 만들어지지 않고, 그 값과 관련된 규칙을 한곳에 모을 수 있다.
+
+```ts
+class ProjectName {
+  private constructor(readonly value: string) {}
+
+  static create(raw: string) {
+    const trimmed = raw.trim();
+    if (trimmed.length === 0 || trimmed.length > 50) {
+      throw new Error('프로젝트 이름은 1~50자여야 한다');
+    }
+    return new ProjectName(trimmed);
+  }
+}
+
+const name = ProjectName.create(input.name);
+await db.insert(projects).values({ projectId, name: name.value, description });
+```
+
+생성자를 private으로 막아 두면 `create()`를 거치지 않고는 인스턴스를 만들 수 없어서, 코드 어디서든 ProjectName이면 이미 검증된 값이라고 믿을 수 있다.
+
+DB에 넣을 때는 위처럼 다시 Plain Object로 풀어서 넘긴다. 서버 컴포넌트에서 클라이언트 컴포넌트로 넘기는 props도 직렬화할 수 있는 값만 가능해서 클래스 인스턴스는 넘길 수 없다. 클래스는 서버 안에서 규칙을 지키는 데만 쓰고, 경계를 넘는 데이터는 인터페이스로 둔다.

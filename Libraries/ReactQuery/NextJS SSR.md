@@ -14,7 +14,7 @@ React Query는 동일한 `queryKey`로 `useQuery()`가 호출되면 캐시에서
 <br/>
 
 ### SSR + Hydration 를 통한 데이터 캐싱 방법
-#### 부제: 데이터 드릴링(Props Drilling) 없이 Hydration을 적용하는 방법
+데이터 드릴링(Props Drilling) 없이 Hydration을 적용하는 방법이다.
 
 #### 전체 흐름
 1. 서버 컴포넌트 (`layout.tsx`)에서 `prefetchQuery()`로 데이터 로드
@@ -224,7 +224,7 @@ export default function DashboardPage() {
 }
 ```
 ##### 동작 요약
-- <strong>useQuery(["users"])</strong>를 호출하면, 서버에서 이미 prefetched해둔 캐시가 있으면 즉시 캐싱된 데이터를 반환.
+- <strong>useQuery({ queryKey: ["users"] })</strong>를 호출하면, 서버에서 이미 prefetched해둔 캐시가 있으면 즉시 캐싱된 데이터를 반환.
 - 실제 네트워크 요청은 일어나지 않고, 초기 렌더링에서 이미 Hydration이 완료된 상태를 사용.
 
 
@@ -304,7 +304,7 @@ export default function ProjectCard() {
 
 #### 클라이언트 렌더링
 
-1. dashboard/page.tsx와 그 내부 컴포넌트(UserCard, ProjectCard)가 useQuery(["users"]), useQuery(["projects"])를 각각 호출.
+1. dashboard/page.tsx와 그 내부 컴포넌트(UserCard, ProjectCard)가 useQuery({ queryKey: ["users"] }), useQuery({ queryKey: ["projects"] })를 각각 호출.
 2. 이미 캐시에 있는 데이터를 즉시 반환하므로, 중복 네트워크 요청 없음.
 3. 최종 화면에 사용자 카드, 프로젝트 카드가 즉시 렌더링.
 
