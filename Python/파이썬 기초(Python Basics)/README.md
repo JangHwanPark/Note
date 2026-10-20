@@ -24,6 +24,7 @@
 16. [가변과 불변 자료형](./16_가변과%20불변%20자료형(Mutable%20and%20Immutable)) : 이름표로서의 변수, is와 ==, 인자 전달, 얕은 복사와 깊은 복사
 17. [이터레이터와 제너레이터](./17_이터레이터와%20제너레이터(Iterator%20and%20Generator)) : iter와 next, for 문의 내부 동작, yield, 제너레이터 표현식
 18. [데코레이터](./18_데코레이터(Decorator)) : 값으로서의 함수, 클로저, @ 문법, functools.wraps, 인자를 받는 데코레이터
+19. [타입 힌트](./19_타입%20힌트(Type%20Hint)) : 변수와 함수에 자료형 적기, mypy, 묶음 자료형, None일 수 있는 값
 
 <br/>
 
@@ -39,5 +40,5 @@
 - 제너레이터의 send()와 yield from
 - itertools 모듈 (count, chain, islice 등)
 - functools 모듈 (cache, partial 등)
-- 타입 힌트 (Type Hint)
+- 타입 힌트 더 보기 (Callable, 타입 별칭, 제네릭, Protocol)
 - 자바스크립트와 문법 비교 (별도 문서)
