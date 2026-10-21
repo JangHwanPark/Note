@@ -138,7 +138,7 @@ const itemsRef = useRef(new Map<string, HTMLLIElement>());
 <br/>
 
 ## 애니메이션 대상으로 쓸 때
-캐러셀 슬라이드, 카드 목록처럼 반복되는 요소에 GSAP 같은 라이브러리로 애니메이션을 줄 때도 이 배열을 넘긴다. `.box` 같은 클래스 선택자로 고르면 같은 클래스를 쓰는 다른 컴포넌트의 요소까지 잡힐 수 있지만, ref 배열은 이 컴포넌트가 그린 요소만 가리킨다. GSAP에서 ref와 클래스 선택자를 비교한 내용은 [useRef와 className 차이점](../../Libraries/GSAP/useRef와%20className%20차이점.md)에 정리했다.
+캐러셀 슬라이드, 카드 목록처럼 반복되는 요소에 GSAP 같은 라이브러리로 애니메이션을 줄 때도 이 배열을 넘긴다. `.box` 같은 클래스 선택자로 고르면 같은 클래스를 쓰는 다른 컴포넌트의 요소까지 잡힐 수 있지만, ref 배열은 이 컴포넌트가 그린 요소만 가리킨다. GSAP에서 ref와 클래스 선택자를 비교한 내용은 [useRef와 className 차이점](../../Libraries/GSAP/06_ref와%20className(Ref%20and%20className)/README.md)에 정리했다.
 
 <br/>
 

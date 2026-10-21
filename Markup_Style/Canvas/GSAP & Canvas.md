@@ -18,7 +18,7 @@ GSAP은 HTML, CSS, SVG 애니메이션을 최적화하는 강력한 라이브러
 ✅ SVG 기반 애니메이션 (로고 애니메이션 등)
 ✅ stagger, timeline을 활용한 자연스러운 동작
 
-GSAP 기본 메서드 예제는 [GSAP에서 to(), from(), fromTo()의 차이점과 각각의 사용법](../../Libraries/GSAP/01_gsap%20메서드.md), ScrollTrigger 예제는 [GSAP ScrollTrigger 기본 사용법 & 예제](../../Libraries/GSAP/ScrollTrigger/01_ScrollTrigger.md)에 정리했다.
+GSAP 기본 메서드 예제는 [GSAP에서 to(), from(), fromTo()의 차이점과 각각의 사용법](../../Libraries/GSAP/01_GSAP%20메서드(GSAP%20Methods)/README.md), ScrollTrigger 예제는 [GSAP ScrollTrigger 기본 사용법 & 예제](../../Libraries/GSAP/09_ScrollTrigger%20기본(ScrollTrigger%20Basics)/README.md)에 정리했다.
 ## 3️⃣ 어떤 경우에 Canvas를 사용할까?
 Canvas는 픽셀 단위로 직접 그리기 때문에, UI 요소보다는 고성능 그래픽 애니메이션에 적합함.
 ✅ 수천 개의 요소를 한 번에 애니메이션 (파티클, 게임)

@@ -1,7 +1,7 @@
 ## GSAP 캐러셀이란 ?
 - 슬라이드를 가로로 세우고 트랙을 옆으로 미는 캐러셀의 이동을 CSS `transition` 대신 GSAP 트윈으로 처리한 것
 - `ease` 를 고르거나, 이동이 끝난 순간에 할 일(`onComplete`)을 붙일 수 있어 무한 캐러셀을 만들기 쉽다
-- 캐러셀의 원리와 GSAP 없이 만드는 React 버전은 [React 캐러셀](../../React/UI%20컴포넌트%20만들기(Building%20UI%20Components)/캐러셀(Carousel)/README.md)에 정리했다
+- 캐러셀의 원리와 GSAP 없이 만드는 React 버전은 [React 캐러셀](../../../React/UI%20컴포넌트%20만들기(Building%20UI%20Components)/캐러셀(Carousel)/README.md)에 정리했다
 
 <br/>
 

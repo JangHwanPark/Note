@@ -198,7 +198,7 @@ export default TestGsap;
 
 ## GSAP의 주요 메소드 및 이벤트 종류
 ### GSAP 애니메이션 메소드
-to(), from(), fromTo()는 [GSAP에서 to(), from(), fromTo()의 차이점과 각각의 사용법](01_gsap%20메서드.md)에 정리했다.
+to(), from(), fromTo()는 [GSAP에서 to(), from(), fromTo()의 차이점과 각각의 사용법](../01_GSAP%20메서드(GSAP%20Methods)/README.md)에 정리했다.
 
 4. **gsap.set(target, vars)** - 애니메이션 없이 속성 즉시 설정
 5. **gsap.timeline()** - 여러 애니메이션을 순차적으로 또는 동시에 실행할 수 있는 타임라인 생성
@@ -218,7 +218,7 @@ to(), from(), fromTo()는 [GSAP에서 to(), from(), fromTo()의 차이점과 각
 <br/>
 
 ### ScrollTrigger 주요 속성 및 이벤트
-ScrollTrigger 속성과 콜백 이벤트는 [GSAP ScrollTrigger 기본 사용법 & 예제](ScrollTrigger/01_ScrollTrigger.md)에 정리했다.
+ScrollTrigger 속성과 콜백 이벤트는 [GSAP ScrollTrigger 기본 사용법 & 예제](../09_ScrollTrigger%20기본(ScrollTrigger%20Basics)/README.md)에 정리했다.
 
 <br/>
 

@@ -76,7 +76,7 @@ module.exports = {
 <br/>
 
 ## CSS @keyframes로 직접 적용
-CSS 키프레임 속성은 [키 프레임 (Keyframes)](../../Markup_Style/CSS/animation.md)에 정리했다.
+CSS 키프레임 속성은 [키 프레임 (Keyframes)](../../../Markup_Style/CSS/animation.md)에 정리했다.
 ```css
 @keyframes blink {
   0%, 50% { opacity: 1; }

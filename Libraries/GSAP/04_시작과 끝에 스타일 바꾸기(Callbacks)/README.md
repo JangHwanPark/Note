@@ -91,7 +91,7 @@ ScrollTrigger.create({
 | onLeaveBack | 뒤로 스크롤할 때 다시 fixed 적용     |
 | onEnterBack | 다시 위로 올라가면 fixed 유지       |
 
-각 콜백 이벤트의 일반적인 동작은 [GSAP ScrollTrigger 기본 사용법 & 예제](ScrollTrigger/01_ScrollTrigger.md)에 정리했다.
+각 콜백 이벤트의 일반적인 동작은 [GSAP ScrollTrigger 기본 사용법 & 예제](../09_ScrollTrigger%20기본(ScrollTrigger%20Basics)/README.md)에 정리했다.
 
 <br/>
 

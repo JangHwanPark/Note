@@ -6,4 +6,4 @@
 <br/>
 
 ## 목차
-- [prettier 설정하기](./prettier%20설정하기.md) : Prettier 설정 속성과 기본값
+- [prettier 설정하기](./Prettier%20설정(Prettier%20Config)/README.md) : Prettier 설정 속성과 기본값

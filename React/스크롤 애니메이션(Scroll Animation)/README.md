@@ -1,7 +1,7 @@
 ## 스크롤 애니메이션이란 ?
 - 사용자가 스크롤할 때 화면이 부드럽게 움직이거나, 요소가 보이는 시점에 맞춰 나타나게 하는 효과
 - 부드러운 스크롤과 스크롤 스냅은 CSS만으로 되고, React에서는 ref로 요소를 잡아 특정 위치로 이동시키거나 요소가 화면에 들어왔는지 감지해 애니메이션을 시작한다
-- 이 문서는 라이브러리 없이 만들 수 있는 것만 다룬다. GSAP로 만드는 패럴랙스와 관성 스크롤은 [패럴랙스와 관성 스크롤](../../Libraries/GSAP/ScrollTrigger/05_패럴랙스와%20관성%20스크롤.md), Next.js의 페이지 전환 애니메이션은 [페이지 전환 애니메이션](../../NextJS/페이지%20전환%20애니메이션(Page%20Transition)/README.md)에 정리했다
+- 이 문서는 라이브러리 없이 만들 수 있는 것만 다룬다. GSAP로 만드는 패럴랙스와 관성 스크롤은 [패럴랙스와 관성 스크롤](../../Libraries/GSAP/13_패럴랙스와%20관성%20스크롤(Parallax%20and%20Smooth%20Scroll)/README.md), Next.js의 페이지 전환 애니메이션은 [페이지 전환 애니메이션](../../NextJS/페이지%20전환%20애니메이션(Page%20Transition)/README.md)에 정리했다
 
 ### 스크롤 (Scroll)
 사전적 의미는 두루마리다. 옛 문서처럼 길게 말린 종이를 펼쳐 가며 읽는 것을 말한다.
@@ -120,7 +120,7 @@ function FadeIn({ children }: { children: ReactNode }) {
 
 `ref.current` 를 `useEffect` 안에서 읽는 이유는 렌더링이 끝나 DOM이 붙은 뒤에야 값이 들어오기 때문이다.
 
-시작 지점을 세밀하게 정하거나 스크롤 진행률에 맞춰 움직이게 하려면 GSAP ScrollTrigger를 쓴다. 사용법은 [스크롤 시점에 나타나는 애니메이션](../../Libraries/GSAP/ScrollTrigger/02_스크롤%20시점에%20나타나는%20애니메이션.md)에 정리했다.
+시작 지점을 세밀하게 정하거나 스크롤 진행률에 맞춰 움직이게 하려면 GSAP ScrollTrigger를 쓴다. 사용법은 [스크롤 시점에 나타나는 애니메이션](../../Libraries/GSAP/10_스크롤%20시점%20애니메이션(Scroll-triggered%20Animation)/README.md)에 정리했다.
 
 <br/>
 

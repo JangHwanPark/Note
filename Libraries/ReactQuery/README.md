@@ -6,8 +6,7 @@
 <br/>
 
 ## 목차
-- [React Query SSR + Hydration 정리](./NextJS%20SSR.md) : Next.js 서버 컴포넌트에서 prefetch한 데이터를 클라이언트에서 같은 queryKey로 재사용하는 흐름과 폴더 구조 예시
-- [useQuery 에서 여러개의 데이터 호출하기](./useQuery%20에서%20여러개의%20데이터%20호출하기.md) : 위 문서의 dashboard 예제로 합친 내용
+- [React Query SSR + Hydration 정리](./SSR과%20Hydration(SSR%20and%20Hydration)/README.md) : Next.js 서버 컴포넌트에서 prefetch한 데이터를 클라이언트에서 같은 queryKey로 재사용하는 흐름과 폴더 구조 예시
 
 <br/>
 

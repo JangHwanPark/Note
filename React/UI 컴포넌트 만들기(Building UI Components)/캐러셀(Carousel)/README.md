@@ -78,7 +78,7 @@ React 19, TypeScript 5.6 `strict` 에서 타입 검사를 통과했다. jsdom에
 <br/>
 
 ## GSAP으로 움직이기
-`ease` 를 세밀하게 고르거나, 마지막 장에서 첫 장으로 자연스럽게 이어지는 무한 캐러셀을 만들 때는 GSAP을 쓰기도 한다. GSAP 버전과 무한 캐러셀 구현은 [GSAP 캐러셀 슬라이드](../../../Libraries/GSAP/캐러셀%20슬라이드(Carousel).md)에 정리했다.
+`ease` 를 세밀하게 고르거나, 마지막 장에서 첫 장으로 자연스럽게 이어지는 무한 캐러셀을 만들 때는 GSAP을 쓰기도 한다. GSAP 버전과 무한 캐러셀 구현은 [GSAP 캐러셀 슬라이드](../../../Libraries/GSAP/07_캐러셀%20슬라이드(Carousel)/README.md)에 정리했다.
 
 <br/>
 

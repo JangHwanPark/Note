@@ -1,7 +1,7 @@
 ## GSAP 프로그래스 바 애니메이션이란 ?
 - 프로그래스 바의 안쪽 막대가 차오르는 움직임을 CSS `transition` 대신 GSAP 트윈으로 그리는 방법
 - 진행률은 React 상태로 두고, 상태가 바뀔 때마다 `gsap.to()` 로 막대의 `width` 를 새 값까지 움직인다
-- 막대의 구조와 접근성 속성은 [React 프로그래스 바](../../React/UI%20컴포넌트%20만들기(Building%20UI%20Components)/프로그래스%20바(Progress%20Bar)/README.md)에 정리했다
+- 막대의 구조와 접근성 속성은 [React 프로그래스 바](../../../React/UI%20컴포넌트%20만들기(Building%20UI%20Components)/프로그래스%20바(Progress%20Bar)/README.md)에 정리했다
 
 <br/>
 
@@ -48,4 +48,4 @@ export default GsapProgressBar;
 
 gsap 3.15, React 19에서 jsdom으로 실행해 진행 버튼을 한 번 누르고 0.7초 뒤 막대의 `width` 가 `20%` 가 된 것을 확인했다.
 
-React 컴포넌트에서는 `@gsap/react` 의 `useGSAP` 을 쓰면 컴포넌트가 사라질 때 애니메이션 정리까지 맡길 수 있다. 사용 예는 [캐러셀 슬라이드](./캐러셀%20슬라이드(Carousel).md)에 있다.
+React 컴포넌트에서는 `@gsap/react` 의 `useGSAP` 을 쓰면 컴포넌트가 사라질 때 애니메이션 정리까지 맡길 수 있다. 사용 예는 [캐러셀 슬라이드](../07_캐러셀%20슬라이드(Carousel)/README.md)에 있다.
