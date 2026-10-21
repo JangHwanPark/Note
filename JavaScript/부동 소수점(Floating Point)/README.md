@@ -10,7 +10,7 @@ let floatJs = 0.1 + 0.2;
 console.log(floatJs === 0.3);
 ```
   
-![img.png](./image/Floating-point-percision-in-javascript.png)
+![img.png](./floating-point.png)
   
 결과는 true 같지만 실제 연산결과는 0.30000...4가 출력된다.
 
