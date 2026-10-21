@@ -49,10 +49,11 @@ Judge의 사전적 의미는 판사, 심사위원이다.
 1. Anthropic, [Prompt engineering overview](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview), 공식 문서
 2. Braintrust, [Eval-driven development](https://www.braintrust.dev/articles/eval-driven-development)
 3. Zheng 외, [Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena](https://arxiv.org/abs/2306.05685), arXiv, 2023
+4. Anthropic, [Define success criteria and build evaluations](https://platform.claude.com/docs/en/test-and-evaluate/develop-tests), 공식 문서 (성공 기준과 채점 방법의 예는 [예시](./예시(Examples)/README.md)에서 다룸)
 
 <br/>
 
 ## 더 볼 것 (TODO)
 - 평가 세트 만들기: 몇 개를 어떻게 모을지
-- LLM 평가자의 한계: 긴 답이나 먼저 나온 답을 더 좋게 보는 경향
+- LLM 평가자의 한계: 세 가지 편향의 이름은 [예시](./예시(Examples)/README.md) 4절, 깊이 보기는 아직
 - CI에 평가를 붙여 점수가 떨어지면 머지를 막는 방법을 실제로 해 보기 (흐름은 [예시](./예시(Examples)/README.md) 5절 참고)
