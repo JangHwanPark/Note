@@ -1,59 +1,86 @@
-## useMemo vs useCallback 사용 기준
-둘 다 React의 메모이제이션 훅이지만, 목적과 사용 시점이 다름.
+## useMemo와 useCallback이란 ?
+- 컴포넌트가 다시 렌더링될 때 이전 렌더링에서 만든 것을 다시 쓰게 해 주는 React의 메모이제이션 훅
+- `useMemo` 는 계산한 값을, `useCallback` 은 함수 자체를 기억한다
+- 둘 다 성능 최적화용이다. 이 훅이 없으면 동작이 틀어지는 코드라면 최적화가 아니라 다른 문제를 먼저 고쳐야 한다
 
-## useMemo: 값(결과)을 메모이제이션
-- 계산량이 많은 함수의 결과를 캐싱하여 성능 최적화 
-- 컴포넌트가 리렌더링될 때 불필요한 연산을 방지 
-- location.pathname, 데이터 가공, 객체/배열 생성 같은 연산에 사용
+### 메모이제이션 (Memoization)
+메모(memo)는 잊지 않으려고 적어 두는 짧은 글이다.
+공학적으로 메모이제이션은 같은 입력으로 다시 계산할 일이 생기면 계산하지 않고 적어 둔 결과를 돌려주는 기법을 말한다. React에서는 입력 대신 의존성 배열을 보고, 의존성이 지난 렌더링과 같으면 적어 둔 값이나 함수를 그대로 돌려준다.
 
+시험 문제의 답을 노트에 적어 두는 것과 같다. 같은 문제가 다시 나오면 풀지 않고 노트를 본다. 문제가 바뀌면(의존성이 바뀌면) 다시 푼다.
 
-### 언제 사용해야 할까?
-- 복잡한 연산 결과를 캐싱하여 불필요한 재계산을 막고 싶을 때 
-- 객체/배열을 props로 전달할 때 (useEffect의 의존성 변화 방지)
-- 이전 값과 비교하여 최적화가 필요할 때
+<br/>
 
+## 왜 필요할까
+컴포넌트 함수는 렌더링될 때마다 처음부터 다시 실행된다. 그래서 그 안에서 만든 값과 함수도 매번 새로 만들어진다.
 
-### URL 경로를 한글로 변환하여 캐싱 예제
-- location.pathname이 변경될 때만 pathMap을 조회
-- 불필요한 pathMap 조회 방지 → 성능 최적화
-```js
+대부분은 문제가 되지 않는다. 문제가 되는 것은 두 경우다. 하나는 계산 자체가 느린 경우다. 다른 하나는 매번 새로 만든 객체, 배열, 함수를 다른 곳에서 지난번 값과 같은지 비교하는 경우다. React는 props와 의존성을 `Object.is` 로 비교하는데, 내용이 같아도 새로 만든 객체나 함수는 다른 것으로 본다. 그러면 `memo` 로 감싼 자식(props가 지난번과 같으면 렌더링을 건너뛰는 컴포넌트, 아래에서 다룬다)이 다시 렌더링되고, 그 값을 의존성으로 쓰는 `useEffect` 가 다시 실행된다.
+
+<br/>
+
+## useMemo: 값을 기억한다
+의존성이 바뀌지 않으면 계산 함수를 다시 실행하지 않고 지난번 결과를 돌려준다.
+
+```tsx
+const sortedList = useMemo(() => [...list].sort((a, b) => a - b), [list]);
+```
+
+`list` 가 같은 배열이면 정렬을 다시 하지 않는다. `[3, 1, 2]` 를 받은 컴포넌트를 상관없는 상태 변경으로 두 번 더 렌더링해 보면, 화면은 `1,2,3` 이고 정렬 함수는 처음 한 번만 실행됐다.
+
+아래처럼 객체에서 값 하나를 꺼내는 계산은 기억해 둘 만큼 비싸지 않다. 이런 계산은 그냥 쓰는 편이 읽기 쉽다.
+
+```tsx
+// 객체 조회 한 번이라 useMemo의 이득이 거의 없다
 const pathName = useMemo(() => pathMap[location.pathname] || "페이지 없음", [location.pathname]);
 ```
 
+React 공식 문서는 수천 개의 객체를 만들거나 순회하는 게 아니면 대개 비싸지 않다고 본다. `console.time` 으로 재 봐서 1ms 이상 걸릴 때 메모이제이션을 고려하라고 한다.
 
-### 배열 정렬 캐싱 예제
-list가 변경되지 않으면 정렬 연산을 다시 수행하지 않음
-```js
-const sortedList = useMemo(() => [...list].sort((a, b) => a.value - b.value), [list]);
-```
+<br/>
 
+## useCallback: 함수를 기억한다
+의존성이 바뀌지 않으면 지난번에 만든 함수를 그대로 돌려준다. `useMemo(() => fn, deps)` 와 같은 일을 함수에 맞게 줄여 쓴 것이다.
 
-## useCallback: 함수를 메모이제이션
-- 컴포넌트가 리렌더링될 때 동일한 함수를 유지 
-- useEffect, props로 함수 전달, 이벤트 핸들러 최적화 시 유용
-
-
-### 언제 사용해야 할까?
-- 자식 컴포넌트에 함수를 props로 전달할 때 useCallback을 사용하지 않으면, 부모가 리렌더링될 때마다 새로운 함수가 생성됨 → 불필요한 리렌더링 발생
-- 의존성이 없는 이벤트 핸들러를 최적화할 때 onClick, onChange 같은 이벤트 핸들러가 항상 새로운 함수로 생성되는 걸 방지
-- useEffect의 의존성을 최적화할 때 useCallback을 사용하면 useEffect가 필요 이상으로 실행되는 걸 막을 수 있음
-
-
-### 자식 컴포넌트에 props로 전달하는 이벤트 핸들러 예제
-- useCallback이 없으면 부모가 리렌더링될 때마다 새로운 handleClick 함수가 생성됨 
-- useCallback을 사용하면 불필요한 함수 재생성 방지 → 자식 컴포넌트 최적화 (React.memo와 함께 사용)
-```js
+```tsx
 const handleClick = useCallback(() => {
-  console.log("클릭됨!");
+  console.log("클릭");
 }, []);
-
-<ChildComponent onClick={handleClick} />;
 ```
 
-### useEffect의 의존성 줄이기 예제
-- useCallback이 없으면 fetchData가 매번 새로 생성되어 useEffect가 계속 실행됨 
-- useCallback을 사용하면 함수가 재생성되지 않음 → useEffect의 불필요한 실행 방지
-```js
+### useCallback만으로는 자식이 다시 렌더링된다
+`useCallback` 은 함수를 같은 것으로 유지할 뿐이다. 자식 렌더링을 건너뛰게 하는 것은 `memo` 이고, `memo` 는 props가 지난번과 같을 때만 건너뛴다. 그래서 둘을 함께 써야 효과가 있다.
+
+```tsx
+const MemoChild = memo(Child);
+
+function Parent() {
+  const [count, setCount] = useState(0);
+  const handleClick = useCallback(() => console.log("클릭"), []);
+
+  return (
+    <>
+      <button onClick={() => setCount(count + 1)}>부모 {count}</button>
+      <MemoChild onClick={handleClick} />
+    </>
+  );
+}
+```
+
+부모 버튼을 두 번 눌러 부모를 두 번 더 렌더링하고, 자식이 몇 번 렌더링됐는지 세어 봤다(React 19.2, StrictMode 없이). StrictMode 개발 환경에서는 렌더링을 두 번씩 해서 숫자가 달라진다.
+
+| 자식 | 넘긴 함수 | 자식 렌더링 횟수 |
+| --- | --- | --- |
+| 그냥 컴포넌트 | 매번 새 함수 | 3 |
+| 그냥 컴포넌트 | `useCallback` | 3 |
+| `memo` 로 감쌈 | 매번 새 함수 | 3 |
+| `memo` 로 감쌈 | `useCallback` | 1 |
+
+`memo` 없이 `useCallback` 만 쓰면 자식은 부모와 함께 매번 렌더링된다. 반대로 `memo` 만 쓰고 함수를 매번 새로 만들면 props가 달라졌다고 보고 역시 렌더링된다. 둘 다 있을 때만 처음 한 번으로 끝났다.
+
+### useEffect 의존성에 함수가 들어갈 때
+effect 안에서 쓰는 함수를 컴포넌트에 두면 그 함수가 의존성에 들어가고, 매 렌더링마다 새 함수라 effect도 매번 실행된다. `useCallback` 으로 감싸면 막을 수 있다.
+
+```tsx
 const fetchData = useCallback(async () => {
   const data = await getData();
   setData(data);
@@ -64,69 +91,42 @@ useEffect(() => {
 }, [fetchData]);
 ```
 
-## 정리: useMemo vs useCallback 언제 쓰는 게 적절할까?
-### `useMemo` 사용에 적합한 경우
-- 값(배열, 객체, 연산 결과)을 캐싱 → useMemo
-- props로 객체/배열을 넘길 때 → useMemo
-- 한 번 로드한 데이터를 여러 곳에서 재사용할 때
-  - 한 페이지에서 모든 섹션을 출력하는 경우 (useMemo로 URL 매핑을 캐싱하는 것처럼), 대부분 useMemo가 더 적절한 선택이 됨!
-- 자식 컴포넌트가 리렌더링될 때마다 불필요한 연산이 반복되지 않도록 값을 캐싱할 때
-- 네비게이션, 레이아웃 같은 고정된(변하지 않는) 요소를 저장할 때
-- 매번 새로 계산할 필요 없는 데이터를 보관할 때 (예: URL 매핑, 테이블 구조)
+다만 그 함수를 effect에서만 쓴다면 함수를 effect 안으로 옮기는 편이 더 간단하다. 그러면 의존성에 함수가 들어가지 않는다.
 
-### useMemo를 사용하면 좋은 컴포넌트 (주로 값(데이터)을 캐싱하는 컴포넌트)
-- 네비게이션 바 (Navbar)
-  - URL 매핑을 캐싱하여 네비게이션을 빠르게 렌더링 
-- 사이드바(Sidebar)
-  - 페이지별 메뉴 리스트를 미리 계산해 캐싱 
-- 테이블 컴포넌트 (DataTable)
-  - 데이터 필터링, 정렬된 결과를 불필요한 연산 없이 유지 
-- 검색 결과 리스트 (SearchResults)
-  - 검색 결과 데이터를 가공하여 캐싱 후 여러 곳에서 활용 
-- 차트 컴포넌트 (ChartComponent)
-  - 복잡한 데이터 가공 후 차트를 그릴 때 연산을 최소화 
-- 상품 목록 (ProductList)
-  - API에서 받은 데이터를 정렬/필터링하여 캐싱
-```js
-const sortedData = useMemo(() => {
-  return [...data].sort((a, b) => a.name.localeCompare(b.name));
-}, [data]);
-```
-
-### `useCallback` 사용에 적합한 경우
-- 함수를 캐싱 → useCallback
-- props로 함수를 넘길 때 → useCallback 
-- 부모가 리렌더링될 때 자식 컴포넌트에 전달하는 함수가 계속 새로 만들어지는 문제를 막을 때 
-- 클릭, 마우스 이동, 드래그 같은 이벤트 핸들러를 저장할 때 
-- 애니메이션(GSAP)에서 반복적으로 쓰이는 함수 최적화할 때 
-- useEffect에서 의존성 때문에 불필요하게 실행되는 함수 방지할 때 
-- 자주 호출되는 함수(API 요청, 사용자 입력 핸들러 등)를 캐싱할 때
-
-### `useCallback`을 사용하면 좋은 컴포넌트 (주로 함수(이벤트 핸들러)를 캐싱하는 컴포넌트)
-- 버튼 (Button)
-  - 클릭 이벤트 핸들러를 최적화하여 불필요한 재생성 방지
-- 폼 (Form)
-  - 입력값 변경 핸들러(onChange), 제출 핸들러(onSubmit)를 캐싱
-- 애니메이션 컴포넌트 (AnimatedComponent)
-  - GSAP 또는 Framer Motion에서 애니메이션 함수 캐싱
-- 드래그 앤 드롭 (DragAndDrop)
-  - 마우스 드래그 이벤트(onDrag, onDrop) 캐싱
-- 리스트 아이템 (ListItem)
-  - 개별 리스트 항목에 대한 클릭/마우스 이벤트 핸들러 최적화
-- API 호출 버튼 (FetchButton)
-  - API 요청 함수(handleFetchData)를 useCallback으로 최적화
-```js
-const handleClick = useCallback(() => {
-  console.log("Button clicked!");
+```tsx
+useEffect(() => {
+  const fetchData = async () => {
+    const data = await getData();
+    setData(data);
+  };
+  fetchData();
 }, []);
-
 ```
 
-### useMemo	useCallback
-|   | **useMemo** | **useCallback** |
-|---|------------|---------------|
-| **메모이제이션 대상** | 값 (객체, 배열, 연산 결과) | 함수 |
-| **목적** | 연산 최적화 (불필요한 재계산 방지) | 함수 재생성 방지 (불필요한 리렌더링 방지) |
-| **주로 사용하는 경우** | - 배열 정렬, 객체 생성, 데이터 가공 캐싱<br>- `props`로 전달하는 객체/배열 최적화 | - `props`로 전달하는 함수 최적화<br>- 이벤트 핸들러 최적화<br>- `useEffect`의 의존성 최소화 |
-| **어느 시점에 사용하면 좋을까?** | - 같은 연산을 여러 번 수행해야 할 때<br>- `useEffect`의 의존성을 불필요하게 증가시키는 경우 | - 부모가 리렌더링될 때, 자식 컴포넌트의 함수가 계속 재생성되는 경우<br>- `useEffect`에서 함수 의존성으로 인한 불필요한 실행이 발생할 때 |
-| **결론** | ✅ 값(결과) 캐시 → `useMemo`<br>✅ `props`로 객체/배열을 전달하면 `useMemo` 사용 | ✅ 함수 캐시 → `useCallback`<br>✅ `props`로 함수를 전달하면 `useCallback` 사용 |
+<br/>
+
+## 언제 쓰면 효과가 있을까
+React 공식 문서는 메모이제이션이 효과 있는 경우를 아래 세 가지로 정리한다.
+
+1. 계산이 눈에 띄게 느리고 의존성은 잘 바뀌지 않을 때 (`useMemo`)
+2. `memo` 로 감싼 컴포넌트에 props로 넘길 때 (객체와 배열은 `useMemo`, 함수는 `useCallback`)
+3. 그 값이나 함수를 다른 훅의 의존성으로 쓸 때 (`useEffect`, 다른 `useMemo` 나 `useCallback`)
+
+그 밖의 경우에는 이득이 없다. 크게 해가 되지도 않지만 코드가 읽기 어려워진다. 그래서 어떤 컴포넌트인지보다 위 세 경우에 해당하는지로 정한다.
+
+### React Compiler
+React Compiler는 빌드할 때 컴포넌트와 훅을 분석해 메모이제이션을 자동으로 넣어 주는 도구다. 2025년 10월 7일 1.0이 첫 안정 버전으로 나왔다. 컴파일러를 쓰는 프로젝트라면 `useMemo`, `useCallback`, `memo` 를 직접 쓸 일이 크게 줄어든다.
+
+<br/>
+
+## 참고 자료
+- [React 공식 문서: useMemo](https://react.dev/reference/react/useMemo)
+- [React 공식 문서: useCallback](https://react.dev/reference/react/useCallback)
+- [React Compiler v1.0](https://react.dev/blog/2025/10/07/react-compiler-1)
+
+<br/>
+
+## 더 볼 것 (TODO)
+- `memo` 가 props를 비교하는 방식과 비교 함수 직접 넘기기
+- React Compiler 설정과 기존 코드에 점진적으로 적용하기
+- 리렌더링이 일어나는 조건 전체 정리 (리렌더링과 최적화)

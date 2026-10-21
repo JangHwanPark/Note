@@ -1,238 +1,212 @@
-### useRef Hook
+## useRef란 ?
+- 렌더링과 상관없이 값을 넣어 두는 사물함을 만드는 React 훅이다
+- `useRef(초기값)` 은 `{ current: 초기값 }` 모양의 객체를 돌려주고, 이 객체는 컴포넌트가 화면에서 사라질 때까지 같은 객체로 유지된다
+- `current` 를 바꿔도 컴포넌트는 다시 렌더링되지 않는다. 그래서 DOM 요소를 가리키거나, 화면에 보이지 않는 값(타이머 ID 등)을 담을 때 쓴다
 
----
-`useRef`를 처음 공부할때 컴포넌트의 리랜더링이 안되는데 왜 사용하는지 궁금했었다. 최근 모달 팝업을 만들면서 `useRef`의 사용 목적을 이해하게 되어 정리했다.
+`useRef` 를 처음 공부할 때는 바꿔도 리렌더링이 안 되는데 왜 쓰는지 궁금했다. 입력창 포커스, 타이머 정리, 드롭다운 바깥 클릭 감지처럼 화면을 다시 그릴 필요는 없지만 값이나 요소를 붙잡고 있어야 하는 일을 만들면서 사용 목적을 이해하게 되어 정리했다.
 
-- `useRef`의 사용목적은 DOM 요소나 자바스크립트의 객체를 `직접 참조`하기 위해 사용한다.
-- useRef 는 참조한 객체가 변경되어도 컴포넌트가 리랜더링 되지 않는다.
-- 초기값은 `{ current: initialValue }` 형태로 설정된다.
-- 주로 포커스를 설정하거나 DOM 요소의 값을 읽거나 외부 라이브러리와 상호작용할 때 사용한다.
+### 참조 (Reference)
+사전적 의미는 참고로 비교하고 대조하여 봄이다. 무언가를 볼 때 다른 것을 함께 가리켜 찾아본다는 뜻이다.
+공학적으로는 이 가리켜 찾아본다는 뜻을 살려, 값 자체가 아니라 값이 있는 곳을 가리키는 것을 말한다. ref는 reference의 줄임말로, `inputRef.current` 가 실제 `<input>` DOM 요소를 가리키게 해서 그 요소를 직접 다룰 수 있게 한다.
 
-ref 를 사용하여 둠 요소에 접근 예제
-```javascript
-import React, {useRef} from "react";
+### 사물함으로 이해하기
+`useRef` 는 컴포넌트가 받은 사물함과 같다. 사물함 안의 물건(`current`)은 언제든 바꿔 넣을 수 있지만, 바꿔 넣었다고 누가 알려 주지는 않는다. 반면 `useState` 는 게시판이라서 내용을 바꾸면 모두가 다시 본다(리렌더링).
 
-const FocusInput = () => {
-    // useRef 를 사용해 input 요소에 대한 참조 생성
-    const inputRef = useRef(null);
-    
-    // 버튼 클릭시 input 요소에 포커스 설정
-    const handleFocus = () => {
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
-    }
-    
-    return (
-        <div>
-            <input ref={inputRef} type={"text"}/>
-            <button onClick={handleFocus}>포커스</button>
-        </div>
-    )
-}
+<br/>
+
+## 왜 필요할까
+컴포넌트 함수 안에서 `let` 으로 만든 변수는 렌더링될 때마다 함수가 다시 실행되면서 처음 값으로 돌아간다. 값을 유지하려면 `useState` 를 써야 하는데, `useState` 는 값을 바꿀 때마다 다시 렌더링한다. 화면에 보여 줄 필요가 없는 값까지 상태로 두면 쓸데없이 렌더링이 일어난다.
+
+`useRef` 는 그 사이를 채운다. 렌더링이 여러 번 일어나도 값이 유지되고, 값을 바꿔도 렌더링이 일어나지 않는다.
+
+| 방법 | 렌더링 사이에 값 유지 | 값을 바꾸면 리렌더링 |
+| --- | --- | --- |
+| 일반 변수 (`let`) | 안 됨 | 안 됨 |
+| `useState` | 됨 | 됨 |
+| `useRef` | 됨 | 안 됨 |
+
+<br/>
+
+## 어떻게 동작할까
+React는 컴포넌트마다 처음 렌더링할 때 `{ current: 초기값 }` 객체를 하나 만들어 두고, 이후 렌더링에서는 같은 객체를 돌려준다. 우리가 바꾸는 것은 이 객체 안의 `current` 속성뿐이고 객체 자체는 그대로다. `current` 를 바꾸는 것은 `setState` 처럼 리렌더링을 요청하지 않는다. React는 상태가 바뀌었을 때만 다시 렌더링하므로 화면도 그대로다.
+
+아래 예시에서 버튼을 누르면 `countRef.current` 는 올라가지만 화면의 숫자는 0에 머문다. 다른 이유로 리렌더링이 일어날 때 그동안 쌓인 값이 한꺼번에 보인다. 이 예시는 차이를 보여 주려고 JSX에서 `countRef.current` 를 읽는데, 이는 아래에서 볼 규칙에 어긋나므로 실제 코드에서는 이렇게 쓰지 않는다.
+
+```tsx
+import { useRef } from 'react';
+
+const RefCounter = () => {
+  const countRef = useRef(0);
+
+  const handleClick = () => {
+    countRef.current += 1;
+    console.log(countRef.current); // 1, 2, 3... 콘솔에서는 올라간다
+  };
+
+  return <button onClick={handleClick}>{countRef.current}</button>; // 화면은 0 그대로
+};
 ```
 
-ref 를 사용하여 값을 유지하는 예제
-```javascript
-import React, { useRef, useState, useEffect } from 'react';
+<br/>
+
+## DOM 요소 참조하기
+JSX 요소에 `ref={inputRef}` 를 넘기면 React가 화면에 요소를 붙인 뒤 `inputRef.current` 에 그 DOM 요소를 넣고, 요소가 사라지면 `null` 로 되돌린다. 이렇게 처음 화면에 붙는 것을 마운트(mount)라고 한다. 사전적 의미는 받침대에 올려 고정하는 것이고, 사라지는 것은 반대로 언마운트(unmount)라고 한다. 처음 렌더링하는 동안에는 아직 마운트 전이라 `current` 가 `null` 이다. 그래서 TypeScript에서는 `useRef<HTMLInputElement>(null)` 처럼 가리킬 요소의 타입과 초기값 `null` 을 함께 쓰고, 쓸 때는 `null` 인지 확인한다.
+
+```tsx
+import { useRef } from 'react';
+
+const FocusInput = () => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFocus = () => {
+    inputRef.current?.focus(); // 아직 화면에 없으면 null 이라 확인 후 호출
+  };
+
+  return (
+    <div>
+      <input ref={inputRef} type="text" />
+      <button onClick={handleFocus}>포커스</button>
+    </div>
+  );
+};
+```
+
+`map()` 으로 그린 여러 요소에 ref를 하나씩 연결하는 방법은 [여러 요소에 ref 연결하기](../여러%20요소에%20ref%20연결하기(Refs%20for%20Multiple%20Elements)/README.md)에 정리했다.
+
+<br/>
+
+## 렌더링 중에는 ref를 읽거나 쓰지 않는다
+React 공식 문서는 초기화할 때를 빼고는 렌더링 중(컴포넌트 함수 본문과 JSX)에 `ref.current` 를 읽거나 쓰지 말라고 한다. React는 컴포넌트 본문이 같은 입력에 같은 결과를 내는 순수 함수처럼 동작하기를 기대하는데, 렌더링과 따로 바뀌는 ref를 렌더링 중에 다루면 결과를 예측할 수 없게 되기 때문이다. ref는 이벤트 핸들러나 `useEffect` 안에서 다룬다.
+
+렌더링 횟수를 세는 아래 예시가 이 규칙을 어기는 흔한 경우다.
+
+```tsx
+import { useEffect, useRef, useState } from 'react';
 
 const RenderCount = () => {
   const [count, setCount] = useState(0);
-  
-  // useRef를 사용하여 렌더링 횟수를 추적
   const renderCount = useRef(1);
 
-  // 컴포넌트가 리렌더링될 때마다 useEffect가 실행됨
   useEffect(() => {
-    renderCount.current += 1;
+    renderCount.current += 1; // 렌더링이 끝날 때마다 1 증가
   });
 
   return (
     <div>
       <p>카운터: {count}</p>
-      <p>리랜더링: {renderCount.current} times</p>
+      <p>리렌더링: {renderCount.current}</p>
       <button onClick={() => setCount(count + 1)}>증가</button>
     </div>
   );
 };
 ```
 
-ref 를 사용하여 이전값을 기억하는 예제는 아래 [이전 상태(previous state) 값 저장](#이전-상태previous-state-값-저장)에 있다.
-
-### <br>useRef 의 리랜더링
-
----
-리랜더링이란 컴포넌트의 상태나 props 가 변경될 때 리액트가 컴포넌트를 화면에 다시 그리는 과정이다. 이때 컴포넌트는 최신 상태를 반영하여 UI를 업데이트한다.
-
-`useRef`훅은 참조(reference)를 저장할 수 있는 객체를 반환하며, 이 객체는 컴포넌트의 `전체 수명`동안 유지된다. 이는 DOM 요소나 다른 값을 저장할때 유용하게 사용되며 `useRef`로 생성된 참조 객체의 `.current`속성이 변경되어도 컴포넌트는 리랜더링 되지 않는다.
-
-#### <br>참조의 변경
-`useRef`를 통해 참조된 객체는 변경될 수 있지만, `참조 객체 자체`가 변경되지 않는한 컴포넌트는 리랜더링되지 않는다.
-
-#### <br>상태관리와의 차이
-`useState`를 사용하면 `상태가 변경될 때`마다 컴포넌트가 리랜더링된다. `useRef`의 경우 참조된 객체의 `.current`속성만 변경되며 컴포넌트는 그래도 유지된다.
+React 19.2에서 처음 화면에 나왔을 때와 버튼을 두 번 누른 뒤를 차례로 보면, 일반 모드에서는 리렌더링이 1, 2, 3으로 맞게 나온다. 그런데 `StrictMode` 를 켠 개발 환경에서는 1, 3, 4로 나온다. `StrictMode` 는 실수를 찾으려고 처음 마운트될 때 effect를 한 번 더 실행하는데, 그 실행까지 횟수에 더해졌기 때문이다. 또 이 숫자는 `count` 가 바뀌어 다시 렌더링될 때만 화면에 반영된다. 렌더링 횟수를 보고 싶다면 화면에 그리지 말고 effect 안에서 `console.log` 로 찍는 편이 맞다.
 
 <br/>
 
-## useRef 실제로 언제쓸까?
-### 폼(input) 관리 (포커스, 값 유지)
-상황: 사용자가 폼을 빠르게 입력할 수 있도록 특정 입력 필드에 자동 포커스를 주고 싶을 때
+## 실제로 언제 쓸까
+### 폼 입력창에 자동 포커스
+로그인 화면이 열리자마자 이메일 입력창에 커서를 두고 싶을 때 쓴다. 요소가 화면에 붙은 뒤에 실행되는 `useEffect` 에서 포커스를 준다.
 
-useRef를 사용하면 컴포넌트가 리렌더링되더라도 참조값이 유지되므로, 포커스를 안정적으로 적용할 수 있습니다.
-
-#### 예제: 로그인 화면에서 이메일 입력 필드 자동 포커스
 ```tsx
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
 const LoginForm = () => {
-  const emailRef = useRef(null);
+  const emailRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    emailRef.current.focus(); // 컴포넌트가 마운트될 때 자동으로 포커스 설정
+    emailRef.current?.focus(); // 마운트된 뒤 이메일 입력창에 포커스
   }, []);
 
   return (
-      <form>
-        <input ref={emailRef} type="email" placeholder="이메일을 입력하세요" />
-        <input type="password" placeholder="비밀번호" />
-        <button type="submit">로그인</button>
-      </form>
+    <form>
+      <input ref={emailRef} type="email" placeholder="이메일을 입력하세요" />
+      <input type="password" placeholder="비밀번호" />
+      <button type="submit">로그인</button>
+    </form>
   );
 };
 ```
-사용 이유 : useRef를 사용하면 불필요한 렌더링 없이 특정 input 필드를 참조하고 조작할 수 있음.
 
-<br/>
+### 타이머 ID 보관
+`setInterval` 이 돌려주는 ID는 나중에 `clearInterval` 로 멈출 때만 필요하고 화면에는 보이지 않는다. 상태로 두면 ID를 저장할 때 쓸데없는 렌더링이 일어나므로 ref에 둔다. 아래처럼 다른 이벤트 핸들러에서 멈추려면 effect 밖에서도 ID에 접근할 수 있어야 해서 ref가 필요하다.
 
-#### GSAP 같은 애니메이션 적용
-- 상황: GSAP으로 특정 요소에 애니메이션을 적용해야 할 때
-- useRef를 활용하면 React 상태 변화와 관계없이 애니메이션을 적용할 수 있음.
-- 여러 개의 요소에 애니메이션을 적용해야 하면 useRef([]) 배열 방식으로 관리.
-
-예제: GSAP를 활용한 리스트 애니메이션은 [useRef 배열로 관리하기](useRef%20배열로%20관리하기.md#useref-배열로-관리하는법)에 있다.
-사용 이유
-- 클래스로 선택하는 방식보다 안정적이며, 요소 개별 관리가 가능함. 
-- useRef를 사용하면 React 상태와 관계없이 애니메이션을 적용할 수 있음.
-
-<br/>
-
-#### setInterval / setTimeout을 관리할 때
-상황: 특정 작업을 일정 간격마다 실행하고 싶지만, 컴포넌트가 리렌더링될 때 setInterval을 유지해야 할 때
-
-useRef를 사용하면 리렌더링 없이 setInterval을 저장하고 참조 가능.
-
-예제: 자동으로 숫자가 증가하는 타이머
 ```tsx
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 const Timer = () => {
   const [count, setCount] = useState(0);
-  const intervalRef = useRef(null); // setInterval을 관리
+  const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
+    intervalRef.current = window.setInterval(() => {
       setCount((prev) => prev + 1);
     }, 1000);
 
-    return () => clearInterval(intervalRef.current); // 언마운트 시 정리
+    return () => {
+      if (intervalRef.current !== null) clearInterval(intervalRef.current); // 언마운트 시 정리
+    };
   }, []);
 
-  return <div>타이머: {count}초</div>;
-};
-```
-사용 이유
-setInterval을 useRef에 저장하면 컴포넌트가 리렌더링될 때도 setInterval ID가 유지됨.
-clearInterval(intervalRef.current)을 호출하여 언마운트 시 정리할 수 있음.
-
-<br/>
-
-#### 이전 상태(previous state) 값 저장
-상황: 상태 변화 이전의 값을 유지하고 싶을 때
-
-useRef를 사용하면 렌더링을 트리거하지 않으면서 이전 값을 저장할 수 있음.
-
-예제: 이전 count 값 비교
-```tsx
-import { useState, useEffect, useRef } from "react";
-
-const Counter = () => {
-  const [count, setCount] = useState(0);
-  const prevCountRef = useRef(count);
-
-  useEffect(() => {
-    prevCountRef.current = count; // count 변경 시 이전 값 저장
-  }, [count]);
+  const handleStop = () => {
+    if (intervalRef.current !== null) clearInterval(intervalRef.current);
+  };
 
   return (
     <div>
-      <p>현재 값: {count}</p>
-      <p>이전 값: {prevCountRef.current}</p>
-      <button onClick={() => setCount(count + 1)}>+1</button>
+      타이머: {count}초 <button onClick={handleStop}>멈춤</button>
     </div>
   );
 };
 ```
-사용 이유
-- 이전 값을 저장하면서도 렌더링을 발생시키지 않음. 
-- useEffect 내부에서 prevCountRef.current = count를 업데이트하여 최신 값 유지.
 
-<br/>
+`setInterval` 앞에 `window.` 를 붙인 것은 타입 때문이다. Node 타입이 함께 잡혀 있는 프로젝트에서는 `setInterval` 이 `NodeJS.Timeout` 을 돌려주는 것으로 잡혀 `number` 와 맞지 않을 수 있다. `window.setInterval` 은 항상 `number` 를 돌려준다.
 
-#### 스크롤 위치 감지 및 조작
-상황: 특정 요소로 스크롤 이동을 구현할 때
+### 특정 섹션으로 스크롤
+DOM 요소를 가리켜 두면 `scrollIntoView()` 같은 DOM 메서드를 바로 부를 수 있다.
 
-useRef를 활용하면 DOM 요소를 직접 참조하여 scrollIntoView() 등을 활용 가능.
-
-예제: 버튼 클릭 시 특정 섹션으로 스크롤 이동
 ```tsx
-import { useRef } from "react";
+import { useRef } from 'react';
 
 const ScrollComponent = () => {
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = () => {
-    sectionRef.current.scrollIntoView({ behavior: "smooth" });
+    sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <div>
       <button onClick={handleScroll}>섹션으로 이동</button>
-      <div style={{ height: "100vh" }} /> {/* 빈 공간 */}
-      <div ref={sectionRef} style={{ height: "500px", background: "lightblue" }}>
-        📌 여기로 스크롤됨
+      <div style={{ height: '100vh' }} />
+      <div ref={sectionRef} style={{ height: '500px', background: 'lightblue' }}>
+        여기로 스크롤됨
       </div>
     </div>
   );
 };
 ```
-사용 이유
-- useRef를 사용하면 클릭 이벤트 발생 시 특정 DOM 요소로 부드럽게 스크롤 가능. 
-- 상태 업데이트 없이 DOM 조작 가능하여 성능적으로도 효율적.
 
-<br/>
+### 바깥 클릭으로 드롭다운 닫기
+드롭다운 영역을 ref로 가리켜 두고, 문서 전체에서 일어난 클릭이 그 영역 안인지 `contains()` 로 확인한다. 바깥이면 닫는다.
 
-#### 외부 클릭 감지 (Dropdown, Modal)
-상황: 특정 영역 바깥을 클릭했을 때 모달/드롭다운을 닫아야 할 때
-
-useRef를 활용하면 컴포넌트 바깥 클릭을 감지할 수 있음.
-
-예제: 바깥 클릭 시 드롭다운 닫기
 ```tsx
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 const Dropdown = () => {
   const [open, setOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
@@ -243,4 +217,53 @@ const Dropdown = () => {
   );
 };
 ```
-사용 이유 : useRef를 이용해 드롭다운 영역을 감지하여, 바깥을 클릭하면 닫힘.
+
+### 이전 값 기억하기
+흔히 아래처럼 effect에서 이전 값을 ref에 저장하고 화면에 그린다. `count` 를 1씩 올리는 버튼을 붙여 두 번 누르면 일반 모드에서 현재 값 1, 이전 값 0, 그다음 현재 값 2, 이전 값 1로 나와 동작은 한다.
+
+```tsx
+const [count, setCount] = useState(0);
+const prevCountRef = useRef(count);
+
+useEffect(() => {
+  prevCountRef.current = count; // 렌더링이 끝난 뒤 지금 값을 저장
+}, [count]);
+
+// JSX에서 prevCountRef.current 를 그린다
+```
+
+하지만 렌더링 중에 `prevCountRef.current` 를 읽으므로 앞의 규칙에 어긋난다. 화면에 보여 줄 값은 상태로 두는 것이 원칙이므로 이전 값도 상태로 둔다. 값을 바꾸는 곳에서 바꾸기 전 값을 함께 저장하면 된다.
+
+```tsx
+const [count, setCount] = useState(0);
+const [prevCount, setPrevCount] = useState<number | null>(null);
+
+const handleClick = () => {
+  setPrevCount(count);
+  setCount(count + 1);
+};
+```
+
+이전 값을 화면에 그리지 않고 effect나 이벤트 핸들러 안에서만 비교한다면 ref로 두어도 된다.
+
+<br/>
+
+## 한눈에 보는 용어
+| 용어 | 사전적 의미 | 쉽게 말하면 |
+| --- | --- | --- |
+| 참조 (Reference, ref) | 참고로 비교하고 대조하여 봄 | 값이나 DOM 요소를 넣어 두는 사물함 |
+| current | 현재의 | ref 사물함 안에 든 지금 값 |
+| 리렌더링 (Re-rendering) | 다시 그림 | 상태나 props가 바뀌어 컴포넌트 함수가 다시 실행되는 것 |
+| StrictMode | 엄격한 모드 | 개발 중에 일부 동작을 두 번 실행해 실수를 드러내는 React 기능 |
+
+<br/>
+
+## 참고 자료
+- [React 공식 문서: useRef](https://ko.react.dev/reference/react/useRef)
+- [React 공식 문서: Ref로 값 참조하기](https://ko.react.dev/learn/referencing-values-with-refs)
+
+<br/>
+
+## 더 볼 것 (TODO)
+- 자식 컴포넌트의 DOM에 ref 넘기기 (React 19의 ref prop, 이전의 forwardRef)
+- useImperativeHandle

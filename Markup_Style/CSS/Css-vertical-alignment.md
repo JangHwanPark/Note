@@ -63,3 +63,21 @@ line-height 높이를 웹 높이와 동일하게 설정하면 세로 정렬이 �
     line-height 세로 정렬
 </div>
 ```
+
+### <br>Tailwind로 버튼을 세로 정중앙에 두기
+
+---
+캐러셀의 이전, 다음 버튼처럼 슬라이드 위에 띄운 버튼을 세로 정중앙에 둘 때는 위의 `position` 방식을 Tailwind 클래스로 쓰면 된다.
+
+```html
+<div class="relative h-[300px] border">
+    <div class="absolute top-1/2 left-0 w-full flex justify-between -translate-y-1/2">
+        <button>이전</button>
+        <button>다음</button>
+    </div>
+</div>
+```
+
+`top-1/2` 는 요소의 윗변을 부모 높이의 50% 위치로 내린다. 이대로면 요소의 윗변이 가운데에 오므로, `-translate-y-1/2` 로 자기 높이의 50%만큼 다시 올려 요소의 가운데를 부모의 가운데에 맞춘다. `absolute` 는 `position` 이 지정된 가장 가까운 조상을 기준으로 자리를 잡으므로, 기준이 될 부모에 `relative` 를 준다.
+
+Tailwind v3부터는 `-translate-y-1/2` 만 써도 이동이 적용된다. v2에서는 `transform` 클래스를 함께 붙여야 했다.

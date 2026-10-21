@@ -1,8 +1,17 @@
-## 직접 구현할 수 있는 스크롤 UX 개선 기법
-OS에서 동작 줄이기를 켠 사용자(`prefers-reduced-motion: reduce`)에게는 아래 효과를 끄거나 약하게 하는 것이 좋다. 움직임에 민감한 사용자는 큰 스크롤 효과에 어지러움을 느낄 수 있다.
+## 스크롤 애니메이션이란 ?
+- 사용자가 스크롤할 때 화면이 부드럽게 움직이거나, 요소가 보이는 시점에 맞춰 나타나게 하는 효과
+- 부드러운 스크롤과 스크롤 스냅은 CSS만으로 되고, React에서는 ref로 요소를 잡아 특정 위치로 이동시키거나 요소가 화면에 들어왔는지 감지해 애니메이션을 시작한다
+- 이 문서는 라이브러리 없이 만들 수 있는 것만 다룬다. GSAP로 만드는 패럴랙스와 관성 스크롤은 [패럴랙스와 관성 스크롤](../../Libraries/GSAP/ScrollTrigger/05_패럴랙스와%20관성%20스크롤.md), Next.js의 페이지 전환 애니메이션은 [페이지 전환 애니메이션](../../NextJS/페이지%20전환%20애니메이션(Page%20Transition)/README.md)에 정리했다
 
+### 스크롤 (Scroll)
+사전적 의미는 두루마리다. 옛 문서처럼 길게 말린 종이를 펼쳐 가며 읽는 것을 말한다.
+화면에서는 한 번에 다 보이지 않는 내용을 위아래나 좌우로 밀어 가며 보는 동작을 말한다. 두루마리를 펼치듯 보이는 부분만 옮겨 간다.
+
+<br/>
+
+## React 없이 CSS로 되는 것
 ### 부드러운 스크롤 (Smooth Scroll)
-앵커 링크나 버튼으로 이동할 때 한 번에 점프하지 않고 미끄러지듯 이동하게 한다. CSS 한 줄이나 `scrollIntoView` 옵션으로 된다.
+앵커 링크로 이동할 때 한 번에 점프하지 않고 미끄러지듯 이동하게 한다. CSS 한 줄이면 된다.
 
 ```css
 html {
@@ -10,12 +19,10 @@ html {
 }
 ```
 
-```js
-document.querySelector('#section2').scrollIntoView({ behavior: 'smooth' });
-```
-
 ### 스크롤 스냅 (Scroll Snap)
-스크롤을 멈추면 가장 가까운 섹션의 시작 위치에 맞춰 멈추게 한다. 풀페이지 섹션이나 가로 카드 슬라이더에 쓴다. 스크롤 컨테이너에 `scroll-snap-type`을, 자식에 `scroll-snap-align`을 준다.
+스냅(snap)의 사전적 의미는 딱 하고 맞물리는 것이다. 스크롤을 멈추면 가장 가까운 섹션의 시작 위치에 딱 맞춰 멈추게 한다. 풀페이지 섹션이나 가로 카드 슬라이더에 쓴다.
+
+스크롤 컨테이너에 `scroll-snap-type` 을, 자식에 `scroll-snap-align` 을 준다.
 
 ```css
 .container {
@@ -30,77 +37,131 @@ document.querySelector('#section2').scrollIntoView({ behavior: 'smooth' });
 }
 ```
 
-### 스크롤 트리거 애니메이션 (Scroll Trigger Animation)
-요소가 화면에 들어오는 시점에 애니메이션을 시작한다. 브라우저 기본 API인 IntersectionObserver로 요소가 보이는지 감지하고, 보이면 클래스를 붙인다.
+<br/>
 
-```jsx
-const FadeIn = ({ children }) => {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
+## ref로 특정 위치까지 스크롤하기
+버튼을 눌러 특정 섹션으로 이동하려면 그 섹션의 DOM 요소가 필요하다. React에서는 `document.querySelector` 대신 `useRef` 로 요소를 잡는다. 같은 컴포넌트를 여러 번 그려도 각자 자기 요소를 가리키기 때문이다.
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setVisible(true);
-        observer.disconnect(); // 한 번만 실행
-      }
-    }, { threshold: 0.2 }); // 20% 보이면 실행
+```tsx
+import { useRef } from 'react';
 
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+function Page() {
+  const sectionRef = useRef<HTMLElement>(null);
 
-  return <div ref={ref} className={visible ? 'fade-in' : 'hidden'}>{children}</div>;
-};
-```
-
-시작 지점이나 진행률 연동처럼 세밀한 제어가 필요하면 GSAP ScrollTrigger를 쓴다. 사용법은 [스크롤 시점에 나타나는 애니메이션](../Libraries/GSAP/ScrollTrigger/02_스크롤%20시점에%20나타나는%20애니메이션.md)에 정리했다.
-
-### 패럴랙스 효과 (Parallax Scrolling)
-배경과 전경을 서로 다른 속도로 움직여 깊이감을 주는 효과다. 스크롤 진행률에 애니메이션을 묶는 GSAP ScrollTrigger의 `scrub` 옵션으로 만들 수 있다.
-
-```js
-gsap.to('.bg', {
-  yPercent: -30, // 스크롤하는 동안 배경을 30%만 올려 전경보다 느리게 보이게 한다
-  ease: 'none',
-  scrollTrigger: {
-    trigger: '.hero',
-    start: 'top top',
-    end: 'bottom top',
-    scrub: true, // 스크롤 위치와 애니메이션 진행률을 연결
-  },
-});
-```
-
-### 가속도 기반 스크롤 (Momentum Scrolling)
-휠을 멈춰도 스크롤이 바로 서지 않고 관성을 받아 서서히 멈추게 한다. 브라우저 기본 스크롤로는 안 되므로 Lenis 같은 라이브러리가 매 프레임 스크롤 위치를 목표 값까지 보간해서 움직인다.
-
-```js
-import Lenis from 'lenis';
-
-const lenis = new Lenis();
-
-function raf(time) {
-  lenis.raf(time);
-  requestAnimationFrame(raf);
+  return (
+    <>
+      <button onClick={() => sectionRef.current?.scrollIntoView({ behavior: 'smooth' })}>
+        소개로 이동
+      </button>
+      <section ref={sectionRef}>소개</section>
+    </>
+  );
 }
-requestAnimationFrame(raf);
 ```
 
-GSAP ScrollTrigger와 함께 쓰면 두 라이브러리가 보는 스크롤 위치가 어긋날 수 있다. 이때는 Lenis의 스크롤 이벤트에서 `ScrollTrigger.update()`를 호출해 맞춘다.
+`behavior: 'smooth'` 를 주면 CSS의 `scroll-behavior` 없이도 이 이동만 부드럽게 한다. `sectionRef.current` 는 처음 렌더링 전에는 `null` 이므로 `?.` 로 확인한다.
 
 <br/>
 
+## 화면에 들어올 때 나타나게 하기
+요소가 화면에 들어오는 시점에 애니메이션을 시작하는 효과다. 아래로 내려가며 카드가 하나씩 떠오르는 화면에서 흔히 본다.
 
-## 페이지 전환시 애니메이션 적용하기
-페이지가 전환될 때 부드러운 페이드인/페이드아웃 또는 슬라이드 효과를 추가하려면,
-GSAP을 활용한 애니메이션 컴포넌트를 만들고 페이지에 적용하는 것이 좋다.
+### 왜 IntersectionObserver를 쓸까
+Intersection의 사전적 의미는 교차, Observer는 지켜보는 사람이다. 이름 그대로 요소와 화면이 겹치는지 지켜보는 API다.
 
-페이지 전환 애니메이션을 적용하는 방법은 여러 가지가 있지만,
-최적의 방법은 Layout 컴포넌트를 만들어 모든 페이지에 적용하는거다.
+스크롤 이벤트마다 요소 위치를 직접 계산하면 스크롤할 때마다 계산이 돌아 화면이 버벅일 수 있다. IntersectionObserver는 브라우저에 내장된 API로, 요소와 화면이 겹치는 정도가 정해 둔 기준을 넘나들 때만 알려 준다. 그래서 이 계산을 브라우저에 맡길 수 있다.
 
-### GSAP을 활용한 전역 애니메이션 (Layout 컴포넌트 활용)
-- PageTransition 컴포넌트를 만들어서 페이지에 fade-in 애니메이션 적용 
-- 모든 페이지를 PageTransition으로 감싸기 
-- Next.js App Router에서는 `app/template.tsx`에서 감싼다. `layout.tsx`는 페이지를 이동해도 다시 마운트되지 않아 애니메이션이 처음 한 번만 실행되지만, `template.tsx`는 이동할 때마다 새로 마운트되어 전환마다 실행된다.
-- Pages Router라면 `_app.tsx`에서 감싼다.
+### 동작
+1. `useRef` 로 지켜볼 요소를 잡는다
+2. 마운트되면 `useEffect` 에서 IntersectionObserver를 만들고 요소를 지켜보게 한다
+3. 요소가 20% 이상 보이면 상태를 바꿔 클래스를 붙이고, 더 지켜볼 필요가 없으니 관찰을 끊는다
+4. 컴포넌트가 사라질 때도 관찰을 끊는다
+
+```tsx
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+
+function FadeIn({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.intersectionRatio >= 0.2) {
+        setVisible(true);
+        observer.disconnect(); // 한 번 보이면 더 지켜보지 않는다
+      }
+    }, { threshold: 0.2 }); // 보이는 비율이 20%를 넘나들 때 알려 준다
+
+    observer.observe(el);
+    return () => observer.disconnect(); // 언마운트할 때도 정리한다
+  }, []);
+
+  return <div ref={ref} className={visible ? 'fade-in' : 'before-fade'}>{children}</div>;
+}
+```
+
+```css
+.before-fade {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.5s, transform 0.5s;
+}
+```
+
+조건을 `entry.isIntersecting` 이 아니라 `intersectionRatio >= 0.2` 로 쓴 이유가 있다. `observe()` 를 부르면 기준을 넘지 않았어도 지금 상태를 알려 주는 콜백이 한 번 바로 오고, `isIntersecting` 은 조금이라도 겹치면 `true` 다. 그래서 `isIntersecting` 만 보면 화면 끝에 1px만 걸쳐 있어도 바로 나타나 버린다. 보이는 비율을 직접 비교해야 20% 기준이 지켜진다.
+
+`ref.current` 를 `useEffect` 안에서 읽는 이유는 렌더링이 끝나 DOM이 붙은 뒤에야 값이 들어오기 때문이다.
+
+시작 지점을 세밀하게 정하거나 스크롤 진행률에 맞춰 움직이게 하려면 GSAP ScrollTrigger를 쓴다. 사용법은 [스크롤 시점에 나타나는 애니메이션](../../Libraries/GSAP/ScrollTrigger/02_스크롤%20시점에%20나타나는%20애니메이션.md)에 정리했다.
+
+<br/>
+
+## 움직임을 줄이고 싶은 사용자 배려
+OS에서 동작 줄이기를 켜면 브라우저의 `prefers-reduced-motion` 값이 `reduce` 로 바뀐다. 움직임에 민감한 사용자는 큰 스크롤 효과에 어지러움을 느낄 수 있으므로, 이 설정일 때는 위의 효과를 끄거나 약하게 하는 것이 좋다.
+
+CSS로 준 효과는 미디어 쿼리로 끈다. 부드러운 스크롤뿐 아니라 나타나기 효과의 이동과 전환도 함께 끈다.
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .before-fade,
+  .fade-in {
+    transform: none;
+    transition: none;
+  }
+}
+```
+
+JavaScript에서 넘긴 `scrollIntoView({ behavior: 'smooth' })` 는 이 CSS로 꺼지지 않는다. `matchMedia` 로 설정을 읽어 직접 바꾼다.
+
+```ts
+function scrollToSection(el: HTMLElement | null) {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+}
+```
+
+<br/>
+
+## 참고 자료
+1. MDN, [Intersection Observer API](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
+2. MDN, [prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion)
+
+예시 코드는 React 19.2, TypeScript 5.6 `strict`로 타입 검사했다. jsdom에는 IntersectionObserver와 `scrollIntoView` 가 없어서 둘을 흉내 낸 객체로 바꿔 실행했다. 보이는 비율이 0.05일 때는 `before-fade` 그대로이고 0.2가 되면 `fade-in` 이 붙고 관찰이 끊기는 것, 버튼을 누르면 `scrollIntoView({ behavior: 'smooth' })` 가 불리는 것을 확인했다. 실제 브라우저에서 움직임을 본 것은 아니다.
+
+<br/>
+
+## 더 볼 것 (TODO)
+- 여러 요소를 IntersectionObserver 하나로 지켜보기
+- 무한 스크롤을 IntersectionObserver로 만들기
