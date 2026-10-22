@@ -298,4 +298,4 @@ DELETE를 두 번 보낸 부분을 보면, 응답은 204와 404로 다르지만 
 - HTTP 캐시와 조건부 요청 (ETag, Last-Modified)
 - REST API 설계 원칙
 - 멱등하지 않은 요청을 안전하게 다시 보내는 방법 (멱등 키)
-- [HTTP 메서드별 API 테스트 체크리스트](../../../SoftwareTest/[API]%20HTTP%20메서드별%20체크리스트/README.md)
+- [HTTP 메서드별 API 테스트 체크리스트](../../../SoftwareTest/API%20테스트%20체크리스트(API%20Test%20Checklist)/README.md)
