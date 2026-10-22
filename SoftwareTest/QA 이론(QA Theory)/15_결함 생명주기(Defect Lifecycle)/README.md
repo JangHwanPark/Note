@@ -1,65 +1,95 @@
-# 버그(결함) 생명주기 (Defect Life Cycle)
+## 결함 생명주기란 ?
+- 결함이 발견되어 등록된 때부터 종료될 때까지 거치는 상태의 흐름
+- 버그 생명주기(Bug Life Cycle)라고도 부르고, 결함 관리 도구(Jira, Bugzilla, 사내 BTS)의 워크플로로 구현된다
+- ISTQB는 결함 관리 절차와 결함 리포트에 담을 내용은 정하지만 상태 이름을 정해 두지는 않는다. 상태의 이름과 개수는 도구와 팀마다 다르고, 아래는 면접에서 자주 쓰는 대표 모델이다
 
-> **한 줄**: 결함이 발견되어 종료되기까지의 **상태 흐름**. Jira / 사내 BTS의 워크플로우와 직접 매핑.
+### 생명주기 (Life Cycle)
+사전적 의미는 생물이 태어나 자라고 죽기까지의 과정이다.
+결함에서는 결함이 태어나(등록) 처리되고 사라지기(종료)까지 어떤 상태를 거치는지를 말한다. 상태마다 누가 다음 행동을 해야 하는지가 정해져 있다는 점이 핵심이다.
 
-## 기본 상태 흐름
+택배 배송 조회와 같다. 접수, 집하, 배송 중, 배송 완료처럼 지금 어디에 있고 누구 손에 있는지가 상태로 보인다.
+
+<br/>
+
+## 왜 필요할까
+결함이 많아지면 누가 고치고 있는지, 고쳤는데 확인했는지, 이번 릴리스에서 빼기로 했는지를 기억에 맡길 수 없다. 상태를 정해 두면 결함마다 지금 누구 차례인지 보이고, 확인 없이 닫히거나 담당자 없이 방치되는 결함을 막을 수 있다.
+
+<br/>
+
+## 대표 상태 흐름
 
 ```
-New → Assigned → Open → Fixed → Retest
-                  │              │
-                  ├─ Deferred    ├── Verified → Closed
-                  ├─ Rejected    └── Reopened → (Assigned로 복귀)
-                  └─ Duplicate
+New → Assigned → Open → Fixed → Retest ─┬─ Verified → Closed
+  │                │                     └─ Reopened → Assigned로 돌아감
+  ├─ Rejected      ├─ Deferred
+  ├─ Duplicate     └─ Rejected
+  └─ Deferred
 ```
 
-## 상태별 의미
+| 상태 | 뜻 | 다음 상태 |
+| --- | --- | --- |
+| New | QA가 막 등록한 결함 | Assigned, Rejected, Duplicate, Deferred |
+| Assigned | 담당 개발자가 정해짐 | Open |
+| Open | 개발자가 수정 중 | Fixed, Deferred, Rejected |
+| Fixed | 개발자가 수정을 마치고 QA 확인을 기다림 | Retest |
+| Retest | QA가 수정을 확인하는 중 | Verified, Reopened |
+| Verified | 재테스트 통과 | Closed |
+| Closed | 최종 종료 | 없음 |
+| Reopened | 재테스트 실패 또는 같은 결함 재발 | Assigned |
+| Rejected | 결함이 아님(사양, 환경, 오해) | 없음 |
+| Duplicate | 이미 등록된 결함과 같음 | 없음 |
+| Deferred | 인정하지만 이번 릴리스에서는 고치지 않음 | 다음 릴리스에 다시 Open |
 
-| 상태 | 의미 | 다음 상태 후보 |
-|---|---|---|
-| **New** | QA가 막 등록한 결함 | Assigned / Rejected / Duplicate / Deferred |
-| **Assigned** | 담당 개발자에게 할당됨 | Open |
-| **Open** | 개발자가 수정 작업 중 | Fixed / Deferred / Rejected |
-| **Fixed** | 개발자가 수정 완료 / QA 검증 대기 | Retest |
-| **Retest** | QA가 수정 확인 검증 중 | Verified / Reopened |
-| **Verified** | Retest 통과 (회귀 검증 전) | Closed |
-| **Closed** | 회귀 검증까지 마무리, 최종 종료 | — |
-| **Reopened** | Retest 실패 또는 회귀 결함 재발 | Assigned로 복귀 |
-| **Rejected** | 결함 아님 (사양·환경·오해) | — |
-| **Duplicate** | 기존 결함과 중복 | — |
-| **Deferred** | 인지하지만 이번 릴리즈에는 수정 안 함 | 차기 릴리즈에 Open으로 복귀 |
+Jira의 기본 워크플로는 이보다 훨씬 단순하다(할 일, 진행 중, 완료 정도). 위와 같은 세부 상태는 팀이 워크플로를 따로 만들어 쓰는 경우다. Bugzilla는 상태(예: RESOLVED)와 해결 방식(예: FIXED, DUPLICATE, WONTFIX)을 따로 둔다. 도구별 세부 이름은 버전마다 달라 확인 필요다.
 
-> 회사 / 팀마다 명칭은 다르지만 흐름은 비슷. Jira 기본 워크플로우와 거의 동일.
+<br/>
 
-## 핵심 분기 포인트
+## 갈림길에서 판단하는 기준
 
-### Rejected 처리 사유
-- 명세상 정상 동작 (사양 미숙지)
-- 환경 / 데이터 문제 (제품 결함 아님)
-- 재현 불가
-- 중복 (이 경우 Duplicate로 분리)
+### Rejected로 보내는 경우
+- 명세상 정상 동작이다(사양을 잘못 알았다)
+- 환경이나 데이터 문제라 제품 결함이 아니다
+- 재현되지 않는다
+- 이미 등록된 결함과 같으면 Rejected가 아니라 Duplicate로 따로 처리한다
 
-### Deferred 결정 기준
-- 영향도(Severity) 낮음 + 우회 방법 있음
-- 수정 비용이 영향 대비 큼
-- 릴리즈 일정 우선
+### Deferred로 미루는 경우
+- 심각도가 낮고 우회 방법이 있다
+- 고치는 비용이 영향보다 크다
+- 릴리스 일정이 더 중요하다
 
-### Reopened 트리거
-- Retest 실패 (수정이 결함을 해결하지 못함)
-- 회귀 검증 중 동일 결함 재발
-- 다른 환경 / 권한에서 같은 결함 재현
+### Reopened가 되는 경우
+- 재테스트에서 결함이 그대로 나온다
+- 회귀 테스트 중 같은 결함이 다시 나온다
+- 다른 환경이나 권한에서 같은 결함이 재현된다
 
-## QA가 결함을 잘 등록하는 법
-- **재현 절차** (Pre-condition + Steps)를 명확히
-- **Expected vs Actual** 분리
-- **Severity / Priority** 둘 다 명시 ([severity-vs-priority](../03_심각도와%20우선순위(Severity%20and%20Priority)/README.md))
-- **환경 정보** (OS / 브라우저 / 빌드 / 계정 권한)
-- **증거** (스크린샷 / 영상 / 콘솔 로그 / 네트워크)
-- **영향 범위 추정** (회귀 범위 산정에 도움)
+<br/>
 
-## 면접 답변 템플릿 (30초)
-> "결함 생명주기는 QA가 결함을 등록한 New 상태에서 시작해 Assigned → Open → Fixed → Retest를 거쳐, Retest 통과 시 Verified → Closed로, 실패 시 Reopened되어 Assigned로 복귀하는 상태 흐름입니다. 분기로는 사양·환경 문제인 Rejected, 중복인 Duplicate, 이번 릴리즈에 수정하지 않을 Deferred가 있습니다. 결함 등록 시에는 재현 절차, Expected/Actual, Severity/Priority, 환경 정보, 증거를 반드시 포함해 개발자가 바로 수정 작업에 들어갈 수 있게 합니다."
+## 결함을 잘 등록하는 법
+CTFL v4.0이 결함 리포트에 담으라고 하는 내용(식별자, 제목, 날짜와 작성자, 테스트 대상과 환경, 재현 절차, 기대 결과와 실제 결과, 심각도와 우선순위, 상태, 참고 자료)을 바탕으로 정리하면 아래와 같다.
 
-## 관련 개념
-- [Retest vs Regression](../13_재테스트와%20회귀%20테스트(Retest%20and%20Regression)/README.md) — Fixed → Closed로 가는 두 검증 단계
-- [Severity vs Priority](../03_심각도와%20우선순위(Severity%20and%20Priority)/README.md) — 결함 등록 시 필수 필드
-- [테스트 프로세스](../16_테스트%20프로세스(Test%20Process)/README.md) — 실행 단계의 산출물로서의 결함
+- 결함의 맥락(어떤 TC, 어떤 테스트 활동, 개발 생명주기의 어느 단계에서 발견했는지)을 쓴다
+- 사전 조건과 재현 절차를 순서대로 쓴다
+- 기대 결과와 실제 결과를 나눠 쓴다
+- [심각도와 우선순위](../03_심각도와%20우선순위(Severity%20and%20Priority)/README.md)를 둘 다 적는다
+- 환경 정보(OS, 브라우저, 빌드, 계정 권한)를 적는다
+- 증거(스크린샷, 영상, 콘솔 로그, 네트워크 기록)를 붙인다
+- 영향 범위를 추정해 적는다. 회귀 범위를 정할 때 도움이 된다
+
+<br/>
+
+## 면접 답변 (30초)
+> "결함 생명주기는 결함이 등록된 때부터 종료될 때까지의 상태 흐름입니다. 대표적으로 New에서 Assigned, Open, Fixed를 거쳐 재테스트를 하고, 통과하면 Verified를 거쳐 Closed, 실패하면 Reopened로 담당자에게 돌아갑니다. 결함이 아니면 Rejected, 중복이면 Duplicate, 이번 릴리스에서 미루면 Deferred로 갈라집니다. 상태 이름은 도구와 팀마다 다르지만, 누가 다음 행동을 할 차례인지 보이게 한다는 목적은 같습니다. 등록할 때는 재현 절차, 기대 결과와 실제 결과, 심각도와 우선순위, 환경 정보, 증거를 꼭 넣습니다."
+
+<br/>
+
+## 함께 볼 개념
+- [재테스트와 회귀 테스트](../13_재테스트와%20회귀%20테스트(Retest%20and%20Regression)/README.md)에서 재테스트는 Fixed 뒤 Closed 전에 하는 확인이고, 회귀 테스트는 수정이 다른 기능에 준 영향을 보는 테스트라 결함 하나의 상태와 따로 돌아가기도 한다.
+- [심각도와 우선순위](../03_심각도와%20우선순위(Severity%20and%20Priority)/README.md)는 결함을 등록할 때 꼭 적는 항목이다.
+- [테스트 프로세스](../16_테스트%20프로세스(Test%20Process)/README.md)의 실행 단계에서 결함이 나온다.
+
+<br/>
+
+## 참고 자료
+- ISTQB, Certified Tester Foundation Level Syllabus v4.0 (2023), 5.5 Defect Management
+
+[목차](../README.md) | [이전 장: 탐색적 테스트](../14_탐색적%20테스트(Exploratory%20Testing)/README.md) | [다음 장: 테스트 프로세스](../16_테스트%20프로세스(Test%20Process)/README.md)
