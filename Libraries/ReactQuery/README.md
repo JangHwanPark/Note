@@ -15,8 +15,8 @@
 <br/>
 
 ## 함께 보면 좋은 노트
-- [Next.js에서 React Query 요청 위치 정리(서버 vs 클라이언트)](../../NextJS/Next.js에서%20React%20Query%20요청%20위치%20정리(서버%20vs%20클라이언트)) : Next.js의 fetch와 React Query의 역할 차이, 요청을 어디서 보낼지
-- [CSR과 SSR](../../NextJS/CSR과%20SSR) : App Router에서 서버 컴포넌트와 클라이언트 컴포넌트가 렌더링되는 위치
+- [Next.js에서 React Query 요청 위치 정리(서버 vs 클라이언트)](../../NextJS/React%20Query%20요청%20위치(Where%20to%20Fetch%20with%20React%20Query)) : Next.js의 fetch와 React Query의 역할 차이, 요청을 어디서 보낼지
+- [CSR과 SSR](../../NextJS/CSR과%20SSR(CSR%20and%20SSR)) : App Router에서 서버 컴포넌트와 클라이언트 컴포넌트가 렌더링되는 위치
 
 <br/>
 

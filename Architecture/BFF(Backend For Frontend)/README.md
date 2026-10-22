@@ -1,204 +1,119 @@
-## BFF(Backend For Frontend)개념 정리 – Next.js + Spring 기반
-디에듀(D-edu) 프로젝트를 진행하면서, 클라이언트에서의 데이터 요청 횟수를 최소화하고 대시보드 화면의 데이터 의존성을 단순하게 만드는 방법을 고민하다가 BFF 패턴을 알게 되었다.
+## BFF란 ?
+- BFF(Backend For Frontend)는 특정 프론트엔드 화면이나 플랫폼(웹, 모바일, 관리자 등) 하나만을 위해 두는 전용 백엔드 계층이다
+- 여러 백엔드 API를 대신 불러 합치고, 그 화면이 쓰기 편한 모양으로 바꿔 내려준다
+- Sam Newman이 2015년 글 "Pattern: Backends For Frontends"로 정리해 알려졌다. 그는 이 방식을 REA와 SoundCloud에서 보았고, 이름은 SoundCloud 출신 Phil Calçado에게서 왔다고 적었다. 이름을 처음 붙인 사람이 누구인지는 이 글 말고 따로 확인하지 못했다(확인 필요)
+- 이 노트는 디에듀(D-edu) 프로젝트에서 Next.js Route Handler를 BFF로 쓰고 뒤에 Spring 백엔드를 둔 경험을 바탕으로 정리했다
 
-특히 하나의 화면을 구성하기 위해 여러 개의 백엔드 API를 호출해야 하고, 그 데이터를 프론트에서 다시 가공해야 하는 상황이 반복되면서 **클라이언트가 이런 로직을 다 처리하는 것이 맞는가**?라는 의문이 생겼다. 이 문제를 해결하기 위해 프론트 전용 레이어인 BFF(Backend For Frontend) 를 도입하게 되었고, 아래는 그 과정에서 정리한 개념과 구현 내용이다.
+### Backend For Frontend
+말 그대로 프론트엔드를 위한 백엔드다. 백엔드가 여러 화면이 함께 쓰는 도메인 중심 API를 제공한다면, BFF는 화면 하나가 필요로 하는 모양에 맞춘 API를 제공한다.
 
-## BFF란(Backend For Frontend) ?
-BFF는 프론트엔드 전용 백엔드 계층이다. 특정 프론트엔드 화면이나 플랫폼(웹, 모바일, 관리자 등)에 최적화된 API를 제공하는 서버를 의미한다.
+식당의 홀 담당과 같다. 손님(브라우저)은 홀 담당에게 한 번 주문하고, 홀 담당이 주방의 여러 파트(백엔드 API)에 나눠 전하고 받아 온 음식을 한 상으로 차려 낸다.
 
-전통적으로 Spring과 같은 백엔드는 여러 서비스 간 공통 로직을 처리하는 **도메인 중심 서버**로 구성되어 있지만, BFF는 **오직 프론트에서 필요한 형태로 데이터를 조립하고 가공**하는 역할에 집중한다. Next.js의 Route Handler는 서버 환경에서 실행되기 때문에, 웹 프론트엔드 기준으로는 BFF 구현 위치로 가장 자연스럽다.
+<br/>
 
-요약하면, BFF는 다음과 같은 일을 한다.  
-- 백엔드가 제공하는 여러 API를 하나로 합쳐서 제공
-- 프론트 렌더링에 편한 형태로 DTO를 재구성
-- 인증/권한을 서버에서 안전하게 처리
-- 프론트와 백엔드 사이의 변화 충격을 완화하는 완충 계층
-- 네트워크 비용 감소(브라우저 → BFF 한 번만 요청하면 됨)
+## 어떻게 알게 됐나
+디에듀 대시보드 화면 하나를 그리려면 회원 정보, 스터디룸 목록, 수업 노트, 통계 API를 각각 불러야 했다. 그 데이터를 프론트에서 다시 합치고 가공하는 코드가 반복되면서, 클라이언트가 이 일을 다 맡는 것이 맞는지 고민하다가 BFF 패턴을 알게 됐다.
 
-## 더 일반적인 관점에서 본 BFF의 필요성
-BFF는 특정 프로젝트뿐 아니라 다음과 같은 상황에서 자연스럽게 필요성이 드러난다.
+<br/>
 
-### 마이크로서비스 아키텍처(MSA)에서 서비스가 여러 개로 분리된 경우
-여러 도메인(회원, 권한, 콘텐츠, 통계 등)이 각각 별도 서비스로 운영되면 프론트는 필요한 데이터를 얻기 위해 여러 서비스로 동시에 요청해야 한다.(여러 서비스의 데이터를 합쳐야함) 이 경우 프론트가 직접 API를 여러 번 호출하면 요청, 응답 구조가 복잡해지고 네트워크 비용이 기하급수적으로 늘어난다.
+## 언제 필요할까
+### 서비스가 여러 개로 나뉜 경우
+회원, 권한, 콘텐츠, 통계가 각각 별도 서비스(마이크로서비스, MSA)로 운영되면, 화면 하나를 그리는 데 여러 서비스의 데이터를 합쳐야 한다. 프론트가 직접 여러 번 호출하면 요청 흐름과 로딩, 에러 처리가 복잡해지고, 브라우저와 서버 사이의 왕복도 그만큼 늘어난다.
 
-### 플랫폼별로 필요한 데이터 구조가 서로 다른 경우
-웹, 모바일, 태블릿, 관리자 콘솔은 서로 필요한 필드와 데이터 양이 다르다. 모바일은 최소 데이터만 필요할 수 있고, 관리자 콘솔은 더 많은 필드를 필요로 한다. 프론트가 각자 데이터를 가공하기 시작하면 유지보수가 어려워지고, 백엔드가 모든 플랫폼을 고려해 API를 만들기 시작하면, API 스펙이 커지고 유지보수가 어려워진다. 이때 BFF는 각 플랫폼에 맞는 API를 만들어 충격을 흡수한다.
+### 플랫폼마다 필요한 데이터 모양이 다른 경우
+웹, 모바일, 관리자 콘솔은 필요한 필드와 데이터 양이 다르다. 프론트마다 가공을 따로 하면 같은 가공 코드가 흩어지고, 백엔드가 모든 플랫폼에 맞춘 API를 만들면 API가 끝없이 커진다. Sam Newman은 "one experience, one BFF", 즉 사용자 경험(플랫폼) 하나에 BFF 하나를 두라고 권한다. 웹과 모바일의 화면이 거의 같다면 BFF 하나를 함께 써도 된다고 덧붙인다.
 
-### 클라이언트에서 처리하기엔 무거운 연산을 서버에서 수행하고 싶은 경우
-여러 데이터를 합산하거나 필터링하거나 통계를 만들어야 할 때, 프론트에서 처리하면 CPU를 많이 쓰고 네트워크 비용까지 증가한다.(대량 데이터 집계, 통계, 정렬, 필터링 등은 모바일/브라우저 환경에서 처리하기엔 무겁다.)
+### 클라이언트에서 하기엔 무거운 가공이 있는 경우
+여러 데이터를 합산하거나 정렬, 필터링, 통계를 내는 일을 브라우저에서 하면 받아야 할 데이터도 많고 계산도 무겁다. BFF가 서버에서 미리 정리해 내려주면 클라이언트는 그리기만 하면 된다.
 
-이런 계산을 프론트에서 하면 성능이 떨어지고 UX가 저하되기 때문에, BFF가 중간에서 데이터를 미리 정리해 전달하면 클라이언트는 가볍게 렌더링에 집중할 수 있다.
+<br/>
 
-## 전체 시퀀스 다이어그램 (디에듀 대시보드 예시)
+## BFF가 하는 일
+### 여러 API를 하나로 합친다
+대시보드 위젯 세 개를 그리려면 원래 API를 세 번 불러야 한다. BFF는 서버 안에서 이 API들을 병렬로 부른 뒤 하나로 묶어 돌려준다. 클라이언트는 `/api/bff/dashboard` 를 한 번만 부른다.
+
+Sam Newman은 이렇게 여러 곳을 부를 때 가능하면 병렬로 부르고, 그중 하나가 실패해도 전체를 실패시키기보다 그 부분만 빼고 응답하라고 권한다. 이때 클라이언트는 일부 데이터가 빠진 응답도 그릴 수 있어야 한다.
+
+### 응답을 화면에 맞는 모양으로 바꾼다
+백엔드 API마다 응답 구조가 달라도 BFF에서 화면이 쓰기 좋은 하나의 구조로 바꿔 내려준다. 백엔드 응답이 바뀌어도 BFF만 고치면 되므로, 프론트 코드가 백엔드 변경에 덜 흔들린다.
+
+### 권한 확인을 서버에서 한다
+클라이언트가 보내는 역할(role) 값은 사용자가 조작할 수 있어서 믿을 수 없다. BFF는 쿠키에 담긴 세션으로 백엔드의 회원 정보 API를 불러 역할을 직접 확인한다. 그래서 "선생님만 볼 수 있다" 같은 규칙을 서버에서 지킬 수 있다. 다만 최종 권한 검사는 백엔드도 해야 한다. BFF를 거치지 않고 백엔드를 직접 부르는 길이 열려 있다면 BFF의 검사는 우회될 수 있다.
+
+### 누가 맡나
+Sam Newman은 BFF를 그 화면을 만드는 프론트엔드 팀이 맡으라고 권한다. 화면이 바뀔 때 BFF도 같은 팀이 바로 고치고 함께 배포할 수 있기 때문이다. Next.js Route Handler로 BFF를 만들면 프론트엔드 코드와 같은 저장소, 같은 배포 단위에 들어가서 이 조건을 자연스럽게 채운다.
+
+<br/>
+
+## 디에듀 대시보드의 요청 흐름
 ```mermaid
 sequenceDiagram
-    participant Br as Browser (사용자 브라우저)
-    participant Nc as Next.js Client (React App)
+    participant Br as Browser
     participant Nb as Next.js BFF (Route Handler)
     participant Sp as Spring Backend
 
-    Note over Br,Nc: 1) 사용자가 /dashboard 페이지 접속
-
-    Br->>Nc: /dashboard 페이지 요청 (HTML/JS 로드)
-    Nc-->>Br: React App 번들, 페이지 렌더링
-
-    Note over Br,Nb: 2) 대시보드 데이터 요청
-
     Br->>Nb: GET /api/bff/dashboard (쿠키 포함)
     Nb->>Sp: GET /api/member/info
-    Sp-->>Nb: member/info 응답 (role, id, name...)
+    Sp-->>Nb: 회원 정보 (id, name, role)
 
-    Nb->>Sp: GET /api/teacher/study-rooms?size=3
-    Nb->>Sp: GET /api/teacher/teaching-notes?size=3
-    Nb->>Sp: GET /api/teacher/dashboard-stats
-    Sp-->>Nb: rooms 응답
-    Sp-->>Nb: notes 응답
-    Sp-->>Nb: stats 응답
+    par 병렬 호출
+        Nb->>Sp: GET /api/teacher/study-rooms?size=3
+        Nb->>Sp: GET /api/teacher/teaching-notes?size=3
+        Nb->>Sp: GET /api/teacher/dashboard-stats
+    end
+    Sp-->>Nb: rooms, notes, stats
 
-    Note over Nb: 3) 응답 병합 및 프론트 최적화 DTO로 변환
-
-    Nb-->>Br: dashboard JSON (member + rooms + notes + stats)
-    Br->>Nc: 대시보드 컴포넌트 렌더링에 사용
+    Note over Nb: 응답을 합쳐 화면용 구조로 바꾼다
+    Nb-->>Br: { member, rooms, notes, stats }
 ```
-#### 요청 흐름 단계별 설명
-##### 브라우저가 /dashboard URL로 접속 
-브라우저는 Next.js 서버에 페이지를 요청하고, React App이 렌더링된다.
-이때는 UI 껍데기만 내려오고, 실제 데이터(스터디룸, 노트, 통계)는 없다.
 
-##### 클라이언트가 /api/bff/dashboard 호출
-대시보드에 필요한 모든 데이터는 여기로 요청된다. 프론트에서는 요청 도구(fetch, axios, react-query, swr...)와 상관없이 동일한 흐름을 가진다. 어떤 도구를 쓰든, 클라이언트는 브라우저 → BFF 단 한 번만 요청을 보내게 된다.
+1. 브라우저가 `/dashboard` 페이지를 받는다. 이 예시는 클라이언트에서 데이터를 요청하는 구조라, 처음에는 화면 틀만 그려지고 데이터는 아직 없다.
+2. 클라이언트가 `/api/bff/dashboard` 를 한 번 부른다. fetch, axios, React Query 중 무엇을 쓰든 브라우저에서 나가는 요청은 이것 하나다.
+
 ```ts
 const { data } = useQuery({
   queryKey: ["dashboard"],
   queryFn: () => fetch("/api/bff/dashboard").then((r) => r.json()),
 });
 ```
-이 요청을 Next.js 서버(Route Handler)가 받고, BFF 내부에서 Spring API 여러 개를 병렬로 호출해 데이터를 조립한 후,
-프론트에서 쓰기 쉬운 형태로 최종 JSON을 반환한다.
 
-##### BFF(Route Handler)가 Spring 서버에 여러 번 요청
-이 요청들은 서버 → 서버 통신이므로 빠르고 안정적이며, 병렬로 호출하기도 쉽다.
-- /api/member/info
-- /api/teacher/study-rooms?size=3
-- /api/teacher/teaching-notes?size=3
-- /api/teacher/dashboard-stats
+3. Route Handler가 먼저 회원 정보로 역할을 확인하고, 나머지 세 API를 병렬로 부른다.
+4. 응답 네 개를 하나로 합쳐 돌려준다.
 
-##### BFF가 데이터를 하나의 DTO로 조립하여 응답
-브라우저는 이 한 번의 응답(JSON)으로 대시보드 모든 정보를 렌더링한다.
-- 상단 프로필 영역: member 
-- 스터디룸 카드 3개: rooms
-- 최근 노트 3개: notes
-- 통계 박스: stats
 ```js
 {
   member: { id, name, role },
-  rooms: [...3개], 
-    notes: [...3개],
-    stats: { totalStudents, totalNotes, ... }
+  rooms: [/* 최근 3개 */],
+  notes: [/* 최근 3개 */],
+  stats: { totalStudents, totalNotes /* ... */ }
 }
 ```
 
-## BFF가 필요한 이유
-프론트엔드가 여러 API를 직접 호출하면 다음 문제가 생긴다
+화면은 이 응답 하나로 상단 프로필(member), 스터디룸 카드 세 개(rooms), 최근 노트 세 개(notes), 통계 박스(stats)를 그린다.
 
-- 브라우저 → 서버 API 요청이 **여러 번 발생**해 성능 저하
-- 각 API마다 로딩/에러 상태를 따로 관리해야 해서 UI/상태관리 복잡
-- 백엔드 API 스펙 변경 시 프론트가 직접 깨질 위험 증가
-- 클라이언트는 믿을 수 없는 환경 → 권한(Role) 체크를 클라에서 하면 **보안 취약**
-- 대시보드처럼 “한 곳에서 여러 데이터가 동시에 필요한” 경우 불편
+<br/>
 
-➡ **BFF는 이런 문제를 해결하기 위해, 프론트 요청을 한 곳에서 조립해서 제공하는 서버 계층**
-
-클라이언트가 직접 스프링 API를 3번 호출하면
-
-- 브라우저 ↔ 서버 사이에서 **3번 왕복**
-- 네트워크 지연(Latency) 증가
-- 호출마다 별도 로딩/에러 관리
-- 백엔드 API 변경에 프론트가 바로 깨짐
-- Role/권한 체크를 브라우저에서 하면 **보안 취약**
-
-BFF는 이 문제를 해결하기 위해 등장했다.
-
-**브라우저는 단 1번 요청만 보내고, BFF가 내부적으로 백엔드 API 여러 개를 묶어서 반환한다.**
-
----
-
-## BFF가 하는 역할
-### 여러 백엔드 API를 하나로 합친다
-예: 대시보드 위젯 3개 표시하려면 원래 3번 API 호출해야 함 → BFF는 내부에서 병렬 호출 후 하나로 묶어 return.
-
-- Room 최신 3개
-- Teaching notes 최신 3개
-- 전체 학생 수
-- Member info(권한)
-
-➡ 클라는 `/api/bff/dashboard` **1번 호출만 하면 됨**
-
-### 권한 / 역할(Role) 체크를 안전한 서버에서 처리
-클라이언트에서 role 값을 보내면 조작 가능하므로 신뢰할 수 없음.
-BFF는 쿠키 기반 세션을 직접 읽고 백엔드에 `member/info` 호출 후 role을 확인함.
-
-**즉, "teacher만 접근 가능" 같은 규칙을 안전하게 지킬 수 있음.**
-
-### 응답 포맷을 프론트 친화적으로 재구성
-백엔드 스펙에 따라 응답 구조가 제각각이더라도  
-BFF에서 하나의 통일된 구조로 변환하여 프론트에 내려줌.
-
-➡ **프론트는 변경에 훨씬 강해짐**
-
-### 브라우저 네트워크 비용 절감
-브라우저 ↔ BFF(Vercel) 왕복은 최소화  
-BFF ↔ Backend(AWS) 통신은 서버 간 통신이라 빠름.
-
-➡ 모바일/저속 환경에서 UX 차이가 크게 남.
-
-## 성능/비용 분석 (중요)
-### 성능: BFF가 압도적으로 유리
-#### 브라우저 ↔ Vercel
-- 직접 호출: **3회 왕복**
-- BFF: **1회 왕복**
-
-브라우저 네트워크는 가장 느리고, 모바일/와이파이 환경에서는 차이가 더 커짐.
-
-#### Vercel ↔ AWS
-서버 간 통신은 빠르고 병렬로 처리할 수 있음 → 오히려 더 빠름.
-
-#### 데이터 전송량
-3번 헤더 전송 → 1번만 전송  
-➡ 대역폭 낭비를 크게 줄임.
-
-### 비용: BFF가 더 효율적
-#### Vercel 비용 구조
-- API 호출 3번 = Vercel Function 3번 실행
-- BFF 1번 = Function 1번 실행
-
-콜드스타트 발생도 3 → 1 로 줄어듦.
-
-#### AWS 비용
-서버-서버는 일반적으로 저렴 → 큰 차이 없음.
-
-#### 대역폭(Bandwidth) 비용
-클라이언트 ↔ 서버의 전송량이 줄기 때문에 비용 절감 가능.
-
-## BFF 기본 구현 예시
-### Next.js (Vercel) BFF 라우트
+## 구현 예시 (Next.js Route Handler)
 ```ts
 import { DashboardSchema } from "./dashboard.schema";
 import { authBffHttp } from "@/shared/api";
 
 export async function GET() {
-  // 1. 멤버 정보로 Role 확인
+  // 1. 회원 정보로 역할 확인
   const memberRes = await authBffHttp.get("/api/member/info");
   const member = memberRes.data.data;
+  if (member.role !== "TEACHER") {
+    return Response.json({ message: "권한이 없습니다" }, { status: 403 });
+  }
 
-  // 2. 백엔드 API 병렬 호출
+  // 2. 나머지 API 병렬 호출
   const [rooms, notes, stats] = await Promise.all([
     authBffHttp.get("/api/teacher/study-rooms?size=3"),
     authBffHttp.get("/api/teacher/teaching-notes?size=3"),
     authBffHttp.get("/api/teacher/dashboard-stats"),
   ]);
 
-  // 3. 프론트 친화적 형식으로 변환
+  // 3. 화면용 구조로 바꾸고 스키마로 검증
   const dashboard = DashboardSchema.parse({
     member,
     rooms: rooms.data.data,
@@ -210,53 +125,61 @@ export async function GET() {
 }
 ```
 
-## NextRouter → NextRouter(member) → Spring 구조는 비효율적인가?
-요청 흐름이 `NextRouter A → NextRouter B → Spring`처럼 이어지는 것은 일반적으로 비효율적이다.
+역할이 선생님이 아니면 나머지 API를 부르지 않고 403을 돌려준다. 역할 값 `"TEACHER"` 는 이 예시에서 정한 이름이다. `authBffHttp`, `DashboardSchema` 는 디에듀 프로젝트의 코드라 이 노트만으로는 실행되지 않는다. `Promise.all` 은 하나라도 실패하면 전체가 실패하므로, 일부만 빠진 응답을 내려주려면 `Promise.allSettled` 로 바꿔 실패한 부분을 따로 처리해야 한다.
 
-현재 구조는 요청을 두 번이나 Next.js 서버 내부에서 프록시하는 형태다.
-- 클라이언트 → Next.js Router A (/api/some-feature)
-- Next.js Router A → Next.js Router B (/api/v1/member/info)
-- Next.js Router B → Spring
+<br/>
 
-### 문제가 되는 이유
-#### 중복된 네트워크 오버헤드
-Next.js 서버 내부에서 요청이 발생하더라도, 실제로는 Node.js 이벤트 루프와 네트워크 스택을 두 번 거치게 됩니다. 이는 불필요한 `지연 시간(latency)`과 처리 부하를 유발합니다.
+## 성능과 비용
+브라우저에서 직접 API 세 개를 부르면 브라우저와 서버 사이를 세 번 오가고, BFF를 두면 한 번 오간다. 브라우저 쪽 네트워크는 서버끼리의 통신보다 느리고 불안정한 경우가 많아서, 특히 모바일에서 이 차이가 크게 느껴진다. BFF와 백엔드 사이의 호출은 서버끼리의 통신이고 병렬로 보낼 수 있다.
 
-#### 불필요한 로직 분리
-member 정보를 가져오는 로직은 본질적으로 Spring BFF로 요청을 보내는 단일 목적을 가지고 있습니다. 이를 별도의 Next.js 라우터(Router B)로 분리하는 것은 코드의 흐름을 복잡하게 만들고, Router A에서 Router B로 요청을 전달할 때 헤더나 쿠키를 또다시 수동으로 전달해야 하는 번거로움을 초래합니다.
+대신 요청 경로에 서버가 하나 더 끼므로, BFF와 백엔드가 멀리 떨어져 있으면 그만큼 지연이 더해진다. 디에듀는 BFF가 Vercel, 백엔드가 AWS에 있었는데, 두 서버 사이의 실제 지연은 재 보지 않았다.
 
-#### 인증 및 에러 처리 복잡성
-인증 쿠키 처리나 에러 핸들링 로직이 Router A와 Router B에 분산되어 있다면, 일관성을 유지하기가 어렵고 디버깅도 힘들어집니다.
+비용도 Vercel 기준으로 보면, 브라우저가 Route Handler를 세 번 부르던 구조라면 함수 실행이 세 번에서 한 번으로 준다. 브라우저가 Spring을 직접 부르던 구조와 비교하면 오히려 함수 실행이 한 번 늘어난다. 정확한 비용 차이는 요금제와 트래픽에 따라 달라서 확인하지 않았다.
 
-### 권장되는 효율적인 흐름(Single Next.js Router → Spring: Single Router)
-가장 효율적이고 표준적인 BFF 패턴은 Next.js 라우터 핸들러에서 바로 Spring BFF로 요청하는 것이다.
+<br/>
+
+## Route Handler가 Route Handler를 부르는 구조는 피한다
+디에듀에서 한때 요청이 아래처럼 이어졌다.
 
 ```text
-Client → Next.js BFF → Spring
+Client → Next.js Route Handler A (/api/some-feature)
+       → Next.js Route Handler B (/api/v1/member/info)
+       → Spring
 ```
-outer A에서 필요한 데이터를 얻기 위해 Router B를 또 호출하는 것이 아니라, Router A가 직접 Spring으로 요청하도록 만드는 방식이 가장 단순하고 직관적이며, 유지보수성이 좋다.
 
-member 정보를 조회하는 로직이 필요하다면, Router A의 내부 함수로 만들거나, 또는 현재 구조처럼 repository 함수로 만들어서 Router A에서 직접 호출해야 합니다. 이 방식은 불필요한 요청 단계를 제거하여 성능을 최적화하고 코드의 응집성을 높여줍니다.
+A가 회원 정보를 얻으려고 같은 Next.js 서버의 B를 HTTP로 다시 부르는 구조다. 같은 서버 안이어도 HTTP 요청을 한 번 더 만들고 받아야 해서 지연과 처리 부하가 늘고, 인증 쿠키와 헤더를 A에서 B로 직접 넘겨줘야 한다. 인증과 에러 처리 로직도 두 곳에 흩어진다.
 
-| 단계   | 주체                | 대상                 | 비고                                      |
-|--------|----------------------|-----------------------|--------------------------------------------|
-| 1단계 | 클라이언트 (Client) | Next.js Router (BFF) | 인증 쿠키를 Next.js Router로 전달          |
-| 2단계 | Next.js Router (BFF) | Spring BFF           | serverToBffApi를 사용하여 Spring으로 요청 |
+회원 정보를 가져오는 로직은 함수(repository)로 만들고, A가 그 함수를 직접 불러 Spring에 바로 요청하게 바꿨다.
 
+```text
+Client → Next.js Route Handler → Spring
+```
 
-```js
-import { NextRequest } from 'next/server';
-import { repository } from '@/entities/member'; // Spring으로 바로 쏘는 repository
+```ts
+import { NextRequest } from "next/server";
+import { repository } from "@/entities/member"; // Spring으로 바로 요청하는 함수
 
 export async function GET(request: NextRequest) {
-  // 1. Router A에서 repository 함수를 직접 호출
-  const member = await repository.member.getMember(request); 
-  
-  // ... 나머지 로직 처리
+  // Route Handler를 거치지 않고 repository 함수를 직접 호출
+  const member = await repository.member.getMember(request);
+
+  // ... 나머지 로직
 }
 ```
 
-## 마무리
-BFF는 단순한 “프록시 서버”가 아니라, 프론트엔드 개발자가 더 빠르고 안정적으로 화면을 구성할 수 있도록 도와주는 전용 백엔드 계층이다. 특히 Next.js + Spring 조합에서는 Next.js Route Handler가 그 역할을 자연스럽게 수행할 수 있어 별도의 서버를 만들 필요가 없다.
+<br/>
 
-디에듀 프로젝트처럼 여러 API를 한 화면에서 조합해야 하는 구조에서는 BFF의 효과가 매우 크다. 프론트는 오직 하나의 API만 호출하고, 백엔드 변경에도 쉽게 대응할 수 있으며, 권한 및 보안 문제를 서버에서 안전하게 처리한다.
+## 정리
+BFF는 단순히 요청을 넘겨주는 프록시가 아니라, 화면 하나를 위해 데이터를 모으고 다듬는 전용 계층이다. Next.js와 Spring 조합에서는 Route Handler가 이 역할을 맡을 수 있어서 별도 서버를 띄우지 않아도 된다. 디에듀처럼 한 화면에서 여러 API를 조합해야 하는 구조에서는 클라이언트 코드가 단순해지는 효과가 컸다.
+
+<br/>
+
+## 참고 자료
+- Sam Newman, [Pattern: Backends For Frontends](https://samnewman.io/patterns/architectural/bff/), 2015-11-18
+
+<br/>
+
+## 더 볼 것 (TODO)
+- BFF가 여러 개일 때 겹치는 로직을 어디에 둘지 (공유 라이브러리, 하위 서비스)
+- BFF와 API 게이트웨이의 차이
+- 일부 API가 실패했을 때 부분 응답을 내려주고 화면에서 처리하기
