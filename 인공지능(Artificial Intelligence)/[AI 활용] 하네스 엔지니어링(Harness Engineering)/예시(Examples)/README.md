@@ -1,7 +1,7 @@
 ## 하네스 엔지니어링 예시란 ?
 - [하네스 엔지니어링](../README.md) 문서에서 본 장치(지시 파일, 스킬, 훅, 검증 장치, 권한)를 실제로 어떻게 만드는지 보여 주는 예시 모음
 - 장치마다 개념이나 원문에 나온 예를 먼저 요약하고, 이 노트 레포에 실제로 만들어 둔 하네스를 이어 붙였다
-- 원문은 미첼 하시모토의 [My AI Adoption Journey](https://mitchellh.com/writing/my-ai-adoption-journey)(참고 자료 1)와 Claude Code 공식 문서 [Automate actions with hooks](https://code.claude.com/docs/en/hooks-guide)(참고 자료 2)에서 가져왔다. 2026-10-21에 확인한 내용이다
+- 원문은 미첼 하시모토의 [My AI Adoption Journey](https://mitchellh.com/writing/my-ai-adoption-journey)(참고 자료 1)와 Claude Code 공식 문서 [Automate actions with hooks](https://code.claude.com/docs/en/hooks-guide)(참고 자료 2), [How Claude remembers your project](https://code.claude.com/docs/en/memory)(참고 자료 3), [Extend Claude with skills](https://code.claude.com/docs/en/skills)(참고 자료 4)에서 가져왔다. 1, 2는 2026-10-21에, 3, 4는 2026-10-22에 확인한 내용이다
 
 ### 좋은 하네스의 기준
 하시모토는 에이전트가 실수할 때마다 시간을 들여, 그 에이전트가 다시는 그 실수를 하지 않도록 해결책을 만들어 두는 것을 하네스 엔지니어링이라 한다(참고 자료 1). 그래서 좋은 하네스는 한 번에 설계해 완성하는 것이 아니라, 실제로 나온 실수 하나하나에 대응하며 자란다. 아래 예시도 대부분 실제 실수에서 나왔다.
@@ -141,6 +141,18 @@ node .claude/scripts/check-links.js "Python"
 처음 만든 스크립트는 정규식으로 링크를 찾다가 폴더 이름 안의 괄호에서 링크가 끝난 것으로 잘못 읽었다. 그래서 괄호 짝을 맞춰 읽도록 고쳤다.
 코드 예시를 실행해 결과를 확인하는 일도 같은 역할을 한다. 파이썬 노트를 쓸 때 트레이스백 예시를 실행해 보고 나서야, Python 3.11부터 오류 위치에 `~^` 표시가 붙는다는 것을 반영할 수 있었다.
 
+### 하네스를 채점하는 평가
+하네스 자체도 고치다 보면 망가진다. 3절에서 화살표 기호를 이모지로 잡던 훅을 고쳤는데, 나중에 이모지 판정을 다시 넓히면 같은 실수가 되살아날 수 있다. 그래서 훅이 막아야 할 문장과 막지 말아야 할 문장 8개를 적어 두고, 훅을 돌려 기대와 같은지 채점하는 스크립트를 만들었다.
+
+```bash
+node .claude/scripts/eval-note-style.js
+# PASS  case 1  expected=false got=false
+# ...
+# 8/8 passed
+```
+
+8개는 이모지, 쓰지 않기로 한 단어, 코드 스팬 뒤 대시, 콜론 줄바꿈처럼 막아야 할 것 4개와, 평범한 문장, 제목 끝 콜론, 화살표 기호, 코드 블록 안의 콜론처럼 막으면 안 되는 것 4개로 나눴다. 이모지 판정을 그림 문자 전체(`\p{Extended_Pictographic}`)로 넓힌 사본을 넘겨 채점해 보니 화살표 사례에서 떨어져 7/8이 나왔다. 훅을 실제로 바꾸기 전에 사본으로 점수를 비교하면 되살아나는 실수를 미리 잡을 수 있다.
+
 <br/>
 
 ## 5. 리뷰 전용 에이전트와 권한
@@ -173,6 +185,26 @@ tools: Read, Grep, Glob
 
 <br/>
 
+## 7. 규칙을 어디에 둘까
+### 원문 기준
+Claude Code 문서는 `CLAUDE.md` 를 모든 세션 시작에 읽히는 맥락으로 설명한다. 강제되는 설정이 아니므로, Claude의 판단과 상관없이 어떤 동작을 막으려면 훅을 쓰라고 한다. `CLAUDE.md` 에는 매 세션 알아야 할 사실(빌드 명령, 컨벤션, 프로젝트 구조, 늘 지킬 규칙)만 두고, 여러 단계로 된 절차나 코드베이스 일부에만 해당하는 내용은 스킬이나 경로별 규칙(`.claude/rules/`)으로 옮기라고 한다. 파일 하나는 200줄 아래를 권하는데, 길수록 컨텍스트를 더 쓰고 지시를 덜 따르게 되기 때문이다(참고 자료 3).
+
+스킬은 평소에 설명(description)만 컨텍스트에 있고 본문은 불렀을 때만 들어온다. 그래서 같은 지시나 체크리스트를 채팅에 반복해 붙여 넣게 될 때, 또는 `CLAUDE.md` 의 한 부분이 사실이 아니라 절차로 자랐을 때 스킬을 만들라고 한다(참고 자료 4).
+
+### 이 레포에 적용한 기준
+위 기준을 이 레포에 맞추면, 규칙 하나를 만들고 놓고 확인하는 과정을 아래 순서로 밟는다. 2~5번이 자리를 고르는 단계다.
+
+1. 실제로 나온 실수에서 시작한다. 겪지 않은 실수에 대비한 규칙은 만들지 않는다(좋은 하네스의 기준, 6절)
+2. 기계로 판별할 수 있으면 훅으로 만든다. 이모지나 쓰지 않기로 한 단어는 모델이 잊어도, 파일을 고치는 도구를 거치는 한 훅이 잡는다(3절, 빈틈은 6절)
+3. 판단이 필요한 규칙은 지시 파일에 쓴다. 용어를 사전적 의미에서 공학적 의미로 이었는지는 훅으로 판별할 수 없다. 말만으로 애매한 규칙은 피할 예와 고친 예를 가이드 문서에 둔다(1절)
+4. 특정 작업에서만 필요한 절차는 스킬로 뺀다. 노트 작성 절차가 그렇다(2절)
+5. 작성과 떨어져 판단해야 하는 일은 도구를 줄인 에이전트에게 맡긴다(5절)
+6. 장치를 고쳤으면 평가를 다시 돌려 예전에 고친 실수가 되살아나지 않았는지 본다(4절)
+
+주의할 점이 하나 있다. 가이드 문서는 `CLAUDE.md` 안의 `@docs/writing-guide.md` 로 불러오는데, 불러온 파일도 세션 시작에 함께 읽히므로 컨텍스트 비용은 줄지 않는다(참고 자료 3). 파일을 나눈 것은 정리를 위해서일 뿐이다. 2026-10-22 기준으로 파일마다 보면 `CLAUDE.md` 37줄, 가이드 174줄로 둘 다 200줄 아래다. 하지만 둘은 함께 읽히므로 매 세션 읽히는 양은 211줄이고, 권장선을 조금 넘는다. 더 길어지면 노트를 쓸 때만 필요한 예시를 스킬 쪽으로 옮기는 것을 검토할 생각이다. 아직 옮기지 않았다.
+
+<br/>
+
 ## 장치 요약
 | 장치 | 무엇을 막거나 돕나 | 이 레포의 파일 |
 | --- | --- | --- |
@@ -180,6 +212,7 @@ tools: Read, Grep, Glob
 | 스킬 | 긴 절차에서 단계 빠뜨리기 | `.claude/skills/note/SKILL.md` |
 | 훅 | 부탁만으로는 가끔 어기는 형식 규칙 | `.claude/settings.json`, `.claude/hooks/check-note-style.js` |
 | 검증 스크립트 | 사람이 일일이 보기 어려운 깨진 링크 | `.claude/scripts/check-links.js` |
+| 평가 스크립트 | 훅을 고치다 예전에 고친 실수가 되살아나는 것 | `.claude/scripts/eval-note-style.js` |
 | 리뷰 에이전트와 권한 | 작성자가 놓친 사실 오류, 검토 중 파일 수정 | `.claude/agents/note-reviewer.md` |
 
 <br/>
@@ -187,3 +220,5 @@ tools: Read, Grep, Glob
 ## 참고 자료
 1. Mitchell Hashimoto, [My AI Adoption Journey](https://mitchellh.com/writing/my-ai-adoption-journey), 2026-02-05, 2026-10-21 확인
 2. Anthropic, [Automate actions with hooks](https://code.claude.com/docs/en/hooks-guide), Claude Code 공식 문서, 2026-10-21 확인
+3. Anthropic, [How Claude remembers your project](https://code.claude.com/docs/en/memory), Claude Code 공식 문서, 2026-10-22 확인
+4. Anthropic, [Extend Claude with skills](https://code.claude.com/docs/en/skills), Claude Code 공식 문서, 2026-10-22 확인
