@@ -5,4 +5,4 @@
 <br/>
 
 ## 목차
-- [K8S Master 컴포넌트](./K8S%20Master%20컴포넌트.md) : Control Plane 구성 요소(kube-apiserver, kube-scheduler 등)의 역할을 묻는 문제 풀이
+- [K8S Master 컴포넌트](./컨트롤%20플레인%20구성%20요소(Control%20Plane%20Components)/README.md) : Control Plane 구성 요소(kube-apiserver, kube-scheduler 등)의 역할을 묻는 문제 풀이

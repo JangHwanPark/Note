@@ -12,10 +12,10 @@
 <br/>
 
 ## 목차
-- [CSR과 SSR](./CSR과%20SSR) : 서버 컴포넌트와 클라이언트 컴포넌트, 첫 화면이 만들어지는 과정, 정적 렌더링과 동적 렌더링
-- [레이아웃 children에 props를 왜 못내릴까](./레이아웃%20children에%20props를%20왜%20못내릴까) : App Router의 layout에서 page로 데이터를 props로 넘길 수 없는 이유
-- [Next.js에서 React Query 요청 위치 정리(서버 vs 클라이언트)](./Next.js에서%20React%20Query%20요청%20위치%20정리(서버%20vs%20클라이언트)) : Next.js의 fetch와 React Query를 언제 어디서 쓰는지
-- [FullStack DTO 전략(Class vs Interface 의사결정 기준)](./FullStack%20-%20DTO%20전략(Class%20vs%20Interface%20의사결정%20기준)) : 풀스택에서 DTO를 interface/type으로 쓸지 클래스로 쓸지 정하는 기준
+- [CSR과 SSR](./CSR과%20SSR(CSR%20and%20SSR)) : 서버 컴포넌트와 클라이언트 컴포넌트, 첫 화면이 만들어지는 과정, 정적 렌더링과 동적 렌더링
+- [레이아웃 children에 props를 왜 못내릴까](./레이아웃과%20props(Layout%20and%20Props)) : App Router의 layout에서 page로 데이터를 props로 넘길 수 없는 이유
+- [Next.js에서 React Query 요청 위치 정리(서버 vs 클라이언트)](./React%20Query%20요청%20위치(Where%20to%20Fetch%20with%20React%20Query)) : Next.js의 fetch와 React Query를 언제 어디서 쓰는지
+- [FullStack DTO 전략(Class vs Interface 의사결정 기준)](./DTO%20설계%20기준(DTO%20Strategy)) : 풀스택에서 DTO를 interface/type으로 쓸지 클래스로 쓸지 정하는 기준
 - [페이지 전환 애니메이션](./페이지%20전환%20애니메이션(Page%20Transition)) : layout 대신 template.tsx에 애니메이션을 넣는 이유와 다시 마운트되는 조건
 
 <br/>
