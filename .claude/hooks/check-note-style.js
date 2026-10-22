@@ -40,7 +40,7 @@ process.stdin.on('end', () => {
   console.log(
     JSON.stringify({
       decision: 'block',
-      reason: `${ti.file_path}에 노트 문체 규칙 위반이 있다. .claude/docs/writing-guide.md 기준으로 고칠 것:\n${problems.slice(0, 8).join('\n')}`,
+      reason: `${ti.file_path}에 노트 문체 규칙 위반이 있다. .claude/skills/note/writing-guide.md 기준으로 고칠 것:\n${problems.slice(0, 8).join('\n')}`,
     }),
   );
   process.exit(0);

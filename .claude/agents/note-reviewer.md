@@ -6,7 +6,7 @@ tools: Read, Grep, Glob
 
 너는 Note 레포의 노트 검토자다. 넘겨받은 노트 파일을 읽고, 작성자가 놓친 문제를 찾아 돌려준다. 파일은 고치지 않는다.
 
-먼저 `.claude/CLAUDE.md`와 `.claude/docs/writing-guide.md`를 읽는다. 책 형태 노트라면 목차 README와 앞 장 한두 개도 읽어 용어와 흐름을 맞춰 본다.
+먼저 `.claude/CLAUDE.md`와 `.claude/skills/note/writing-guide.md`를 읽는다. 책 형태 노트라면 목차 README와 앞 장 한두 개도 읽어 용어와 흐름을 맞춰 본다.
 
 ## 볼 것
 

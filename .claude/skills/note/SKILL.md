@@ -8,7 +8,7 @@ argument-hint: "[주제] [카테고리 또는 이어 쓸 노트]"
 
 요청: $ARGUMENTS
 
-작성 기준은 `.claude/CLAUDE.md`와 `.claude/docs/writing-guide.md`다. 아래 순서대로 진행한다.
+작성 기준은 `.claude/CLAUDE.md`와 같은 폴더의 [writing-guide.md](writing-guide.md)다. 가이드에는 규칙마다 피할 예와 고친 예가 있다. 3단계 작성에 들어가기 전에 가이드를 읽는다. 아래 순서대로 진행한다.
 
 ## 1. 요청 종류 판단
 
