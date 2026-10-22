@@ -6,11 +6,11 @@
 <br/>
 
 ## 목차
-- [ReactQuery](./ReactQuery) : 서버 데이터를 캐싱하고 동기화하는 TanStack Query, Next.js에서 SSR과 Hydration으로 쓰는 흐름
-- [React Router](./React%20Router) : React 앱의 URL 라우팅, useLocation
+- [ReactQuery](./ReactQuery) : 서버 데이터를 캐싱하고 동기화하는 TanStack Query, staleTime, Next.js에서 SSR과 Hydration으로 쓰는 흐름
+- [React Router](./React%20Router) : URL에 따라 화면을 바꾸는 라우팅, v7 패키지 이름, useLocation
 - [GSAP](./GSAP) : 웹 애니메이션 라이브러리, 메서드와 ease, ScrollTrigger로 만드는 스크롤 애니메이션, Lenis 관성 스크롤과 함께 쓰기
-- [Jest](./Jest) : JavaScript 테스트 프레임워크, 매처, 비동기 테스트, 모의 함수, 오류 모음, Vitest 설치
-- [Code-Style](./Code-Style) : Prettier 설정 속성과 기본값
+- [Jest](./Jest) : Jest(30.5 기준)의 테스트 작성, 매처, 비동기, 모의 함수, 오류 해결과 Vitest로 옮기기
+- [Code-Style](./Code-Style) : 코드 모양 규칙과 Prettier 설정, 옵션별 기본값(3.9 기준)
 
 <br/>
 
@@ -18,5 +18,4 @@
 - 상태 관리 라이브러리: Redux, Zustand, Jotai, XState (Recoil은 2025-01-01에 저장소가 아카이브됨)
 - 데이터 요청: SWR, Axios 인스턴스, GraphQL과 Apollo
 - 폼 유효성 검사: React Hook Form, Formik, Zod, Yup
-- React Router 라우팅 패턴: 중첩 라우트, 레이아웃 라우트, 보호된 라우트, 동적 라우트
 - Storybook으로 컴포넌트 따로 개발하기

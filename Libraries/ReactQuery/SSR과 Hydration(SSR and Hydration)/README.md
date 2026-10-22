@@ -1,251 +1,201 @@
-## React Query SSR + Hydration 정리
+## SSR과 Hydration이란 ?
+- 서버 사이드 렌더링(Server-Side Rendering, SSR)은 서버에서 화면을 미리 만들어 HTML로 보내는 방식이다
+- 이 문서는 SSR에서 React Query를 쓰는 흐름을 다룬다. 서버에서 데이터를 미리 받아 캐시에 넣고(미리 가져오기, prefetch), 그 캐시를 주고받을 수 있는 객체로 바꿔 브라우저로 넘긴 뒤(말리기, dehydrate), 브라우저의 캐시에 다시 채운다(되살리기, hydrate)
+- 브라우저의 컴포넌트는 같은 `queryKey` 로 `useQuery` 를 부르기만 하면 서버에서 받은 데이터를 첫 화면부터 쓴다
+- 그래서 데이터가 필요한 컴포넌트가 깊은 곳에 있어도 props로 내려 줄 필요가 없다
+- 이 문서의 코드는 @tanstack/react-query 5.104.5, React 19.2, TypeScript 5.6 strict로 타입 검사했다. 캐시 동작은 jsdom에서 실행해 확인했고, Next.js 앱으로 띄워 보지는 않았다. Next.js 구성은 App Router 기준이며 버전별 동작은 확인 필요다
 
-### 왜 SSR + Hydration 이 필요할까?
-React Query SSR + Hydration 방식을 쓰면, 여러 컴포넌트가 같은 `queryKey`로 `useQuery()`를 호출해도 중복 요청 없이 이미 Hydration 된 데이터를 활용할 수 있다. 따라서 불필요한 데이터 드릴링도 필요 없고, 각 컴포넌트마다 `useQuery`를 자유롭게 호출할 수 있다.
+### 하이드레이션 (Hydration)
+사전적 의미는 수화, 물을 공급함이다. 말린 음식에 물을 부어 원래 상태로 되돌리는 일을 떠올리면 된다.
+React Query에서는 서버가 말려서(dehydrate) 보낸 캐시를 브라우저가 물을 부어(hydrate) 살아 있는 캐시로 되돌리는 일을 말한다. `dehydrate` 는 캐시를 함수나 클래스가 없는 평범한 객체로 바꿔 줄 뿐이고, 이 객체를 문자열로 바꿔(직렬화, Serialization) 브라우저에 보내는 일은 Next.js가 서버 컴포넌트의 props를 넘길 때 한다.
+
+React에도 하이드레이션이라는 말이 있는데 다른 일이다. React의 하이드레이션은 서버가 만든 HTML에 브라우저가 이벤트 처리기를 붙여 움직이는 화면으로 만드는 일이다. 이 문서에서 하이드레이션은 React Query 캐시를 채우는 일을 가리킨다.
+
+동결 건조 식품과 같다. 공장(서버)에서 음식을 만들어 말려 보내면, 집(브라우저)에서는 물만 부어 바로 먹는다. 처음부터 다시 요리(요청)하지 않는다.
 
 <br/>
 
-### useQuery()를 여러 컴포넌트에서 호출해도 비효율적이지 않은 이유
-React Query는 동일한 `queryKey`로 `useQuery()`가 호출되면 캐시에서 데이터를 반환한다. 즉, 이미 서버에서 `prefetchQuery()`로 받아 온 데이터가 있으면, 다른 컴포넌트에서 `useQuery()`를 호출해도 네트워크 요청 없이 즉시 캐시를 반환하게 된다.
+## 왜 필요할까
+서버 컴포넌트에서 받은 데이터를 클라이언트 컴포넌트에 쓰려면 보통 props로 넘긴다. 데이터가 필요한 컴포넌트가 트리 깊은 곳에 있으면 중간 컴포넌트들이 쓰지도 않는 props를 계속 넘겨야 한다(props drilling).
 
-- 컴포넌트마다 `useQuery()` 호출 = “여러 번 네트워크 요청”이 아니라, 이미 캐싱된 데이터를 컴포넌트들이 공유하기 때문에 오버헤드가 없다.
-- 데이터 드릴링(props drilling) 없이 하위 컴포넌트에서도 `useQuery()`로 데이터를 활용 가능.
+React Query 캐시를 서버에서 채워 넘기면 이 전달이 필요 없다. 깊은 곳의 컴포넌트도 같은 `queryKey` 로 `useQuery` 를 부르면 캐시에서 바로 꺼낸다.
+
+### useQuery를 여러 곳에서 불러도 괜찮은 이유
+React Query는 `queryKey` 를 기준으로 캐시를 하나만 둔다. 같은 키로 `useQuery` 를 여러 번 불러도 결과는 모든 컴포넌트가 나눠 쓴다. 다만 요청이 한 번으로 줄어드는 것은 두 경우뿐이다. 같은 키의 요청이 이미 진행 중일 때, 그리고 캐시의 데이터가 아직 `staleTime` 안일 때다.
+
+jsdom에서 확인한 결과는 아래와 같다.
+
+- 같은 화면에서 `["users"]` 를 세 컴포넌트가 동시에 써도 `fetchUsers` 는 한 번 불렸다
+- 기본 설정(`staleTime` 0)에서 첫 요청이 끝난 뒤 같은 키를 쓰는 컴포넌트가 새로 나타나면 한 번 더 불렸다(총 2번)
+- `staleTime` 을 60초로 두면 나중에 나타난 컴포넌트도 캐시를 그대로 써서 총 1번이었다
 
 <br/>
 
-### SSR + Hydration 를 통한 데이터 캐싱 방법
-데이터 드릴링(Props Drilling) 없이 Hydration을 적용하는 방법이다.
+## staleTime을 0보다 크게 두는 이유
+서버에서 받은 데이터가 있어도 기본 설정 그대로면 브라우저가 마운트하자마자 다시 요청한다. `staleTime` 기본값이 0이라서, 하이드레이션된 데이터도 받는 즉시 오래된(stale) 데이터로 취급되기 때문이다. 오래된 데이터를 가진 쿼리는 컴포넌트가 마운트될 때 백그라운드에서 다시 가져온다.
 
-#### 전체 흐름
-1. 서버 컴포넌트 (`layout.tsx`)에서 `prefetchQuery()`로 데이터 로드
-   - 예: 레이아웃(혹은 최상위 `layout.tsx`) 또는 페이지 레벨에서 서버 컴포넌트로 `queryClient.prefetchQuery()`를 실행.
-   - 이렇게 하면 React Query의 캐시에 미리 데이터가 채워짐.
-2. React Query의 `dehydrate(queryClient)`로 직렬화하여 클라이언트에 전달
-   - 서버에서 `dehydrate(queryClient)`로 직렬화된 캐시(Hydration Data) 생성
-3. 클라이언트 컴포넌트 (`Providers.tsx`)에서 `HydrationBoundary`로 캐시 복원
-   - <strong>클라이언트 컴포넌트에서 `HydrationBoundary`</strong>와 `QueryClientProvider`로 감싸기
-   - `HydrationBoundary`의 `state`에 서버에서 직렬화해 준 캐시(`dehydratedState`)를 넘겨줌.
-4. 각 컴포넌트에서 `useQuery()`로 동일 `queryKey`를 사용하면, 캐시된 데이터를 재활용
-   - 각 컴포넌트(심지어 깊은 Children)에서 `useQuery()`
-   - 똑같은 `queryKey(["someKey", id])`로 `useQuery()` 호출 → 이미 캐시에 있는 데이터를 즉시 사용
-   - 추가 fetch 없이 서버에서 넘긴 데이터를 활용
+jsdom에서 서버 쪽 `QueryClient` 로 `users`, `projects` 를 prefetch하고 dehydrate한 값을 브라우저 쪽 `QueryClient` 에 하이드레이션해 비교했다. 기본값(`staleTime` 0)에서는 첫 렌더링에 데이터가 이미 있었지만, 마운트 직후 키마다 한 번씩 총 2번 다시 요청했다. `staleTime` 을 60초로 두면 첫 렌더링은 같고 추가 요청은 0번이었다.
 
-##### 이 방식의 장점
-- “초기 데이터”를 각 컴포넌트에 직접 props로 넘길 필요(데이터 드릴링)가 전혀 없다.
-- 레벨 깊은 컴포넌트에서도 동일 key만 쓰면 자동으로 캐시 활용.
-- 렌더링 트리에 어느 위치에서나 데이터를 편하게 가져올 수 있음.
+두 경우 모두 첫 화면에는 데이터가 바로 나온다. 차이는 그 뒤에 같은 요청을 한 번 더 보내느냐다. TanStack Query 문서도 SSR에서는 `staleTime` 을 0보다 크게 두라고 권한다(참고 자료 1).
 
-#### “레이아웃이 클라이언트 렌더링이 될까 봐 걱정”일 때
-Next.js App Router에서 서버 컴포넌트(`layout.tsx`)가 <strong>React Query의 `QueryClientProvider`</strong>를 직접 감싸려면, 그 레이아웃 자체가 Client Component가 되어야 하므로, `"use client"` 선언이 필요. 결과적으로 서버 컴포넌트가 아닌, 클라이언트 컴포넌트 레이아웃이 된다.  
-만약 전체 레이아웃이 클라이언트로 전환되는 걸 원치 않는다면, 상단에 서버 컴포넌트 레이아웃을 두고, 그 안에서 별도의 클라이언트 컴포넌트(예: `<Providers>` 래퍼)만 `HydrationBoundary` + `QueryClientProvider`를 감싸는 구조로 나눈다.
+<br/>
 
-##### 예시
-```js
-// app/layout.tsx (서버 컴포넌트)
-export default function RootLayout({ children }) {
+## 전체 흐름
+1. 페이지의 서버 컴포넌트에서 `QueryClient` 를 만들고 `prefetchQuery` 로 데이터를 받아 캐시에 넣는다
+2. `dehydrate(queryClient)` 로 캐시를 직렬화해 `HydrationBoundary` 의 `state` 로 넘긴다. `HydrationBoundary` 는 클라이언트 컴포넌트라서, 이 값은 서버 컴포넌트가 클라이언트 컴포넌트에 넘기는 props로 함께 전달된다
+3. 브라우저에서 `HydrationBoundary` 가 받은 캐시를 `QueryClientProvider` 의 캐시에 채운다
+4. 그 아래 컴포넌트가 같은 `queryKey` 로 `useQuery` 를 부르면 채워진 데이터를 바로 쓴다
+
+<br/>
+
+## 폴더 구조 예시
+```text
+app/
+ ┣ get-query-client.ts   // QueryClient를 만드는 함수 (staleTime 설정)
+ ┣ providers.tsx         // (클라이언트) QueryClientProvider
+ ┣ layout.tsx            // (서버) Providers로 감싸기만 한다
+ ┗ dashboard/
+   ┣ page.tsx            // (서버) prefetch + HydrationBoundary
+   ┣ Dashboard.tsx       // (클라이언트) useQueries로 두 데이터를 함께 쓴다
+   ┗ components/
+     ┣ UserCard.tsx      // (클라이언트) useQuery(["users"])
+     ┗ ProjectCard.tsx   // (클라이언트) useQuery(["projects"])
+```
+
+prefetch는 레이아웃이 아니라 페이지에서 한다. Next.js 문서에 따르면 App Router의 레이아웃은 그 아래 페이지끼리 이동할 때 다시 렌더링되지 않는다(직접 실행해 확인하지는 않았다). 그래서 레이아웃에서 prefetch하면 처음 들어온 한 번만 실행된다. 페이지마다 자기에게 필요한 데이터를 prefetch하고 `HydrationBoundary` 로 감싸는 것이 TanStack Query 문서의 구성이다.
+
+### get-query-client.ts
+```ts
+import { QueryClient, isServer } from "@tanstack/react-query";
+
+function makeQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        // 서버에서 받아 온 데이터를 클라이언트가 곧바로 다시 요청하지 않도록 0보다 크게 둔다
+        staleTime: 60 * 1000,
+      },
+    },
+  });
+}
+
+let browserQueryClient: QueryClient | undefined;
+
+export function getQueryClient() {
+  if (isServer) return makeQueryClient(); // 서버는 요청마다 새로 만든다
+  if (!browserQueryClient) browserQueryClient = makeQueryClient(); // 브라우저는 하나를 계속 쓴다
+  return browserQueryClient;
+}
+```
+
+서버에서 `QueryClient` 를 요청마다 새로 만드는 이유는 사용자끼리 캐시가 섞이지 않게 하려는 것이다. 하나를 모듈 변수로 두고 함께 쓰면 A 사용자의 데이터가 B 사용자의 화면에 나갈 수 있다.
+
+### providers.tsx (클라이언트 컴포넌트)
+```tsx
+"use client";
+
+import type { ReactNode } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { getQueryClient } from "./get-query-client";
+
+export default function Providers({ children }: { children: ReactNode }) {
+  const queryClient = getQueryClient();
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
+```
+
+`QueryClientProvider` 는 React Context를 쓰므로 클라이언트 컴포넌트여야 한다. 레이아웃 전체에 `"use client"` 를 붙이면 레이아웃이 통째로 클라이언트 컴포넌트가 되므로, 이렇게 Provider만 따로 떼어 낸다.
+
+### layout.tsx (서버 컴포넌트)
+```tsx
+import type { ReactNode } from "react";
+import Providers from "./providers";
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html>
+    <html lang="ko">
       <body>
-        {/* Providers는 Client Component */}
         <Providers>{children}</Providers>
       </body>
     </html>
   );
 }
 ```
-```js
-// app/Providers.tsx (클라이언트 컴포넌트)
-"use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HydrationBoundary } from "@tanstack/react-query";
-import React from "react";
+### dashboard/page.tsx (서버 컴포넌트)
+```tsx
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { getQueryClient } from "../get-query-client";
+import { fetchProjects, fetchUsers } from "@/lib/api";
+import Dashboard from "./Dashboard";
 
-export default function Providers({
-  children,
-  dehydratedState,
-}: {
-  children: React.ReactNode;
-  dehydratedState?: unknown;
-}) {
-  const [queryClient] = React.useState(() => new QueryClient());
+export default async function DashboardPage() {
+  const queryClient = getQueryClient();
 
-  // 서버에서 받아온 dehydratedState를 HydrationBoundary에 넘긴다
+  // 두 요청은 서로 기다릴 필요가 없으니 동시에 보낸다
+  await Promise.all([
+    queryClient.prefetchQuery({ queryKey: ["users"], queryFn: fetchUsers }),
+    queryClient.prefetchQuery({ queryKey: ["projects"], queryFn: fetchProjects }),
+  ]);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <HydrationBoundary state={dehydratedState}>{children}</HydrationBoundary>
-    </QueryClientProvider>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <Dashboard />
+    </HydrationBoundary>
   );
 }
 ```
-이렇게 하면 RootLayout은 여전히 서버 컴포넌트이고,
-**Providers**만 “클라이언트 컴포넌트”로 동작하면서 React Query 세팅을 관리.
 
+`prefetchQuery` 는 요청이 실패해도 예외를 던지지 않는다. 실패한 쿼리는 서버 캐시에 error 상태로 남지만, `dehydrate` 는 기본으로 성공한 쿼리만 담는다. 실패하는 쿼리와 성공하는 쿼리를 하나씩 prefetch한 뒤 dehydrate하면 성공한 쪽 키만 들어 있는 것을 확인했다. 그래서 서버 요청이 실패해도 페이지는 그려지고, 브라우저의 `useQuery` 가 그 데이터를 처음부터 다시 요청한다.
 
-### 정리: SSR + Hydration + React Query
-- 서버에서 prefetchQuery()
-- App Router 환경에서는 서버 컴포넌트에서 fetch/prefetchQuery로 데이터 준비.
-- dehydrate(queryClient)로 직렬화하여 클라이언트로 전달
-- **클라이언트 측에서 HydrationBoundary**로 감싸고, 동일한 key로 useQuery() → 캐시 재활용.
-- 데이터 드릴링 없이, 컴포넌트마다 useQuery() 호출해도 중복 요청 없이 캐시 사용.
-- 따라서 “컴포넌트가 여러 개의 useQuery()를 호출하면 비효율적이지 않을까”라는 걱정은 React Query의 캐시 메커니즘 덕분에 문제 되지 않는다.
+### dashboard/Dashboard.tsx (클라이언트 컴포넌트)
+여러 데이터를 한 컴포넌트에서 함께 쓸 때는 `useQuery` 를 여러 번 불러도 되고, `useQueries` 로 한 번에 불러도 된다. `useQueries` 는 쿼리 목록을 받아 결과를 같은 순서의 배열로 돌려준다. 몇 개를 부를지 렌더링 중에 정해질 때(목록의 id마다 하나씩 등)는 `useQuery` 를 반복문 안에서 부를 수 없으므로 `useQueries` 를 쓴다.
 
-SSR과 CSR을 효과적으로 병행할 수 있으며, 초기 렌더링(SSR)은 빠르게, 이후 상호작용은 CSR로 이어지는 하이브리드 렌더링이 가능해진다.
-
-
-
-
-“레이아웃에서 미리 데이터를 불러오고(Hydration), 하위 컴포넌트(사용자 카드, 프로젝트 카드)에서 각각 useQuery()로 캐시된 데이터를 받아서 렌더링” 과정을 단계별로 살펴보자.
-
-### 폴더 구조 예시
-```text
-app/
- ┣ layout.tsx          // (서버 컴포넌트) SSR로 prefetchQuery
- ┣ Providers.tsx       // (클라이언트 컴포넌트) React Query 세팅 & HydrationBoundary
- ┗ dashboard/
-   ┗ page.tsx          // (클라이언트 컴포넌트) 여러 카드(UserCard, ProjectCard)를 렌더링
-     ┣ components/
-       ┣ UserCard.tsx  // (클라이언트 컴포넌트) 사용자 카드
-       ┗ ProjectCard.tsx  // (클라이언트 컴포넌트) 프로젝트 카드
-```
-#### layout.tsx (서버 컴포넌트)
-**서버에서 prefetchQuery**로 데이터를 불러온 뒤, **dehydrate**로 직렬화해 **Providers**에 넘김.
-```js
-// app/layout.tsx
-import { ReactNode } from "react";
-import Providers from "./Providers";
-import { QueryClient, dehydrate } from "@tanstack/react-query";
-import { fetchUsers, fetchProjects } from "@/lib/api";
-
-// Next.js App Router의 서버 컴포넌트
-export default async function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  // 1) 서버에서 QueryClient 생성
-  const queryClient = new QueryClient();
-
-  // 2) 서버에서 데이터를 미리 가져옴 (prefetch)
-  await queryClient.prefetchQuery({ queryKey: ["users"], queryFn: fetchUsers });
-  await queryClient.prefetchQuery({ queryKey: ["projects"], queryFn: fetchProjects });
-
-  // 3) 캐시 상태를 직렬화
-  const dehydratedState = dehydrate(queryClient);
-
-  return (
-    <html>
-      <body>
-        {/*
-          4) Providers에 dehydratedState를 전달.
-             Providers는 클라이언트 컴포넌트이므로 "use client"
-        */}
-        <Providers dehydratedState={dehydratedState}>
-          {children}
-        </Providers>
-      </body>
-    </html>
-  );
-}
-```
-##### 동작 요약
-- 서버에서 fetchUsers(), fetchProjects()로 데이터를 미리 로드.
-- Next.js가 서버에서 미리 채운 QueryClient를 dehydrate로 직렬화하여 **dehydratedState**를 만든다.
-- Providers(클라이언트 컴포넌트)로 **dehydratedState**를 넘겨주어, 클라이언트가 하이드레이션할 수 있게 한다.
-
-
-#### Providers.tsx (클라이언트 컴포넌트)
-여기서 **HydrationBoundary**와 **QueryClientProvider**를 설정한다.
-```js
-// app/Providers.tsx
+```tsx
 "use client";
 
-import React from "react";
-import { HydrationBoundary } from "@tanstack/react-query";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-export default function Providers({
-  children,
-  dehydratedState,
-}: {
-  children: React.ReactNode;
-  dehydratedState: any;
-}) {
-  const [queryClient] = React.useState(() => new QueryClient());
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      {/* 서버에서 넘어온 dehydratedState를 HydrationBoundary로 감싼다 */}
-      <HydrationBoundary state={dehydratedState}>{children}</HydrationBoundary>
-    </QueryClientProvider>
-  );
-}
-```
-##### 동작 요약
-- 클라이언트가 화면을 로드할 때, 서버에서 직렬화된 캐시(dehydratedState)를 React Query가 받아서 캐시를 복원(Hydration)한다.
-- 이후 같은 queryKey로 useQuery()를 호출하면 이미 캐시에 있는 데이터를 즉시 사용하게 됨.
-
-
-#### dashboard/page.tsx (클라이언트 컴포넌트)
-사용자 카드와 프로젝트 카드를 함께 렌더링.
-이 페이지 자체에서 useQuery()를 호출해도 되고, 각각 카드 내부에서 호출해도 됨(React Query 캐시가 있기 때문).
-```js
-// app/dashboard/page.tsx
-"use client";
-
+import { useQueries } from "@tanstack/react-query";
+import { fetchProjects, fetchUsers } from "@/lib/api";
 import UserCard from "./components/UserCard";
 import ProjectCard from "./components/ProjectCard";
-import { useQuery } from "@tanstack/react-query";
-import { fetchUsers, fetchProjects } from "@/lib/api";
 
-export default function DashboardPage() {
-  // 1) 만약 여기서도 다시 useQuery를 호출해도,
-  //    이미 hydrate된 캐시가 있기 때문에 네트워크 요청 없음
-  const { data: users } = useQuery({ queryKey: ["users"], queryFn: fetchUsers });
-  const { data: projects } = useQuery({ queryKey: ["projects"], queryFn: fetchProjects });
+export default function Dashboard() {
+  const [usersQuery, projectsQuery] = useQueries({
+    queries: [
+      { queryKey: ["users"], queryFn: fetchUsers },
+      { queryKey: ["projects"], queryFn: fetchProjects },
+    ],
+  });
 
   return (
     <div>
       <h1>대시보드</h1>
-
+      <p>사용자 수: {usersQuery.data?.length}</p>
+      <p>프로젝트 수: {projectsQuery.data?.length}</p>
       <section style={{ display: "flex", gap: "16px" }}>
         <UserCard />
         <ProjectCard />
-      </section>
-
-      <hr />
-      <section>
-        {/* 여기서도 users, projects를 활용해 뭔가를 보여줄 수 있음 */}
-        <p>유저 수: {users?.length}</p>
-        <p>프로젝트 수: {projects?.length}</p>
       </section>
     </div>
   );
 }
 ```
-##### 동작 요약
-- <strong>useQuery({ queryKey: ["users"] })</strong>를 호출하면, 서버에서 이미 prefetched해둔 캐시가 있으면 즉시 캐싱된 데이터를 반환.
-- 실제 네트워크 요청은 일어나지 않고, 초기 렌더링에서 이미 Hydration이 완료된 상태를 사용.
 
-
-#### UserCard.tsx (클라이언트 컴포넌트)
-사용자 목록을 캐시에서 꺼내온다.
-```js
-// app/dashboard/components/UserCard.tsx
+### components/UserCard.tsx (클라이언트 컴포넌트)
+```tsx
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
 import { fetchUsers } from "@/lib/api";
 
 export default function UserCard() {
-  // 같은 queryKey로 호출
   const { data: users } = useQuery({ queryKey: ["users"], queryFn: fetchUsers });
 
   return (
-    <div style={{ border: "1px solid black", padding: "8px", width: "200px" }}>
+    <div>
       <h2>사용자 카드</h2>
       <ul>
-        {users?.map((user: any) => (
+        {users?.map((user) => (
           <li key={user.id}>{user.name}</li>
         ))}
       </ul>
@@ -253,65 +203,33 @@ export default function UserCard() {
   );
 }
 ```
-##### 동작 요약
-- 동일한 ["users"] queryKey로 useQuery()를 호출 ⇒ 이미 Hydration된 데이터를 사용 ⇒ 네트워크 요청 X.
-- 렌더링 시점에 즉시 데이터가 있으므로 로딩 지연 없이 사용자 목록 표시.
 
+`ProjectCard` 는 키를 `["projects"]`, 함수를 `fetchProjects` 로 바꾼 같은 모양이다. `Dashboard` 와 두 카드가 같은 키를 쓰지만, 데이터가 `staleTime` 안이라 요청은 늘지 않는다. `fetchUsers` 가 `Promise<User[]>` 를 돌려주도록 타입을 적어 두면 `users` 도 `User[] | undefined` 로 잡혀서 `any` 를 쓸 필요가 없다.
 
-#### ProjectCard.tsx (클라이언트 컴포넌트)
-프로젝트 목록을 캐시에서 꺼내온다.
-```js
-// app/dashboard/components/ProjectCard.tsx
-"use client";
+<br/>
 
-import { useQuery } from "@tanstack/react-query";
-import { fetchProjects } from "@/lib/api";
+## 렌더링 순서
+서버에서는 아래 순서로 진행된다.
 
-export default function ProjectCard() {
-  // 같은 queryKey로 호출
-  const { data: projects } = useQuery({ queryKey: ["projects"], queryFn: fetchProjects });
+1. `/dashboard` 요청이 오면 Next.js가 `layout.tsx` 와 `dashboard/page.tsx` 를 서버에서 실행한다
+2. `page.tsx` 가 `users`, `projects` 를 prefetch해 서버 쪽 `QueryClient` 캐시를 채운다
+3. `dehydrate` 결과가 `HydrationBoundary` 의 props로 넘어간다
+4. 클라이언트 컴포넌트(`Dashboard`, 두 카드)도 서버에서 한 번 렌더링되어 데이터가 채워진 HTML이 만들어진다. `HydrationBoundary` 는 렌더링하는 도중에 캐시를 채우므로(jsdom에서도 첫 렌더링에 데이터가 이미 있었다) HTML에 목록이 들어간다. Next.js에서 실제 HTML로 확인하지는 않았다
 
-  return (
-    <div style={{ border: "1px solid black", padding: "8px", width: "200px" }}>
-      <h2>프로젝트 카드</h2>
-      <ul>
-        {projects?.map((p: any) => (
-          <li key={p.id}>{p.title}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-```
-##### 동작 요약
-- <strong>["projects"]</strong>로 useQuery() ⇒ 서버에서 미리 받아온 캐시 활용.
-- 서로 다른 컴포넌트지만, 같은 쿼리 키를 사용하면 중복 요청 없이 데이터를 재사용.
+브라우저에서는 이어서 아래 순서로 진행된다.
 
+1. HTML이 먼저 화면에 보인다
+2. `Providers` 가 브라우저용 `QueryClient` 를 만들고, `HydrationBoundary` 가 받은 캐시를 그 `QueryClient` 에 채운다
+3. React가 HTML에 이벤트 처리기를 붙인다(React의 하이드레이션). 이때 `useQuery` 는 캐시의 데이터를 그대로 쓰므로 서버 HTML과 같은 화면이 유지되고, `staleTime` 안이라면 추가 요청도 없다
 
-### 렌더링 순서 요약
-#### 서버 측 렌더링 단계
+<br/>
 
-1. Next.js가 layout.tsx를 실행(서버 컴포넌트).
-2. prefetchQuery(["users"]) + prefetchQuery(["projects"]) → 서버가 fetchUsers(), fetchProjects() 호출, 응답을 받음.
-3. queryClient에 캐시가 채워짐 → dehydrate(queryClient)로 직렬화.
-4. 결과적으로 초기 HTML에 React Query 캐시 정보가 포함된 Hydration Data가 담긴 상태로 응답.
+## 참고 자료
+1. TanStack Query, [Advanced Server Rendering](https://tanstack.com/query/latest/docs/framework/react/guides/advanced-ssr)
+2. TanStack Query, [useQueries](https://tanstack.com/query/latest/docs/framework/react/reference/useQueries)
 
-#### 클라이언트 하이드레이션 단계
+<br/>
 
-1. 브라우저가 HTML/CSS/JS를 로드, Providers(클라이언트 컴포넌트)가 실행.
-2. QueryClientProvider + HydrationBoundary가 dehydratedState를 복원.
-3. React Query는 이미 가져온 ["users"], ["projects"] 데이터를 캐시에 보관.
-
-#### 클라이언트 렌더링
-
-1. dashboard/page.tsx와 그 내부 컴포넌트(UserCard, ProjectCard)가 useQuery({ queryKey: ["users"] }), useQuery({ queryKey: ["projects"] })를 각각 호출.
-2. 이미 캐시에 있는 데이터를 즉시 반환하므로, 중복 네트워크 요청 없음.
-3. 최종 화면에 사용자 카드, 프로젝트 카드가 즉시 렌더링.
-
-
-### 결론
-- 서버에서 prefetchQuery로 가져온 데이터를 클라이언트에서 동일한 queryKey로 useQuery()하면, 이미 캐싱된 데이터를 즉시 활용할 수 있음.
-- 여러 컴포넌트(예: UserCard, ProjectCard)에서 똑같은 쿼리를 사용해도, 추가 네트워크 요청 없이 캐시를 공유.
-- 데이터 드릴링을 강제로 할 필요가 없고, 컴포넌트 깊이가 달라도 useQuery만 있으면 자동으로 캐시 사용.
-- 전체 렌더링 순서는 “서버에서 prefetch → HydrationBoundary → 클라이언트 컴포넌트들이 캐시 사용” 순서로 진행.
-- 이 과정을 통해 SSR으로 초기 로딩 속도와 SEO를 챙기고, 이후엔 CSR에 가까운 React Query 캐싱 로직을 사용할 수 있어!
+## 더 볼 것 (TODO)
+- prefetch하지 않고 서버 컴포넌트에서 기다리지 않는 방식 (스트리밍과 `useSuspenseQuery`)
+- 서버에서 요청이 실패했을 때 오류 화면을 보여 주는 방법

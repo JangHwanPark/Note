@@ -1,4 +1,4 @@
-## GSAP 캐러셀이란 ?
+## GSAP으로 캐러셀 만들기
 - 슬라이드를 가로로 세우고 트랙을 옆으로 미는 캐러셀의 이동을 CSS `transition` 대신 GSAP 트윈으로 처리한 것
 - `ease` 를 고르거나, 이동이 끝난 순간에 할 일(`onComplete`)을 붙일 수 있어 무한 캐러셀을 만들기 쉽다
 - 캐러셀의 원리와 GSAP 없이 만드는 React 버전은 [React 캐러셀](../../../React/UI%20컴포넌트%20만들기(Building%20UI%20Components)/캐러셀(Carousel)/README.md)에 정리했다
@@ -12,6 +12,8 @@ React 컴포넌트 안에서는 `@gsap/react` 의 `useGSAP` 훅으로 애니메�
 import { useRef, useState } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 type CarouselProps = {
   slides: string[];
@@ -125,6 +127,4 @@ export const InfiniteCarousel = ({ slides }: CarouselProps) => {
 
 <br/>
 
-## 더 볼 것 (TODO)
-- 이전 방향 무한 이동
-- 애니메이션 도중 버튼 연타 처리
+[목차](../README.md) | [이전 장: ref와 className](../06_ref와%20className(Ref%20and%20className)/README.md) | [다음 장: 프로그래스 바 애니메이션](../08_프로그래스%20바%20애니메이션(Progress%20Bar%20Animation)/README.md)
