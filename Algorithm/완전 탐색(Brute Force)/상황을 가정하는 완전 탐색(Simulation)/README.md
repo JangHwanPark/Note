@@ -271,7 +271,7 @@ console.log(res);
 </details>
 
 ## 루프 선택 기준 (for vs while)
-반복 횟수가 정해져 있는지에 따라 for와 while을 고르는 기준은 [반복문](../../반복문/README.md)에 정리했다.
+반복 횟수가 정해져 있는지에 따라 for와 while을 고르는 기준은 [반복문](../../반복문(Loop)/README.md)에 정리했다.
 
 ## 상태(state) 다루기 — 배열/객체 변경 vs 복사
 시뮬 시나리오마다 상태를 직접 수정(in-place) 할지, 복사(copy-on-write) 할지 결정해야 한다.

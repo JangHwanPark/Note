@@ -65,4 +65,4 @@ hash.hashKey // undefined
 
 ## 하위 문서
 - [해시 테이블 (Hash Table)](해시%20테이블%28Hash%20Table%29/README.md)
-- [해시 함수 (Hash Fn)](해시%20함수%28Hash%20Fn%29/README.md)
+- [해시 함수 (Hash Fn)](./해시%20함수(Hash%20Function)/README.md)
