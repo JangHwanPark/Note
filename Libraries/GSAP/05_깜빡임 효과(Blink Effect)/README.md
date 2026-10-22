@@ -90,7 +90,7 @@ module.exports = {
 <br/>
 
 ## CSS @keyframes로 깜빡이기
-Tailwind 없이도 같은 키프레임을 클래스에 붙이면 된다. 키프레임 속성은 [키 프레임 (Keyframes)](../../../Markup_Style/CSS/animation.md)에 정리했다.
+Tailwind 없이도 같은 키프레임을 클래스에 붙이면 된다. 키프레임 속성은 [키 프레임 (Keyframes)](../../../Markup_Style/CSS/트랜지션과%20애니메이션(Transition%20and%20Animation)/README.md)에 정리했다.
 
 ```css
 @keyframes blink {
