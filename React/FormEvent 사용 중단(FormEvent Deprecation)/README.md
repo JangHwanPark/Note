@@ -1,4 +1,4 @@
-## FormEvent 사용 중단이란 ?
+## 무엇이 바뀌었나
 - React 타입 정의(`@types/react`)에서 `FormEvent`와 `FormEventHandler`가 사용 중단(deprecated)으로 표시된 변경
 - `@types/react` 19.2.9까지는 `onSubmit`의 타입이 `FormEventHandler`였고, `@types/react` 19.2.10부터 `SubmitEventHandler`로 바뀌었다
 - 코드가 바로 깨지지는 않지만, 에디터에서 취소선과 함께 `'FormEvent' is deprecated.` 경고가 뜬다
