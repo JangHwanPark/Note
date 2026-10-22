@@ -10,6 +10,7 @@
 - 다 쓴 노트는 `note-reviewer` 에이전트로 검토한다.
 - 링크 점검은 `node .claude/scripts/check-links.js <폴더>`로 한다.
 - .md를 쓰면 `.claude/hooks/check-note-style.js`가 이모지, 청크, 콜론 줄바꿈, 코드 스팬 뒤 대시를 검사한다. 긴 대시는 전역 훅이 검사한다.
+- 문체 훅을 고친 뒤에는 `node .claude/scripts/eval-note-style.js`로 채점해 기존 사례가 모두 통과하는지 확인한다. 새로 잡거나 놓친 사례가 생기면 스크립트의 사례 목록에 추가한다.
 
 ## 파일 구조
 
