@@ -1,117 +1,89 @@
-## 배열 (자료구조)
-- 메모리에 연속적으로 데이터가 저장된 자료구조.
-- 모든 프로그래밍 언어에서 기본 제공.
-- 스택, 큐, 덱 같은 자료구조를 구현할 때 기본 단위로 사용됨.
+## 배열이란 ?
+- 여러 값을 순서대로 한 줄로 늘어놓고, 몇 번째인지(인덱스)로 바로 꺼내 쓰는 자료구조
+- 거의 모든 프로그래밍 언어가 기본으로 제공하고, 스택, 큐, 덱 같은 자료구조를 만들 때도 바탕이 된다
+- 코딩 테스트에서는 인덱스 범위, 최댓값과 최솟값, 탐색이 자주 나온다
+
+### 배열 (Array)
+사전적 의미는 배열하다, 가지런히 늘어놓다. 군대가 줄을 맞춰 선 모양을 가리키던 말이다.
+자료구조로서의 배열은 값을 줄 세워 두고 앞에서부터 0, 1, 2 번호를 붙인다. 번호만 알면 몇 번째 값이든 처음부터 세지 않고 바로 꺼낼 수 있다.
+
+번호가 붙은 사물함과 같다. 7번 사물함을 열려고 1번부터 차례로 열어 볼 필요가 없다.
 
 <br/>
 
-## 인덱스 참조
-배열은 0부터 시작해서 length - 1까지 접근 가능.
+## 인덱스는 0부터 시작한다
+길이가 n인 배열은 `0` 부터 `n - 1` 까지 접근할 수 있다.
 
 ```js
-let arr = ['a','b','c']; 
-// length = 3
-// 접근 가능: arr[0], arr[1], arr[2]
+const arr = ["a", "b", "c"]; // length = 3
+arr[0]; // 'a'
+arr[2]; // 'c'
+arr[3]; // undefined (범위 밖)
 ```
-arr[3] → 범위 초과 (undefined 반환)
 
-인덱스 0 → 1번째 문자(요소)
+인덱스 0이 사람 기준으로 1번째다. 그래서 문제에서 "짝수 번째"라고 하면 인덱스는 홀수가 된다.
 
-인덱스 1 → 2번째 문자(요소)
+- `i % 2 === 0` 은 인덱스로는 짝수, 사람 기준으로는 홀수 번째다
+- `i % 2 === 1` 은 인덱스로는 홀수, 사람 기준으로는 짝수 번째다
 
-따라서 문제에서 "짝수 번째"라고 하면 인덱스는 홀수가 된다.
-- i % 2 === 0 → 인덱스 기준 짝수 → 사람 기준 홀수 번째
-- i % 2 === 1 → 인덱스 기준 홀수 → 사람 기준 짝수 번째
+사람 기준으로 짝수 번째 문자만 뽑으려면 인덱스 1부터 2씩 건너뛴다.
 
-사람 기준으로 짝수번째 문자 뽑기
 ```js
 const str = "hello";
 let res = "";
-
-// 사람 기준 짝수 → 인덱스 홀수
 for (let i = 1; i < str.length; i += 2) {
   res += str[i];
 }
 console.log(res); // "el"
 ```
 
-짝수 번째 문자 역순 출력
+같은 문자들을 거꾸로 뽑으려면 시작점을 정해야 한다. 마지막 인덱스(`length - 1`)가 홀수면 거기서, 짝수면 한 칸 앞에서 시작한다.
+
 ```js
 const str = "hello";
 let res = "";
-
-// 마지막 인덱스가 짝수냐 홀수냐에 따라 시작점 결정
-let start = (str.length % 2 === 0) ? str.length - 1 : str.length - 2;
-
+const start = str.length % 2 === 0 ? str.length - 1 : str.length - 2;
 for (let i = start; i >= 1; i -= 2) {
   res += str[i];
 }
 console.log(res); // "le"
 ```
 
-### 인덱스 범위 초과 (Index out of range)
-배열/문자열은 항상 0번 인덱스부터 시작해서 length - 1까지 접근 가능하다.
+<br/>
 
-인덱스가 length 이상이면 범위를 벗어난 것이며, 자바스크립트는 오류 대신 undefined를 반환한다.
-(C 같은 언어에서는 segmentation fault 발생)
+## 인덱스 범위 초과 (Index out of range)
+인덱스가 `length` 이상이거나 음수이면 배열 밖이다. 자바스크립트는 이때 오류를 내지 않고 `undefined` 를 돌려준다. C 같은 언어는 배열 밖 메모리를 읽어 쓰레기 값이 나오거나 프로그램이 죽을 수 있다.
+
+### 왜 범위가 0부터 n - 1일까
+자료구조로서의 배열(C의 배열 같은)은 값을 메모리에 빈틈없이 이어 붙여 저장한다. 그래서 i번째 값의 위치를 `시작 주소 + i × 값 하나의 크기` 로 바로 계산한다. i가 0이면 첫 값, n - 1이면 마지막 값이고, n 이상이면 배열이 차지하지 않은 자리를 가리키게 된다.
+자바스크립트의 배열은 객체라서 엔진이 내부 저장 방식을 알아서 정한다. 메모리에 그대로 붙어 있다고 보장되지는 않지만, 번호로 바로 꺼낸다는 성질과 0부터 n - 1까지라는 범위는 같다.
+
+### 반복문 범위로 막기
+옆 칸을 함께 볼 때는 반복 범위를 그만큼 줄인다.
 
 ```js
-let arr = ['a', 'b', 'c']; 
-// length = 3
-// 접근 가능한 인덱스: 0, 1, 2
+// arr[i] 만 볼 때
+for (let i = 0; i < arr.length; i++) {}
 
-console.log(arr[0]); // 'a'
-console.log(arr[1]); // 'b'
-console.log(arr[2]); // 'c'
+// arr[i + 1] 까지 볼 때: i + 1 <= n - 1 이므로 i <= n - 2
+for (let i = 0; i < arr.length - 1; i++) {}
 
-console.log(arr[3]); // undefined (범위 밖)
-```
+// arr[i + 2] 까지 볼 때: i <= n - 3
+for (let i = 0; i < arr.length - 2; i++) {}
 
-#### 원리
-길이가 n인 배열 arr는 메모리에 0번부터 n-1번까지 슬롯을 차지한다.
-
-인덱스 i를 넣으면 내부적으로 `메모리 주소 = 시작 주소 + (i × 타입 크기)`로 계산해서 해당 위치 데이터를 가져온다.
-
-따라서 유효한 i 범위는 0 ≤ i ≤ n-1. 만약 i >= n이면 실제로는 존재하지 않는 메모리 주소를 가리키는 꼴 → JS는 undefined, C 계열은 런타임 에러/쓰레기 값.
-
-#### 방지 방법
-**기본 원칙**
-```js
-for (let i = 0; i < arr.length; i++) {
-  // arr[i] 안전
-}
-```
-
-**한 칸 뒤(i+1) 접근 (i+1 ≤ n-1 → i ≤ n-2)**
-```js
-for (let i = 0; i < arr.length - 1; i++) {
-  console.log(arr[i], arr[i+1]); // 안전
-}
-```
-
-**두 칸 뒤(i+2) 접근 (i+2 ≤ n-1 → i ≤ n-3)**
-```js
-for (let i = 0; i < arr.length - 2; i++) {
-  console.log(arr[i], arr[i+1], arr[i+2]); // 안전
-}
-```
-
-**앞 원소(i-1) 접근 (최소 i = 1부터 시작해야 안전)**
-```js
-for (let i = 1; i < arr.length; i++) {
-  console.log(arr[i-1], arr[i]); // 안전
-}
+// arr[i - 1] 을 볼 때: i는 1부터
+for (let i = 1; i < arr.length; i++) {}
 ```
 
 <br/>
 
-## Count 배열(배열 카운팅 - 배열내 빈도수 세기, 내가 맨날 헷갈려하는거)
-Count 배열의 개념, 예시, 활용 패턴은 [빈도수 세기](../빈도수%20세기(Frequency%20Counter)/README.md)에 정리했다.
+## 빈도수 세기 (Count 배열)
+값이 몇 번 나왔는지 세는 Count 배열은 내가 자주 헷갈려서 [빈도수 세기](../빈도수%20세기(Frequency%20Counter)/README.md)에 따로 정리했다.
 
 <br/>
 
 ## 탐색
-배열에서 원하는 값을 찾을 때는 앞에서부터 하나씩 비교하는 선형 탐색(Linear Search)을 쓴다. 최악의 경우 원소를 전부 봐야 하므로 시간 복잡도는 O(n)이다.
+배열에서 원하는 값을 찾을 때는 앞에서부터 하나씩 비교하는 선형 탐색(Linear Search)을 쓴다. 최악의 경우 원소를 전부 봐야 하므로 시간 복잡도는 O(n)이다. O(n)은 원소 개수 n이 두 배가 되면 걸리는 시간도 대략 두 배가 된다는 뜻이다.
 
 ```js
 const arr = [4, 7, 1, 9, 3];
@@ -127,132 +99,99 @@ for (let i = 0; i < arr.length; i++) {
 console.log(idx); // 3
 ```
 
-JS 내장 메서드도 내부적으로는 같은 방식으로 앞에서부터 찾는다.
+JS 내장 메서드도 앞에서부터 차례로 찾는다.
+
 ```js
-arr.indexOf(9);              // 3 (없으면 -1)
-arr.includes(9);             // true
-arr.find(el => el > 5);      // 7 (조건을 만족하는 첫 값, 없으면 undefined)
-arr.findIndex(el => el > 5); // 1 (조건을 만족하는 첫 인덱스, 없으면 -1)
+arr.indexOf(9);                // 3 (없으면 -1)
+arr.includes(9);               // true
+arr.find((el) => el > 5);      // 7 (조건을 만족하는 첫 값, 없으면 undefined)
+arr.findIndex((el) => el > 5); // 1 (조건을 만족하는 첫 인덱스, 없으면 -1)
 ```
 
 정렬된 배열이라면 탐색 범위를 절반씩 줄이는 이분 탐색(Binary Search)으로 O(log n)에 찾을 수 있다.
 
 <br/>
 
-## 배열 거꾸로 탐색
-N 개의 숫자를 입력받아 거꾸로 출력하는 방법
+## 거꾸로 출력하기
+숫자 10개를 입력받아 거꾸로 출력하는 문제다.
+
 ```text
 // 입력
 1 2 4 2 5 7 8 5 8 3
+// 출력
 3 8 5 8 7 5 2 4 2 1
 ```
-- for 루프를 거꾸로 돌려서 출력하면 됨
+
+반복문을 마지막 인덱스부터 거꾸로 돌린다.
 
 ```js
 const fs = require("fs");
-let arr = fs.readFileSync(0).toString().trim().split(" ");
+const arr = fs.readFileSync(0, "utf8").trim().split(" ");
 
-let str = "";
-for (let i = 9; i >= 0; i--) {
-    str += arr[i] + " ";
+const res = [];
+for (let i = arr.length - 1; i >= 0; i--) {
+  res.push(arr[i]);
 }
-
-console.log(str);
+console.log(res.join(" ")); // 3 8 5 8 7 5 2 4 2 1
 ```
 
-- JS 내장함수인 reverse() 함수를 사용해도 됨
+내장 메서드 `reverse()` 를 써도 된다. `reverse()` 는 새 배열을 만들지 않고 원래 배열의 순서를 뒤집는다.
+
 ```js
-let arr = [1, 2, 3, 4, 5];
+const arr = [1, 2, 3, 4, 5];
 arr.reverse();
-
-let str = "";
-for (let i = 0; i < 5; i++) {
-    str += arr[i] + " ";
-}
-
-console.log(str); // 5 4 3 2 1
+console.log(arr.join(" ")); // 5 4 3 2 1
 ```
 
 <br/>
 
-## Min/Max
-### 최대값 구하기
-최대값은 변수(maxVal)를 사용하여 지금까지 구한 값보다 현재 값(el)이 더 큰 경우 최대값을 갱신하는 방식으로 찾는다.
-만약 모든 원소가 음수인데 maxVal을 0으로 초기화하면, 갱신이 한 번도 일어나지 않아 예상과 다르게 0이 최대값으로 나올 수 있다.
+## 최댓값과 최솟값
+### 최댓값 구하기
+변수(`maxVal`)에 지금까지 본 가장 큰 값을 두고, 현재 값이 더 크면 바꾼다.
+이때 `maxVal` 을 0으로 시작하면 안 된다. 모든 원소가 음수면 한 번도 바뀌지 않아 답이 0으로 나온다. `[-3, -1, -7]` 에서 0으로 시작하면 결과가 0이지만 실제 최댓값은 -1이다.
 
-이를 방지하는 방법
-- maxVal = Number.MIN_SAFE_INTEGER (정수에서 안전하게 가장 작은 값으로 초기화)
-- 배열의 첫 번째 원소로 초기화한 뒤, 두 번째 원소부터 비교 시작
+시작값은 아래 셋 중 하나로 둔다.
 
-자바스크립트에서는 Infinity(양의 무한대), -Infinity(음의 무한대)를 제공한다.<br/>
-Math.max()와 비교해서 사용할 때, maxVal = -Infinity로 초기화하면 어떤 값과 비교하더라도 첫 번째 값에서 무조건 갱신된다.
+- 배열의 첫 번째 원소로 시작하고 두 번째 원소부터 비교한다. 실전에서 가장 많이 쓴다
+- `-Infinity` 로 시작한다. 어떤 수와 비교해도 첫 값에서 반드시 바뀐다
+- `Number.MIN_SAFE_INTEGER`(-9007199254740991)로 시작한다. 여기서부터 `Number.MAX_SAFE_INTEGER` 까지의 정수는 모두 빠짐없이 정확하게 표현된다는 뜻에서 안전(safe)이라 부르는 범위의 아래 끝이다
+
 ```js
 const fs = require("fs");
 const n = fs.readFileSync(0, "utf8").trim().split(" ").map(Number);
 
-// 방법 1: 첫 번째 원소로 초기화
+// 방법 1: 첫 번째 원소로 시작
 let maxVal = n[0];
-n.forEach((el, idx) => {
-    if (n[idx] > maxVal) {
-        maxVal = n[idx];
-    }
-});
+for (const el of n) {
+  if (el > maxVal) maxVal = el;
+}
 
-console.log("최대값(첫 원소 초기화):", maxVal);
-
-// 방법 2: -Infinity로 초기화
+// 방법 2: -Infinity로 시작
 let maxVal2 = -Infinity;
-n.forEach(el => {
-    if (el > maxVal2) {
-        maxVal2 = el;
-    }
-});
-console.log("최대값(-Infinity 초기화):", maxVal2);
+for (const el of n) {
+  if (el > maxVal2) maxVal2 = el;
+}
 ```
-
-#### 요약
-- 배열 순회하면서 if (el > maxVal)일 때 maxVal을 갱신한다.
-- -Infinity (무조건 첫 값에서 갱신됨 → 안전)
-- Number.MIN_SAFE_INTEGER (자바스크립트에서 표현 가능한 가장 작은 안전 정수)
-- 배열 첫 번째 값 (실전에서 자주 쓰는 방식)
-
-<br/>
 
 ### 최솟값 구하기
-최솟값은 변수(minVal)를 사용하여 지금까지 구한 값보다 현재 값(el)이 더 작은 경우 최솟값을 갱신하는 방식으로 찾는다.
-만약 모든 원소가 양수인데 minVal을 0으로 초기화하면, 갱신이 한 번도 일어나지 않아 예상과 다르게 0이 최솟값으로 나올 수 있다.
+최솟값은 반대로 현재 값이 더 작으면 바꾼다. 0으로 시작하면 모든 원소가 양수일 때 답이 0으로 나오는 같은 문제가 생기므로, 첫 번째 원소나 `Infinity`, `Number.MAX_SAFE_INTEGER` 로 시작한다.
 
-이를 방지하는 방법
-- minVal = Number.MAX_SAFE_INTEGER (정수에서 안전하게 가장 큰 값으로 초기화)
-- 또는 배열의 첫 번째 원소로 초기화한 뒤, 두 번째 원소부터 비교 시작
-
-자바스크립트에서는 Infinity(양의 무한대), -Infinity(음의 무한대)를 제공한다.
-minVal = Infinity로 초기화하면 어떤 값과 비교하더라도 첫 번째 값에서 무조건 갱신된다.
 ```js
-const fs = require("fs");
-const n = fs.readFileSync(0, "utf8").trim().split(" ").map(Number);
-
-// 방법 1: 첫 번째 원소로 초기화
-let minVal = n[0];
-n.forEach(el => {
-    if (el < minVal) {
-        minVal = el;
-    }
-});
-console.log("최솟값(첫 원소 초기화):", minVal);
-
-// 방법 2: Infinity로 초기화
-let minVal2 = Infinity;
-n.forEach(el => {
-    if (el < minVal2) {
-        minVal2 = el;
-    }
-});
-console.log("최솟값(Infinity 초기화):", minVal2);
+let minVal = Infinity;
+for (const el of n) {
+  if (el < minVal) minVal = el;
+}
 ```
 
-#### 요약
-- 배열 순회하면서 if (el < minVal)일 때 minVal을 갱신한다.
-- Infinity (무조건 첫 값에서 갱신됨 → 안전)
-- Number.MAX_SAFE_INTEGER (자바스크립트에서 표현 가능한 가장 큰 안전 정수)
-- 배열 첫 번째 값 (실전에서 자주 쓰는 방식)
+`Math.max(...n)`, `Math.min(...n)` 으로 한 줄에 구할 수도 있다. 다만 스프레드는 원소를 전부 함수 인수로 넘기므로 원소가 많으면 오류가 난다. Node.js v22.13.0에서 원소 12만 5천 개는 됐고 13만 개에서는 `RangeError: Maximum call stack size exceeded` 가 났다(한도는 엔진과 환경마다 다르다). 입력이 클 수 있으면 반복문을 쓴다.
+
+<br/>
+
+## 확인한 환경
+- 예시 출력은 Node.js v22.13.0에서 실행한 값이다
+
+<br/>
+
+## 더 볼 것 (TODO)
+- 이분 탐색 구현과 경계 처리
+- 2차원 배열 만들기와 순회
