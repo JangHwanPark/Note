@@ -3,7 +3,16 @@
 - 여러 사람이 같은 규칙으로 코드를 쓰면 리뷰에서 모양 차이 대신 내용에 집중할 수 있다
 - Prettier는 정해 둔 규칙에 맞춰 코드 모양을 자동으로 바꿔 주는 코드 포매터(Formatter)다
 
+### 스타일 (Style)
+사전적 의미는 문체, 양식이다. 같은 내용이라도 사람마다 글을 쓰는 버릇이 다른 것을 말한다.
+코드에서 스타일은 동작과 상관없는 모양의 버릇을 말한다. 세미콜론을 붙일지, 따옴표를 무엇으로 쓸지처럼 실행 결과는 같지만 읽는 사람에게는 달라 보이는 부분이다.
+
 <br/>
 
 ## 목차
-- [prettier 설정하기](./prettier%20설정하기.md) : Prettier 설정 속성과 기본값
+- [Prettier 설정](./Prettier%20설정(Prettier%20Config)/README.md) : 설정 파일과 overrides, 옵션별 기본값(3.9 기준), 프라그마, .prettierignore와 .gitignore
+
+<br/>
+
+## 더 볼 것 (TODO)
+- ESLint와 Prettier의 역할 나누기

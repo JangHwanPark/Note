@@ -146,7 +146,7 @@ SVG 원의 테두리는 원의 오른쪽 끝(3시 방향)에서 시작한다. 12
 | 상태로 진행률 바꾸기 | 컴포넌트 안의 `useState` | 기본 막대에 그대로 넘김 |
 | 원형 | 부모가 넘겨준 `progress` props (0~100으로 맞춤) | 원 테두리의 `strokeDashoffset` |
 
-막대가 차오르는 움직임을 GSAP으로 직접 제어하는 방법은 [GSAP 프로그래스 바 애니메이션](../../../Libraries/GSAP/프로그래스%20바%20애니메이션(Progress%20Bar%20Animation).md)에 정리했다.
+막대가 차오르는 움직임을 GSAP으로 직접 제어하는 방법은 [GSAP 프로그래스 바 애니메이션](../../../Libraries/GSAP/08_프로그래스%20바%20애니메이션(Progress%20Bar%20Animation)/README.md)에 정리했다.
 
 <br/>
 

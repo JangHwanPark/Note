@@ -47,4 +47,4 @@ Next.js의 fetch가 끝나는 지점, 즉 브라우저에 화면이 뜬 뒤의 �
 - 데이터를 바꾸는 요청(작성, 수정, 삭제)과 그 뒤의 다시 가져오기는 클라이언트에서 React Query로 처리한다
 - 쿠키나 비밀 키가 필요한 요청은 서버에서 보낸다. 브라우저 코드에는 비밀 키를 넣지 않는다
 
-서버에서 prefetch한 데이터를 클라이언트에서 같은 queryKey로 재사용하는 흐름은 [React Query SSR + Hydration 정리](../../Libraries/ReactQuery/NextJS%20SSR.md)에 정리했다.
+서버에서 prefetch한 데이터를 클라이언트에서 같은 queryKey로 재사용하는 흐름은 [React Query SSR + Hydration 정리](../../Libraries/ReactQuery/SSR과%20Hydration(SSR%20and%20Hydration)/README.md)에 정리했다.
