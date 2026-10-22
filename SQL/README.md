@@ -6,4 +6,4 @@
 <br/>
 
 ## 목차
-- [JOIN](./조인(JOIN)/README.md) : 여러 테이블을 연결해 조회하는 방법
+- [조인](./조인(JOIN)/README.md) : INNER, LEFT, RIGHT, FULL 조인이 남기는 행의 차이와 실행 결과

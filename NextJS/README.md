@@ -13,37 +13,30 @@
 
 ## 목차
 - [CSR과 SSR](./CSR과%20SSR(CSR%20and%20SSR)) : 서버 컴포넌트와 클라이언트 컴포넌트, 첫 화면이 만들어지는 과정, 정적 렌더링과 동적 렌더링
-- [레이아웃 children에 props를 왜 못내릴까](./레이아웃과%20props(Layout%20and%20Props)) : App Router의 layout에서 page로 데이터를 props로 넘길 수 없는 이유
-- [Next.js에서 React Query 요청 위치 정리(서버 vs 클라이언트)](./React%20Query%20요청%20위치(Where%20to%20Fetch%20with%20React%20Query)) : Next.js의 fetch와 React Query를 언제 어디서 쓰는지
-- [FullStack DTO 전략(Class vs Interface 의사결정 기준)](./DTO%20설계%20기준(DTO%20Strategy)) : 풀스택에서 DTO를 interface/type으로 쓸지 클래스로 쓸지 정하는 기준
+- [레이아웃과 props](./레이아웃과%20props(Layout%20and%20Props)) : 레이아웃에서 페이지로 props를 넘길 수 없는 이유와 같은 데이터를 함께 쓰는 방법
+- [React Query 요청 위치](./React%20Query%20요청%20위치(Where%20to%20Fetch%20with%20React%20Query)) : Next.js의 fetch와 React Query가 맡는 자리, 요청을 서버와 브라우저 중 어디서 보낼지
+- [DTO 설계 기준](./DTO%20설계%20기준(DTO%20Strategy)) : DTO를 타입으로 쓸지 클래스로 쓸지 정하는 기준
 - [페이지 전환 애니메이션](./페이지%20전환%20애니메이션(Page%20Transition)) : layout 대신 template.tsx에 애니메이션을 넣는 이유와 다시 마운트되는 조건
 
 <br/>
 
-## Next.js 프로젝트 생성 (npx 사용)
+## 프로젝트 만들기
 ```bash
-npx create-next-app@latest app-name --typescript
+npx create-next-app@latest app-name
 ```
+
+`create-next-app` 16.4.2의 `--help` 기준으로 TypeScript(`--ts`)와 Tailwind CSS(`--tailwind`)는 기본으로 켜져 있어서 따로 적지 않아도 된다. 질문 없이 기본값으로 만들려면 `--yes` 를 붙인다. JavaScript로 만들려면 `--js` 를 준다.
 
 <br/>
 
-## 설치하면 좋은 라이브러리
-### axios
-```bash
-npm install axios
-```
+## 자주 함께 설치하는 라이브러리
+아래는 내가 Next.js 프로젝트를 시작할 때 자주 함께 설치한 것이다. 꼭 필요한 목록은 아니다.
 
-### 리액트 쿼리
-```bash
-npm install @tanstack/react-query
-```
+- `axios` : HTTP 요청 클라이언트
+- `@tanstack/react-query` : 서버 데이터 캐싱과 동기화 ([React Query](../Libraries/ReactQuery))
+- `zustand` : 가벼운 전역 상태 관리
+- `clsx` : 조건에 따라 className 문자열을 합치는 도구
 
-### zustand
 ```bash
-npm install zustand
-```
-
-### clsx
-```bash
-npm install clsx
+npm install axios @tanstack/react-query zustand clsx
 ```

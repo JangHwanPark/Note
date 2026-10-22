@@ -5,7 +5,7 @@
 <br/>
 
 ## 목차
-- [협업을 위한 업스트림 방법](./포크%20저장소%20동기화(Upstream%20Sync)/README.md) : Fork한 저장소를 원본 저장소와 동기화하는 업스트림 설정
+- [포크 저장소 동기화](./포크%20저장소%20동기화(Upstream%20Sync)/README.md) : 원본 저장소를 upstream으로 등록하고 fetch, fast-forward, rebase로 최신 커밋을 받아 오기
 
 <br/>
 

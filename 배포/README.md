@@ -4,9 +4,5 @@
 
 <br/>
 
-## 목차
-
-<br/>
-
 ## 더 볼 것 (TODO)
 - React Router 프로젝트를 Vercel, Netlify에 배포했을 때 GSAP이 동작하지 않던 문제

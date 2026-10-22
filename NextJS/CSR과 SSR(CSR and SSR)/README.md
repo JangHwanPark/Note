@@ -1,7 +1,7 @@
 ## CSR과 SSR이란 ?
 - CSR(Client-Side Rendering)은 브라우저가 JavaScript를 받아 화면을 만드는 방식, SSR(Server-Side Rendering)은 요청이 올 때마다 서버가 HTML을 만들어 보내는 방식이다
 - Next.js App Router는 둘 중 하나를 고르는 구조가 아니다. 첫 화면은 서버에서 HTML로 만들고(빌드할 때든 요청이 올 때든), 그 뒤 브라우저에서 JavaScript를 붙여 움직이게 한다
-- 이 노트는 Next.js 16.2 공식 문서를 기준으로, App Router에서 어떤 코드가 어디서 렌더링되는지를 정리한다
+- 이 노트는 Next.js 16.4 공식 문서(`next` 16.4.2 패키지에 들어 있는 문서)를 기준으로, App Router에서 어떤 코드가 어디서 렌더링되는지를 정리한다
 
 CSR, SSR, SSG, 하이드레이션의 일반 개념은 [클라이언트-서버 구조 프론트엔드 관점](../../CS_Basic/클라이언트-서버%20구조%20프론트엔드%20관점(Frontend))에 정리했다. 여기서는 그 개념이 Next.js에서 어떻게 나타나는지를 본다.
 
@@ -20,7 +20,7 @@ App Router에서 컴포넌트는 기본으로 서버 컴포넌트다. 서버에�
 
 ### 클라이언트 컴포넌트 (Client Component)
 파일 맨 위에 `'use client'` 를 쓰면 클라이언트 컴포넌트가 된다. 상태, 이벤트 처리, 브라우저 API를 쓸 수 있다.
-`'use client'` 는 컴포넌트 하나가 아니라 경계를 정한다. 이 파일이 가져오는(import) 컴포넌트도 지시어가 없어도 클라이언트 컴포넌트가 된다.
+`'use client'` 는 컴포넌트 하나가 아니라 경계를 정한다. 이 파일이 가져오는(import) 컴포넌트도 지시어가 없어도 클라이언트 컴포넌트가 된다. 다만 서버 컴포넌트를 import하지 않고 `children` 같은 props로 받아 끼우면, 그 부분은 서버 컴포넌트로 남는다. 서버에서 이미 렌더링된 결과를 자리에 넣을 뿐이기 때문이다.
 
 ```tsx
 'use client'
@@ -56,7 +56,7 @@ payload는 실어 나르는 짐, 화물이라는 뜻이다. 네트워크에서�
 하이드레이션(Hydration)은 위 문서에서 본 대로, 정적인 HTML에 이벤트 처리기를 붙여 상호작용이 되는 화면으로 바꾸는 React의 과정이다. 첫 화면은 SSR처럼 서버에서 만들고, 움직임은 CSR처럼 브라우저가 맡는 셈이다.
 
 ### 페이지를 옮겨 다닐 때
-첫 로드가 끝난 뒤 `<Link>` 로 다른 페이지로 이동하면 페이지 전체를 새로 받지 않는다. 브라우저는 미리 받아 캐시해 둔(prefetch) 새 페이지의 RSC Payload로 바뀐 부분만 그린다. 이때 클라이언트 컴포넌트는 서버가 만든 HTML 없이 브라우저에서만 렌더링된다. 이동 중에는 CSR에 가깝게 동작한다.
+첫 로드가 끝난 뒤 `<Link>` 로 다른 페이지로 이동하면 페이지 전체를 새로 받지 않는다. `<Link>` 가 화면에 보이면 Next.js가 그 경로를 미리 받아 두고(prefetch), 이동할 때 새 페이지의 RSC Payload로 바뀐 부분만 그린다. 정적 경로는 전체를 미리 받지만, 동적 경로는 `loading.tsx` 가 있는 구간까지만 미리 받거나 아예 건너뛴다. 그래서 동적 경로는 누른 뒤 서버 응답을 기다린다. prefetch는 프로덕션에서만 동작한다. 이때 클라이언트 컴포넌트는 서버가 만든 HTML 없이 브라우저에서만 렌더링된다. 이동 중에는 CSR에 가깝게 동작한다.
 
 <br/>
 
@@ -64,7 +64,7 @@ payload는 실어 나르는 짐, 화물이라는 뜻이다. 네트워크에서�
 서버에서 HTML을 만든다고 해도, 언제 만드는지에 따라 두 가지로 나뉜다.
 
 ### 정적 렌더링 (Static Rendering)
-static은 정지한, 움직이지 않는이라는 뜻이다. 한 번 만든 화면이 요청마다 바뀌지 않고 그대로 있다는 데서 이 이름이 붙었다. `next build` 를 할 때 HTML을 미리 만들어 두고, 요청이 오면 만들어 둔 것을 보낸다. `revalidate` 로 재검증 주기를 정해 두면, 그 시간이 지난 뒤 들어온 요청을 계기로 다시 만든다. 모든 사용자에게 같은 화면을 보여 줘도 되는 페이지에 맞다. 일반 개념으로는 SSG에 해당한다.
+static은 정지한, 움직이지 않는이라는 뜻이다. 한 번 만든 화면이 요청마다 바뀌지 않고 그대로 있다는 데서 이 이름이 붙었다. `next build` 를 할 때 HTML을 미리 만들어 두고, 요청이 오면 만들어 둔 것을 보낸다. `revalidate` 로 재검증 주기를 정해 두면, 그 시간이 지난 뒤 들어온 요청을 계기로 다시 만든다. 이때 그 요청에는 일단 예전 화면을 보내고 뒤에서 새로 만든다(stale-while-revalidate). 새 화면은 그다음 요청부터 보인다. 이 방식을 흔히 ISR(Incremental Static Regeneration)이라 부른다. 모든 사용자에게 같은 화면을 보여 줘도 되는 페이지에 맞다. 일반 개념으로는 SSG에 해당한다.
 
 ### 동적 렌더링 (Dynamic Rendering)
 dynamic은 움직이는, 변하는이라는 뜻이다. 요청에 따라 화면이 바뀐다는 뜻으로 쓴다. 요청이 올 때마다 서버가 HTML을 새로 만든다. 일반 개념의 SSR이 이것이다.
@@ -81,7 +81,9 @@ export default async function Page() {
 ```
 
 Request-time API가 없으면 페이지는 빌드할 때 한 번 만들어지므로, `Math.random()` 이나 현재 시각도 그때 값으로 굳는다. 요청마다 새 값이 필요하면 `next/server` 의 `connection()` 을 먼저 `await` 해서 요청이 올 때까지 렌더링을 미룬다.
-이 노트가 기준으로 삼은 방식(`cacheComponents` 를 끈 경우)에서는 `fetch` 에 `cache: 'no-store'` 를 주거나, 라우트에 `export const dynamic = 'force-dynamic'` 을 써도 동적 렌더링이 된다.
+Next.js 16에는 `next.config` 에서 `cacheComponents` 를 켜서 쓰는 새 캐싱 방식이 있고, 공식 문서는 이전 방식을 "Previous Model"로 따로 정리해 두었다. 이 노트는 `cacheComponents` 를 켜지 않은 경우를 기준으로 썼다. 켰을 때 무엇이 달라지는지는 확인하지 않았다.
+
+이 방식(`cacheComponents` 를 끈 경우)에서는 `fetch` 에 `cache: 'no-store'` 를 주거나, 라우트에 `export const dynamic = 'force-dynamic'` 을 써도 동적 렌더링이 된다.
 
 ### 빌드 결과로 확인하기
 어느 쪽으로 렌더링되는지는 `next build` 결과에 표시된다. 아래는 공식 문서에 나온 예시다.
@@ -97,8 +99,6 @@ Route (app)
 
 `○` 는 빌드할 때 미리 만든 정적 페이지, `ƒ` 는 요청이 올 때마다 서버에서 만드는 동적 페이지다. 정적이어도 될 페이지가 `ƒ` 로 나오면 Request-time API, `cache: 'no-store'` 로 보낸 `fetch`, 라우트 설정(`dynamic`) 가운데 무엇이 쓰였는지 찾아본다.
 
-Next.js 16에는 `next.config` 에서 `cacheComponents` 를 켜서 쓰는 새 캐싱 방식이 있고, 공식 문서는 이전 방식을 "Previous Model"로 따로 정리해 두었다. 이 노트는 `cacheComponents` 를 켜지 않은 경우를 기준으로 썼다. 켰을 때 무엇이 달라지는지는 확인하지 않았다.
-
 <br/>
 
 ## 서버에서 렌더링하지 않으려면
@@ -113,7 +113,7 @@ import dynamic from 'next/dynamic'
 const Chart = dynamic(() => import('../components/chart'), { ssr: false })
 ```
 
-`ssr: false` 는 클라이언트 컴포넌트 안에서만 쓸 수 있다. 서버 컴포넌트에서 쓰면 오류가 난다.
+`ssr: false` 는 클라이언트 컴포넌트 안에서만 쓸 수 있다. 서버 컴포넌트에서 쓰면 `` `ssr: false` is not allowed with `next/dynamic` in Server Components `` 오류가 난다(`next` 16.4.2에 들어 있는 메시지로 확인). 이 제한이 몇 버전부터 생겼는지는 확인 필요.
 
 데이터만 브라우저에서 가져오는 경우도 있다. 화면 틀은 서버에서 만들고, 사용자 조작에 따라 자주 바뀌는 데이터는 클라이언트 컴포넌트에서 React Query 같은 도구로 가져오는 방식이다. 어느 요청을 서버와 브라우저 중 어디서 할지는 [Next.js에서 React Query 요청 위치 정리](../React%20Query%20요청%20위치(Where%20to%20Fetch%20with%20React%20Query))에서 이어서 정리한다.
 

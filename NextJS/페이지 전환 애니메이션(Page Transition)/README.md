@@ -1,7 +1,7 @@
 ## 페이지 전환 애니메이션이란 ?
 - 다른 페이지로 이동할 때 새 화면이 갑자기 바뀌지 않고 서서히 나타나거나 밀려 들어오게 하는 효과
 - Next.js App Router에서는 페이지를 감싸는 `template.tsx` 에 애니메이션을 넣는다
-- `layout.tsx` 는 이동해도 다시 마운트되지 않아 애니메이션이 처음 한 번만 실행되고, `template.tsx` 는 해당 경로 구간이 바뀔 때마다 새로 마운트되어 그때마다 실행된다
+- `layout.tsx` 는 이동해도 다시 마운트되지 않아 애니메이션이 처음 한 번만 실행되고, `template.tsx` 는 해당 경로 구간(route segment)이 바뀔 때마다 새로 마운트되어 그때마다 실행된다
 
 ### 전환 (Transition)
 사전적 의미는 다른 방향이나 상태로 바뀜이다. 연극에서 장면이 바뀔 때 조명이 어두워졌다 밝아지는 것처럼, 바뀌는 순간을 자연스럽게 잇는 것을 말한다.
@@ -71,10 +71,14 @@ export default function Template({ children }: { children: ReactNode }) {
 1. Next.js 공식 문서, [template.js](https://nextjs.org/docs/app/api-reference/file-conventions/template)
 2. Next.js 공식 문서, [Layouts and Pages](https://nextjs.org/docs/app/getting-started/layouts-and-pages)
 
-예시 코드는 React 19.2, gsap 3.13, @gsap/react 2.1, TypeScript 5.6 `strict` 로 타입 검사만 했다. Next.js 앱에서 실제로 띄워 보지는 않았다. 템플릿이 다시 마운트되는 조건은 공식 문서의 설명을 옮긴 것이다.
+설명은 Next.js 16.4 공식 문서를 기준으로 했다. 예시 코드는 React 19.2, gsap 3.13, @gsap/react 2.1, TypeScript 5.6 `strict` 로 타입 검사만 했다. App Router는 Next.js에 들어 있는 React canary 버전을 쓰므로, 실제 앱에서 도는 React는 package.json에 적은 버전과 다를 수 있다. `gsap.from()` 과 `useGSAP` 사용법은 [GSAP 01장](../../Libraries/GSAP/01_GSAP%20메서드(GSAP%20Methods)/README.md)과 [GSAP 06장](../../Libraries/GSAP/06_ref와%20className(Ref%20and%20className)/README.md)에 정리했다. Next.js 앱에서 실제로 띄워 보지는 않았다. 템플릿이 다시 마운트되는 조건은 공식 문서의 설명을 옮긴 것이다.
 
 <br/>
 
 ## 더 볼 것 (TODO)
 - 이전 페이지가 사라지는 애니메이션 만들기 (View Transitions API 등)
 - Pages Router에서 페이지 전환 애니메이션 주기
+
+<br/>
+
+[목차](..)
