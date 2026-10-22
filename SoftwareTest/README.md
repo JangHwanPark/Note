@@ -6,9 +6,8 @@
 <br/>
 
 ## 목차
-- [QA 이론](./QA%20이론) : 테스트 레벨과 유형, 테스트 설계 기법, 결함 생명주기 등 핵심 이론
-- [테스트 자동화 (Test Automation)](./test-automation) : 자동화할 테스트 케이스를 고르는 기준과 도구
-- [Automation](./Automation) : 테스트 자동화 노트로 합친 내용
-- [Playwright](./playwright) : Playwright 공식 문서, locator, POM, API 레퍼런스
-- [JMeter](./Jmeter) : 부하 테스트의 개념과 기준
-- [HTTP 메서드별 API 테스트 체크리스트](./[API]%20HTTP%20메서드별%20체크리스트) : Postman 기준 메서드별 검증 포인트와 예시
+- [QA 이론](./QA%20이론(QA%20Theory)) : 테스트 레벨과 유형, 테스트 설계 기법, 결함 생명주기 등 핵심 이론
+- [테스트 자동화 (Test Automation)](./테스트%20자동화(Test%20Automation)) : 자동화할 테스트 케이스를 고르는 기준과 도구
+- [Playwright](./Playwright) : Playwright 공식 문서, locator, POM, API 레퍼런스
+- [JMeter](./JMeter%20부하%20테스트(JMeter%20Load%20Testing)) : 부하 테스트의 개념과 기준
+- [HTTP 메서드별 API 테스트 체크리스트](./API%20테스트%20체크리스트(API%20Test%20Checklist)) : Postman 기준 메서드별 검증 포인트와 예시

@@ -1,0 +1,167 @@
+# Locator 우선순위
+
+[Locator](https://playwright.dev/docs/locators)는 페이지에서 **특정 시점에 요소를 찾는 방법**이다. 단순 셀렉터가 아니라 "이 요소를 어떻게 식별할지"에 대한 전략에 가깝다.
+
+Playwright는 셀렉터를 어떻게 만드느냐가 spec의 안정성과 가독성을 90% 결정한다. 공식 권장 순서가 있고, 그 순서엔 이유가 있다.
+
+## 권장 순서
+
+| 순위 | API | 언제 쓰나 |
+| --- | --- | --- |
+| 1 | `getByRole` | 거의 항상 1순위. 접근성 트리의 역할(role) + 이름(name)으로 식별 |
+| 2 | `getByLabel` | `<label>`로 묶인 form 요소 (input/textarea/select) |
+| 3 | `getByPlaceholder` | label이 없고 placeholder만 있는 input |
+| 4 | `getByText` | 정적 텍스트 (버튼/링크 외의 본문성 요소) |
+| 5 | `getByTitle` | `title` 속성으로 식별되는 요소 |
+| 6 | `getByTestId` | 위 방법으로 잡기 어려운 경우의 마지막 보루 (`data-testid`) |
+| 7 | `locator(css/xpath)` | 정말 어쩔 수 없을 때 |
+
+사용자가 실제로 보고 인지하는 방식(역할/레이블/텍스트)에 가까울수록 위쪽, DOM 구조에 의존할수록 아래쪽이다. 위쪽 로케이터는 리팩터링·DOM 변경에 강하다.
+
+## 왜 이 순서인가
+
+### 1. 사용자가 인식하는 방식과 가까울수록 안정적
+
+Playwright의 철학: **"실제 사용자가 화면에서 찾는 방식대로 셀렉터를 만들자."**
+
+사용자는 "저장 버튼"이라고 찾지 `.btn-primary[data-id="save"]`로 찾지 않는다. Role + name으로 찾으면 디자인이 바뀌어도(클래스명 변경, DOM 구조 변경) spec이 안 깨진다.
+
+### 2. 접근성 강제
+
+`getByRole`로 찾으려면 요소에 적절한 role + accessible name이 있어야 한다. 즉 **spec을 쓰면서 자연스럽게 접근성도 점검**된다. screen reader 사용자가 찾는 방식 = `getByRole`이 찾는 방식.
+
+`<div onClick={...}>저장</div>` 같은 버튼은 `getByRole('button')`이 못 찾는다. → spec 작성하면서 "아 이거 진짜 `<button>` 써야 하네"라는 신호.
+
+### 3. 구현 디테일 의존 줄이기
+
+| 셀렉터 | 의존하는 것 | 안정성 |
+| --- | --- | --- |
+| `getByRole('button', { name: '저장' })` | 의미·이름 (사용자가 보는 것) | 매우 높음 |
+| `getByLabel('이메일')` | 폼 라벨 (사용자가 보는 것) | 높음 |
+| `getByText('이메일')` | 정확한 텍스트 | 보통 (i18n·문구 변경에 약함) |
+| `getByTestId('email-input')` | testid 명시 | 안정적이지만 사용자 무관 |
+| `.locator('.email-input')` | CSS 클래스 | 매우 낮음 (디자인 변경에 깨짐) |
+
+## 우선순위 적용에 대한 오해
+
+처음엔 "`getByRole`로 다 작성 → 깨지면 한 단계씩 내려가기" 식으로 접근했는데, **이건 안티패턴**이다.
+
+- 매칭이 1개라도 잡히면 테스트가 "통과"해 버려, 잘못된 요소를 잡고 있어도 알아채지 못한다.
+- 우선순위는 **요소마다 사전에 판단**하는 기준이다. 테스트를 돌려서 결정하는 게 아니다.
+- 판단 기준: 해당 요소에 **역할(role)과 접근 가능한 이름(accessible name)이 제대로 부여돼 있는지**를 DOM/접근성 트리에서 미리 확인하고 결정한다.
+
+즉 순서는 "실행 → 떨어지면 내려간다"가 아니라 "DOM 보고 → 이 요소엔 뭐가 가장 안정적인지 고른다"이다.
+
+## 각 메서드 사용 예
+
+### `getByRole` — 1순위
+
+```ts
+page.getByRole('button', { name: '저장' });
+page.getByRole('textbox', { name: '이메일' });
+page.getByRole('link', { name: '대시보드' });
+page.getByRole('heading', { level: 1, name: 'Testea' });
+page.getByRole('listitem');
+```
+
+`name`은 accessible name (label·aria-label·텍스트 등 자동 추론).
+
+### `getByLabel` — form에 좋음
+
+```ts
+page.getByLabel('이메일').fill('a@b.com');
+page.getByLabel('동의', { exact: true }).check();
+```
+
+`<label for="email">이메일</label><input id="email"/>` 같은 구조 자동 매칭.
+
+### `getByPlaceholder`
+
+```ts
+page.getByPlaceholder('검색어 입력');
+```
+
+label이 없을 때 차선.
+
+### `getByText` — 정적 텍스트만
+
+```ts
+page.getByText('환영합니다');
+page.getByText('저장되었습니다');  // 토스트 같은 알림 검증에 자주
+```
+
+i18n 적용 시 문구 변경에 약함. 동적 텍스트엔 비추.
+
+### `getByTestId` — 마지막 보루
+
+```tsx
+// 컴포넌트
+<div data-testid="case-list" />
+
+// 셀렉터
+page.getByTestId('case-list');
+```
+
+접근성으로 잡기 어려운 컨테이너·복잡 UI에만. 운영 코드에 `data-testid`가 늘어나면 production 번들 크기·디버깅 노이즈도 늘어남.
+
+### `locator()` — 정말 마지막
+
+```ts
+page.locator('.dashboard-card:nth-child(2)');  // 비추
+page.locator('css=section.empty-state');
+```
+
+CSS·XPath. 디자인 변경에 가장 잘 깨지는 셀렉터. 위 6가지로 못 찾을 때만.
+
+## 자주 쓰는 보조 패턴
+
+### filter로 좁히기
+
+```ts
+page.getByRole('row').filter({ hasText: 'TC-123' });
+page.getByRole('listitem').filter({ has: page.getByRole('button', { name: '삭제' }) });
+```
+
+### 체이닝
+
+```ts
+page.getByRole('navigation').getByRole('link', { name: '케이스' });
+```
+
+### exact 옵션
+
+```ts
+page.getByText('저장', { exact: true });  // '저장하기'와 구분
+page.getByLabel('Name', { exact: true });
+```
+
+## 디버깅 — Codegen·Inspector
+
+어떤 셀렉터가 가장 안정적인지 모르겠으면 Playwright Inspector가 추천해준다.
+
+```bash
+pnpm exec playwright codegen http://localhost:3000
+```
+
+UI에서 클릭하면 추천 셀렉터가 자동 생성된다. 거의 항상 `getByRole`을 먼저 시도해준다.
+
+`npx playwright codegen <url>`을 실행하면 다음과 같이 출력된다.
+
+![img.png](./img.png)
+
+DOM과 접근성 트리를 미리 보는 도구는 여러 가지가 있다.
+
+- `npx playwright test --ui` (UI 모드), Playwright Inspector, `page.pause()`
+  "Pick locator"로 요소를 집어 보고 매칭 개수를 즉시 확인할 수 있다.
+- VS Code Playwright 확장의 "Pick locator", 브라우저 DevTools 접근성 패널
+- 컴포넌트 소스를 직접 읽고 role/label 확인
+
+## 한 줄 요약
+
+> **`getByRole`이 안 되는 경우를 최소화하라.** 안 되면 그건 셀렉터 문제가 아니라 접근성 문제다.
+
+## 공식 문서
+
+- [Locators](https://playwright.dev/docs/locators)
+- [Best Practices — Use locators](https://playwright.dev/docs/best-practices#use-locators)
+- [Codegen](https://playwright.dev/docs/codegen)
