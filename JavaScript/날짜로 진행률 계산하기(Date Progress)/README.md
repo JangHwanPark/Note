@@ -65,10 +65,10 @@ getProgress('2025-03-01', '2025-03-31', t('2025-03-11')).toFixed(2); // '33.33'
 <br/>
 
 ## 진행률 막대에 적용하기
-아래 예시는 React와 Tailwind CSS를 쓰는 프로젝트에서 계산 결과를 진행률 막대에 넘긴 코드다. `ProgressBar` 는 `percentage` 를 받아 그 값을 막대 너비(%)로 쓰는 컴포넌트이고, 만드는 방법은 [프로그래스 바](../../React/UI%20컴포넌트%20만들기(Building%20UI%20Components)/프로그래스%20바(Progress%20Bar)) 노트에서 다룬다. `percentage: number` 같은 타입은 숫자만 받게 할 뿐 0~100 범위까지 막지는 않는다. 범위는 `getProgress` 가 지켜 준다.
+아래 예시는 React와 Tailwind CSS를 쓰는 프로젝트에서 계산 결과를 진행률 막대에 넘긴 코드다. `ProgressBar` 는 `progress` 와 `label` 을 받아 `progress` 값을 막대 너비(%)로 쓰는 컴포넌트이고, 만드는 방법은 [프로그래스 바](../../React/UI%20컴포넌트%20만들기(Building%20UI%20Components)/프로그래스%20바(Progress%20Bar)) 노트에서 다룬다. `progress: number` 같은 타입은 숫자만 받게 할 뿐 0~100 범위까지 막지는 않는다. 범위는 `getProgress` 가 지켜 준다.
 
 ```tsx
-import ProgressBar from '../ProgressBar';
+import { ProgressBar } from '../ProgressBar';
 import { getProgress } from '@/service/getProgress';
 
 type Project = { startDate: string; endDate: string };
@@ -81,7 +81,7 @@ const ProjectInfo = ({ data }: { data: Project }) => {
     <div className="bg-white p-8 rounded-lg shadow">
       <h2 className="text-2xl font-semibold">프로젝트 진행률</h2>
       <div className="mt-6">
-        {started ? <ProgressBar percentage={progress} /> : <p>프로젝트 시작 전</p>}
+        {started ? <ProgressBar progress={progress} label="프로젝트 진행률" /> : <p>프로젝트 시작 전</p>}
       </div>
     </div>
   );

@@ -14,14 +14,24 @@ const cases = [
   { text: '왼쪽 ↔ 오른쪽', expected: false },
   { text: '\x60\x60\x60\nlabel:\n\x60\x60\x60', expected: false },
 ];
+// 훅은 Write의 content와 Edit의 new_string을 함께 검사하므로 사례마다 두 경로를 모두 채점한다.
+const fields = ['content', 'new_string'];
 let pass = 0;
 cases.forEach((c, i) => {
-  const input = JSON.stringify({ tool_input: { file_path: 'C:/tmp/note/README.md', content: c.text } });
-  const out = execFileSync('node', [HOOK], { input }).toString();
-  const blocked = out.includes('"decision":"block"');
-  const ok = blocked === c.expected;
-  if (ok) pass++;
-  console.log(`${ok ? 'PASS' : 'FAIL'}  case ${i + 1}  expected=${c.expected} got=${blocked}`);
+  fields.forEach((field) => {
+    const input = JSON.stringify({ tool_input: { file_path: 'C:/tmp/note/README.md', [field]: c.text } });
+    let got;
+    try {
+      const out = execFileSync('node', [HOOK], { input, stdio: ['pipe', 'pipe', 'pipe'] }).toString();
+      got = out.includes('"decision":"block"');
+    } catch (e) {
+      got = `error(exit ${e.status})`; // 훅이 죽어도 나머지 사례는 계속 채점한다
+    }
+    const ok = got === c.expected;
+    if (ok) pass++;
+    console.log(`${ok ? 'PASS' : 'FAIL'}  case ${i + 1} ${field}  expected=${c.expected} got=${got}`);
+  });
 });
-console.log(`${pass}/${cases.length} passed`);
-process.exitCode = pass === cases.length ? 0 : 1;
+const total = cases.length * fields.length;
+console.log(`${pass}/${total} passed`);
+process.exitCode = pass === total ? 0 : 1;
