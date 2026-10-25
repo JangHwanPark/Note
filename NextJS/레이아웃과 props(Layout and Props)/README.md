@@ -21,7 +21,7 @@ App Router의 레이아웃과 페이지는 이런 부모 자식 관계가 아니
 
 택배 상자에 비유하면, 레이아웃은 상자이고 페이지는 공장에서 이미 포장되어 온 물건이다. 상자는 물건을 감쌀 수는 있지만, 포장을 뜯고 안에 무언가를 넣을 수는 없다.
 
-또 레이아웃은 페이지를 옮겨 다녀도 다시 렌더링되지 않는다(공식 문서 Layouts and Pages). 만약 레이아웃이 페이지에 props를 넘길 수 있다면, 페이지만 바뀔 때 레이아웃이 그 값을 다시 계산하지 않아 오래된 값이 남는 문제가 생긴다. 레이아웃과 페이지가 데이터를 각자 가져오게 한 것은 이 때문으로 보인다(확인 필요).
+또 레이아웃은 페이지를 옮겨 다녀도 다시 렌더링되지 않는다(공식 문서 Layouts and Pages). 공식 문서 useSearchParams의 Layouts 항목은 레이아웃이 `searchParams` 를 받지 않는 이유를 이것으로 설명한다. 공유 레이아웃은 이동할 때 다시 렌더링되지 않으므로, 이동 사이에 `searchParams` 가 오래된 값으로 남을 수 있다는 것이다. 레이아웃이 페이지에 props를 넘길 수 없는 것도 같은 이유로 보인다. 페이지만 바뀔 때 레이아웃이 그 값을 다시 계산하지 않아 오래된 값이 남기 때문이다. 다만 일반 props에 대해서는 공식 문서가 직접 설명하지 않으므로 이 부분은 추론이다(확인 필요).
 
 <br/>
 
@@ -80,6 +80,7 @@ export default async function DashboardPage() {
 2. Next.js 공식 문서, [Fetching Data](https://nextjs.org/docs/app/getting-started/fetching-data) (React.cache로 데이터 재사용하기)
 3. Next.js 공식 문서, [Glossary: Memoization](https://nextjs.org/docs/app/glossary#memoization)
 4. React 공식 문서, [cache](https://react.dev/reference/react/cache)
+5. Next.js 공식 문서, [useSearchParams](https://nextjs.org/docs/app/api-reference/functions/use-search-params) (Layouts 항목)
 
 예시 코드는 `next` 16.4.2, react 19.3.1(package.json에 설치한 버전), TypeScript 5.6.3 `strict` 로 타입 검사만 했다. App Router는 Next.js에 들어 있는 React canary 버전으로 실행되므로 실제 실행 버전은 다를 수 있다. Next.js 앱으로 띄워 한 번만 실행되는지는 확인하지 않았다.
 

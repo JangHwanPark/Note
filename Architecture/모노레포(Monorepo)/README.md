@@ -28,7 +28,7 @@ pnpm init
 
 pnpm 10.23.0에서 `pnpm init -y` 처럼 `-y` 를 붙이면 `Unknown option: 'y'` 오류가 난다. npm과 달리 pnpm의 `init` 은 묻지 않고 바로 `package.json` 을 만들기 때문에 `-y` 가 필요 없다.
 
-pnpm이 없다면 `npm install -g pnpm` 으로 설치한다. Corepack(`corepack enable pnpm`)을 쓰는 방법도 있지만, Corepack은 Node.js 24까지만 함께 들어 있고 25부터는 빠진 것으로 알려져 있다(확인 필요). npm과 yarn도 workspace를 지원하므로 pnpm이 아니어도 모노레포를 만들 수 있다.
+pnpm이 없다면 `npm install -g pnpm@10.23.0` 으로 설치한다. 버전을 빼면 최신 버전이 설치되는데, 이 노트의 동작은 10.23.0에서만 확인했다. Corepack(`corepack enable pnpm`)을 쓰는 방법도 있지만, Corepack 저장소 README에 따르면 Corepack은 Node.js 14.19.0부터 25.0.0 전까지만 함께 배포된다. Node.js 25 이상에서는 `npm install -g corepack` 으로 따로 설치해야 한다. npm과 yarn도 workspace를 지원하므로 pnpm이 아니어도 모노레포를 만들 수 있다.
 
 ### 2. pnpm-workspace.yaml 만들기
 루트에 이 파일을 두면 pnpm이 저장소를 workspace로 인식한다. `packages` 에 적은 경로 아래 폴더가 각각 하나의 패키지가 된다.
@@ -56,6 +56,8 @@ my-workspace/
 ```bash
 pnpm create next-app apps/web
 ```
+
+create-next-app 16.4.2의 코드를 보면 pnpm으로 만들 때 앱 폴더 안에 `pnpm-workspace.yaml` 을 따로 만든다. 그래서 `apps/web` 에 workspace 파일이 하나 더 생길 수 있다. 이것이 루트 workspace 인식이나 설치에 영향을 주는지는 실행해 보지 않았다(확인 필요).
 
 ### 5. 공통 패키지를 앱에서 쓰기
 `packages/ui/package.json` 의 `name` 을 `@my/ui` 로 정했다면, 앱에서 아래처럼 추가한다.
@@ -96,6 +98,7 @@ pnpm changeset init
 
 ## 참고 자료
 - [pnpm Workspace](https://pnpm.io/workspaces)
+- [Corepack README](https://github.com/nodejs/corepack#readme)
 - [Turborepo](https://turborepo.com/docs)
 - [Changesets](https://github.com/changesets/changesets)
 
