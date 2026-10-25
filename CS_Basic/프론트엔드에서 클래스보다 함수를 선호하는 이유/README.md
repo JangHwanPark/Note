@@ -1,203 +1,164 @@
-# 프론트엔드에서 함수 기반(Function-based)이 기본이 된 이유와 클래스의 역할
-과거 리액트에서는 **클래스 컴포넌트가 기본 문법**이었고, 지금도 여전히 지원된다.  
-또한 ES6(ES2015) 이후 자바스크립트가 `class`키워드를 **공식적으로 문법으로 제공**하면서  
-겉으로 보기에는 자바나 C#처럼 “클래스 기반 언어”처럼 쓸 수 있게 되었다.
+## 왜 프론트엔드 코드에는 함수가 많을까
+- 자바스크립트는 ES2015부터 `class` 문법을 공식으로 제공하고, React도 예전에는 클래스 컴포넌트가 기본이었다
+- 그런데 지금 웹 프론트엔드 코드에서는 클래스보다 함수를 훨씬 자주 본다. 클래스를 못 써서가 아니라 UI 코드에는 함수를 조합하는 방식이 더 잘 맞기 때문이다
+- 이 노트는 그 이유와, 그래도 클래스가 자연스러운 자리가 어디인지를 정리한다. React 관점의 이야기가 많다
 
-나 역시 JS를 배울 때 클래스 문법을 배웠고 알고리즘/코딩테스트 문제 풀 때(자료구조 구현 등)를 제외하면 실제 웹 프론트엔드 코드에서는 클래스를 쓸 일도, 예제를 접할 기회도 거의 없었다.  
+<br/>
 
-`공식 문법도 있고, React도 옛날엔 클래스 썼다는데… 왜 실제 프론트 개발에서는 함수만 보이는 걸까?`라는 의문에서 이 정리를 시작했다.
+## 훅이 클래스의 주요 쓰임을 대신했다
+훅(Hook)은 사전적으로 갈고리다. React에서는 함수 컴포넌트가 React의 상태 관리나 생명주기 기능에 걸어 쓰는 함수를 말하고, 이름이 `use` 로 시작한다. 생명주기(Lifecycle)는 컴포넌트가 화면에 붙고, 바뀌고, 떨어지는 과정이고, 부수 효과(Side Effect)는 데이터 요청이나 타이머처럼 화면을 그리는 계산 밖에서 일어나는 일이다.
 
-프론트엔드에서 클래스 문법을 못 써서 안 쓰는 것이 아니라 함수 기반 접근이 훨씬 자연스럽고 실용적이기 때문에 React는 함수형 패러다임을 중심으로 발전해왔다.
+React 16.8에서 `useState`, `useEffect` 같은 훅이 들어오면서 클래스 컴포넌트에서만 되던 상태 관리, 생명주기 처리, 부수 효과 처리를 함수 컴포넌트에서도 할 수 있게 되었다. 함수로 대부분 되니 굳이 클래스를 쓸 이유가 줄었다.
 
-## React Hooks 등장 이후 클래스의 주요 사용처가 사라짐
-`React v16.8`이후 `useState`, `useEffect`등 `훅(Hooks)`이 도입되면서 기존 클래스 컴포넌트에서만 
-가능했던 기능(`상태 관리`, `생명주기 관리`, `사이드 이펙트 처리`)들이 전부 함수 컴포넌트에서도 가능해졌다.
+다만 전부는 아니다. React 19.3 공식 문서(react.dev, 2026-10-25 확인)는 "There is currently no way to write an Error Boundary as a function component."라고 쓴다. 자식 컴포넌트의 렌더링 오류를 잡는 에러 경계(Error Boundary)는 지금도 클래스 컴포넌트의 `componentDidCatch`, `static getDerivedStateFromError` 로만 만들 수 있다. 그래서 react-error-boundary 같은 라이브러리가 클래스로 된 에러 경계를 감싸 함수 컴포넌트에서 쓰게 해 준다.
 
-결과 → `함수로 다 되는데 굳이 클래스 쓸 필요가 없다`는 흐름이 강해짐.
+React 공식 문서는 새 컴포넌트를 함수로 쓰라고 권한다("We recommend defining components as functions instead of classes."). 클래스 컴포넌트도 여전히 지원한다.
 
-## JavaScript의 클래스는 사실 `syntax sugar`
-JS의 클래스는 전통적인 객체지향 클래스가 아니라 `prototype`기반 `상속`을 보기 좋게 감싸놓은`syntax sugar`다.
+<br/>
 
-프론트엔드 UI 코드는 유연성과 조립성이 중요하기 때문에 자연스럽게 함수 기반 조합 패턴으로 기울어짐.
+## 자바스크립트 클래스는 프로토타입 위에 있다
+### 문법 설탕 (Syntax Sugar)
+설탕은 음식을 먹기 좋게 할 뿐 요리 자체를 바꾸지는 않는다. 문법 설탕은 언어가 할 수 있는 일을 늘리지 않고, 이미 할 수 있는 일을 읽고 쓰기 쉽게 만든 문법을 말한다.
+
+프로토타입(Prototype)은 사전적으로 원형, 본보기다. 자바스크립트에서는 객체가 자기에게 없는 속성이나 메서드를 대신 찾아보는 본보기 객체를 말한다. 자바스크립트의 `class` 를 흔히 프로토타입 기반 상속의 문법 설탕이라고 부른다. 클래스로 만든 객체도 메서드를 프로토타입에서 찾기 때문이다.
 
 ```js
 class A {
   method() {}
 }
 
-// 사실상 아래와 동일한 구조
-A.prototype.method = function () {};
-```
-→ JS의 클래스는 OOP처럼 보이지만 내부적으로는 함수+프로토타입 조합이다.
-
-→ 상속 기반 구조(OOP): 유연하지 않음
-
-→ 조합(Composition): 훨씬 자연스럽고 JS와 잘 맞음
-
-> **문법 설탕(Syntax Sugar)이란?**
-> - 없어도 언어가 돌아가는 기능이지만 개발자가 읽고 쓰기 쉽게 하기 위해 `추가로 제공하는 편의 문법`
-> - **엔진 입장에서는 결국 같은 코드**로 변환된다.
-> - 사람 눈에는 깔끔하게 내부 구현은 기존 메커니즘을 그대로 사용.
-
-### JavaScript 클래스의 syntax sugar 구조
-```mermaid
-flowchart LR
-  subgraph Dev["개발자가 보는 코드 (클래스 문법)"]
-    C["class A {\n  method() {}\n}"]
-  end
-
-  subgraph Engine["엔진이 내부에서 해석한 형태 (prototype 기반)"]
-    F["function A() {}"]
-    P["A.prototype.method = function() {}"]
-  end
-
-  C -- 문법 설탕 해석 --> F
-  C -- method() 펼치기 --> P
+// 메서드가 프로토타입에 있다는 점은 아래와 비슷하다
+function B() {}
+B.prototype.method = function () {};
 ```
 
-### 클래스와 prototype 관계
-```mermaid
-classDiagram
-  class A {
-    +method()
-  }
+### 완전히 같지는 않다
+MDN은 클래스가 "built on prototypes but also have some syntax and semantics that are unique to classes"라고 설명한다. 프로토타입 위에 만들어졌지만 클래스에만 있는 규칙이 있다는 뜻이다. 그래서 위 두 코드를 똑같다고 보면 안 된다.
 
-  class APrototype {
-    +method()
-  }
-
-  A --> APrototype : prototype
-```
-
-
-## React 자체가 함수형 패러다임을 밀어줌
-React 공식 문서에서도 함수 컴포넌트 사용을 기본 권장한다.
-- UI = `상태 → UI`형태로 계산하는 함수적 사고가 자연스럽다
-- this 바인딩 문제 없음 
-- 코드량 감소, 가독성 증가
-- 커스텀 훅을 통한 상태 로직 재사용 쉬움
 ```js
+try { A(); } catch (e) { console.log(e.message); } // Class constructor A cannot be invoked without 'new'
+console.log(B());                    // undefined (함수는 new 없이도 실행된다)
+console.log(Object.keys(A.prototype)); // [] (클래스 메서드는 열거되지 않는다)
+console.log(Object.keys(B.prototype)); // [ 'method' ]
+```
+
+이 밖에도 클래스 본문은 `"use strict"` 없이도 엄격 모드(strict mode)로 실행된다. 엄격 모드는 실수하기 쉬운 문법을 오류로 막는 실행 방식이다. 또 클래스 선언은 `let`, `const` 처럼 선언 전에 쓰면 오류가 난다. 선언 전까지 이름을 쓸 수 없는 이 구간을 TDZ(Temporal Dead Zone)라고 한다. 위 출력은 Node.js v24.22.1에서 실행한 값이다.
+
+### 상속보다 조합
+상속(Inheritance)은 부모의 기능을 통째로 물려받는 것이고, 조합(Composition)은 필요한 부품을 골라 끼우는 것이다. 레고 블록을 끼워 맞추듯 작은 함수와 컴포넌트를 조립한다고 생각하면 된다. 클래스를 쓰면 상속으로 기능을 물려주는 설계로 가기 쉽다. UI는 작은 조각을 끼워 맞추는 일이 많아서, 상속 계층을 깊게 만들기보다 작은 함수와 컴포넌트를 조합하는 쪽이 고치기 쉽다. "상속보다 조합"은 원래 객체 지향 설계에서 나온 조언(GoF의 디자인 패턴)이라, 객체 지향을 버리자는 말이 아니라 객체 지향 안에서도 조합을 먼저 생각하라는 뜻이다.
+
+<br/>
+
+## React가 함수 쪽을 밀어준 이유
+React는 화면을 상태를 받아 UI를 돌려주는 계산으로 본다. 이 생각은 함수 하나로 그대로 표현된다.
+
+```jsx
 function Button({ label }) {
   return <button>{label}</button>;
 }
 ```
 
-## 실무에서 함수 기반 패턴이 많은 이유
-프론트엔드는 데이터 흐름 + 이벤트 + UI 상태 변화가 중심이다.
+함수 컴포넌트에서는 `this` 가 없어서, 클래스에서 이벤트 핸들러를 넘길 때 `this` 를 묶어 줘야(bind) 하는 문제가 사라진다. 상태를 다루는 로직은 훅을 묶어 직접 만든 커스텀 훅으로 떼어 내 여러 컴포넌트에서 다시 쓸 수 있다.
 
-이런 문제는 작은 함수들을 조합하는 방식이 훨씬 자연스럽다.
-- 커스텀 훅 (useForm, useAuth 등)
-- 유틸리티 함수 (데이터 변환, API 파싱)
-- 전략 패턴(Strategy) → 함수 매핑만으로 처리
-- 팩토리 함수 (객체 생성, 설정 주입)
+두 방식이 화면을 그리는 흐름도 다르다. 함수 컴포넌트는 렌더링할 때마다 함수를 다시 부르고, 렌더링 사이의 상태는 훅이 기억한다. 클래스 컴포넌트는 인스턴스를 한 번 만들고, 상태를 인스턴스에 둔 채 단계마다 다른 메서드를 부른다. React 문서 기준으로 두 방식이 처음 화면에 붙을 때의 순서는 아래와 같다. 함수 컴포넌트의 state는 함수 밖에서 들어오는 값이 아니라, 호출 도중 `useState` 가 꺼내 주는 값이다.
 
-→ 클래스보다 훨씬 가볍고 단순하며 조립성이 뛰어남.
+```mermaid
+flowchart LR
+  subgraph Function["함수 컴포넌트"]
+    A1["props"] --> A2["함수 호출 (useState로 state 읽기)"] --> A3["JSX 반환"] --> A4["화면에 반영"] --> A5["useEffect 실행"]
+  end
 
-## 그렇다면 클래스는 언제 쓸까?
-UI에서는 잘 안 쓰이지만 비즈니스 계층에서는 클래스가 더 자연스럽다.
+  subgraph Class["클래스 컴포넌트 마운트"]
+    B1["constructor"] --> B2["static getDerivedStateFromProps"] --> B3["render"] --> B4["화면에 반영"] --> B5["componentDidMount"]
+  end
+```
 
-→ UI는 함수형
+<br/>
 
-→ 도메인, 엔진, 상태머신은 클래스형이 자연스럽다.
+## 실무에서 함수 패턴이 많은 이유
+프론트엔드 코드의 대부분은 데이터를 받아 바꾸고, 이벤트에 반응하고, 화면 상태를 바꾸는 일이다. 이런 일은 입력을 받아 결과를 돌려주면 끝나서, 상태를 오래 들고 있을 객체가 필요 없다. 그래서 작은 함수로 나눠 조합하기 좋다. 커스텀 훅(useAuth 등), 데이터를 바꾸는 유틸리티 함수, 조건에 따라 함수를 고르는 전략 패턴(Strategy), 설정을 받아 객체를 만드는 팩토리 함수가 모두 함수로 충분하다.
 
-| 쓰임새                         | 클래스가 적합한 이유                                 |
-| --------------------------- | ------------------------------------------- |
-| **도메인 모델 (Domain Model)**   | 데이터 + 규칙 + 행위를 하나의 단위로 묶기 좋음                |
-| **Service / Manager**       | API 호출/의존성/흐름 등을 ‘행위 단위’로 묶을 때              |
-| **WebSocket / RTC / 상태 머신** | 연결/상태/전이 등 라이프사이클 관리 필요                     |
-| **Canvas / 게임 오브젝트**        | “하나의 실체”가 있고 상태·행위가 명확히 묶여야 함               |
-| **엔진/SDK 계층**               | three.js, PixiJS, Babylon.js 등 클래스 중심 구조 채택 |
+<br/>
 
-## 실제 OSS에서도 여전히 클래스 쓰는 영역
-2024~2025 기준으로 클래스 중심으로 설계된 대표적인 공개 리포지토리들
+## 그렇다면 클래스는 언제 쓸까
+상태와 규칙과 동작을 하나로 묶어 오래 들고 있어야 하는 곳에서는 클래스가 자연스러울 수 있다. 아래는 그런 경우의 예다. 어느 쪽이 낫다는 정답이 있는 것은 아니고, 팀과 코드베이스에 따라 함수와 객체로 같은 일을 하기도 한다.
 
-→ UI 프레임워크(React)는 함수 기반이지만 엔진/도메인/플랫폼 계층은 클래스가 지금도 표준.
-- three.js (3D 엔진)
-- PixiJS (2D 엔진)
-- Babylon.js (WebGL/WebGPU, Physics)
-- Mapbox GL / MapLibre (지도 엔진)
-- Lit / Web Components (디자인 시스템용)
-- Angular (18 기준, 모든 구성요소가 클래스 기반)
+- 도메인 모델(Domain Model): 데이터와 규칙과 동작을 한 단위로 묶을 수 있다
+- 서비스, 매니저 객체: API 호출, 의존성, 흐름을 하나의 객체로 묶을 수 있다
+- WebSocket, RTC 연결, 상태 머신: 연결, 상태, 전이처럼 수명 주기를 관리해야 한다
+- Canvas, 게임 오브젝트: 화면 속 물체 하나가 자기 상태와 동작을 가진다
+- 엔진, SDK: 공개 API가 클래스로 되어 있는 라이브러리가 많다
 
-## 실무 관점에서 `클래스가 진짜 필요한 위치`
-UI는 함수형으로 충분하지만 규칙, 상태, 흐름을 캡슐화해야 하는 영역은 클래스가 훨씬 이득이다.
+클래스 중심 API를 가진 공개 라이브러리로는 three.js(3D), PixiJS(2D), Babylon.js(WebGL, WebGPU), Mapbox GL과 MapLibre GL(지도), Lit(웹 컴포넌트)이 있다. Angular도 컴포넌트와 서비스를 클래스로 쓴다. 다만 Angular도 라우트 가드를 `CanActivateFn` 같은 함수로 쓰는 등 함수 API가 늘고 있어서 모든 구성 요소가 클래스인 것은 아니다. 각 라이브러리의 버전별 구조는 확인 필요다.
 
-### 도메인 모델 예시(UI에 로직이 섞인 안 좋은 예)
-→ 규칙이 UI에 녹아 있어 유지보수, 테스트 불리
-```js
-setCart(prev =>
-  prev.map(item =>
-    item.id === id ? { ...item, qty: item.qty + 1 } : item
-  )
+<br/>
+
+## 도메인 로직을 클래스로 떼어 낸 예
+장바구니 수량을 늘리는 규칙이 화면 코드 안에 들어 있으면 같은 규칙을 다른 화면에서 다시 쓰기 어렵고, 규칙만 따로 테스트하기도 어렵다.
+
+```jsx
+setCart((prev) =>
+  prev.map((item) => (item.id === id ? { ...item, qty: item.qty + 1 } : item))
 );
 ```
 
-### 도메인 모델 예시(도메인 모델로 분리한 좋은 예)
-- API 변경되어도 UI는 영향 없음
-- 테스트 쉬움
-- 비즈니스 로직이 UI와 분리됨
-- 타입 안정성 증가
-```js
-class CartItem {
-  constructor(public id: string, public price: number, public qty: number) {}
+규칙을 클래스로 떼어 내면 화면 코드는 이 상품 수량을 늘리라고 요청만 하고, 계산은 클래스가 맡는다. 클래스만 따로 불러 테스트할 수도 있다.
 
-  increase() {
+```ts
+class CartItem {
+  readonly id: string;
+  readonly price: number;
+  readonly qty: number;
+
+  constructor(id: string, price: number, qty: number) {
+    this.id = id;
+    this.price = price;
+    this.qty = qty;
+  }
+
+  increase(): CartItem {
     return new CartItem(this.id, this.price, this.qty + 1);
   }
 
-  get total() {
+  get total(): number {
     return this.price * this.qty;
   }
 }
 
 class Cart {
-  constructor(private items: CartItem[]) {}
+  readonly items: CartItem[];
 
-  increaseItem(id: string) {
-    return new Cart(
-      this.items.map(i => (i.id === id ? i.increase() : i))
-    );
+  constructor(items: CartItem[]) {
+    this.items = items;
   }
 
-  get total() {
+  increaseItem(id: string): Cart {
+    return new Cart(this.items.map((i) => (i.id === id ? i.increase() : i)));
+  }
+
+  get total(): number {
     return this.items.reduce((sum, i) => sum + i.total, 0);
   }
 }
 
-// UI 코드
-const [cart, setCart] = useState(new Cart([...]));
-const onIncrease = id => setCart(prev => prev.increaseItem(id));
+const cart = new Cart([new CartItem('apple', 1000, 1), new CartItem('pear', 2000, 2)]);
+const next = cart.increaseItem('apple');
+console.log(cart.total); // 5000
+console.log(next.total); // 6000
 ```
 
-## 함수 기반 vs 클래스 기반 비교
-```mermaid
-flowchart LR
-  subgraph Function["함수 기반 컴포넌트"]
-    A1["props + state 입력"]
-    A2["함수 실행 (컴포넌트 호출)"]
-    A3["Hook 실행 (useState, useEffect 등)"]
-    A4["UI 반환 (JSX)"]
-  end
+`increaseItem` 은 원래 장바구니를 바꾸지 않고 새 장바구니를 돌려준다. React 상태는 새 객체가 들어와야 바뀐 줄 알기 때문에, 컴포넌트에서는 `setCart((prev) => prev.increaseItem(id))` 처럼 쓸 수 있다. 위 코드는 Node.js v24.22.1의 타입 제거 실행(type stripping)으로 돌려 출력을 확인했다. tsc 타입 검사와 React 컴포넌트 안에서의 동작은 확인하지 않았다.
 
-  subgraph Class["클래스 기반 컴포넌트"]
-    B1["컴포넌트 인스턴스 생성 (new)"]
-    B2["this 바인딩"]
-    B3["라이프사이클 메서드 실행\n(componentDidMount, etc)"]
-    B4["render() 호출"]
-    B5["UI 반환 (JSX)"]
-  end
+<br/>
 
-  A1 --> A2 --> A3 --> A4
-  B1 --> B2 --> B3 --> B4 --> B5
-```
-### 함수형 흐름
-- 매 렌더마다 그냥 함수를 다시 호출한다
-- 상태는 Hook이 `함수 호출 간`유지
-- 로직이 단순함
-- this 없음
+## 참고 자료
+- React 문서, [Component](https://react.dev/reference/react/Component)
+- MDN, [Classes](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes)
+- Angular 문서, [Route guards](https://angular.dev/guide/routing/route-guards)
 
-### 클래스형 흐름
-- 먼저 인스턴스를 생성해야 하고
-- this 바인딩이 필수
-- 상태는 인스턴스 내부에 저장됨
-- 라이프사이클에 따라 메서드가 여러 단계로 나뉨
+<br/>
+
+## 더 볼 것 (TODO)
+- 에러 경계를 함수 컴포넌트에서 쓰는 방법
+- 프로토타입 체인이 메서드를 찾는 과정
+- 클래스 필드와 private 필드(`#`)

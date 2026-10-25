@@ -87,7 +87,7 @@ sequenceDiagram
 | image/png | PNG 이미지 |
 | multipart/form-data | 파일이 섞인 폼 데이터 |
 
-`text/html; charset=utf-8` 처럼 뒤에 글자 인코딩(Character Encoding)을 덧붙이기도 한다. Content-Type이 틀리면 데이터가 멀쩡해도 잘못 읽힌다. JSON을 보내면서 text/plain이라고 적으면 서버는 그 본문을 JSON으로 해석하지 않는다.
+`text/html; charset=utf-8` 처럼 뒤에 글자 인코딩(Character Encoding)을 덧붙이기도 한다. Content-Type이 틀리면 데이터가 멀쩡해도 잘못 읽힐 수 있다. JSON을 보내면서 text/plain이라고 적으면, Content-Type을 보고 처리 방식을 고르는 서버는 그 본문을 JSON으로 해석하지 않는다. 다만 이 헤더를 보지 않고 본문을 무조건 JSON으로 읽는 서버도 있다. [HTTP 메서드와 상태 코드](../HTTP%20메서드와%20상태%20코드(HTTP%20Methods%20and%20Status%20Codes)/README.md)의 예제 서버가 그렇다. 그 예제의 fetch는 문자열 본문에 text/plain;charset=UTF-8을 붙여 보내지만, 서버는 JSON으로 읽어 201을 돌려준다(Node.js v24.22.1에서 확인).
 
 ### Content-Length
 본문의 크기를 바이트 단위로 알린다. 받는 쪽은 이 숫자만큼 읽으면 본문이 끝났다는 것을 안다. 앞의 예시에서 `{"name":"영희"}` 가 13글자인데 17바이트인 이유는, UTF-8에서 한글 한 글자가 3바이트이기 때문이다.
@@ -136,7 +136,7 @@ Authorization의 사전적 의미는 허가, 권한 부여다. 이름은 권한�
 그래서 토큰이 새면 누구든 그 사람 행세를 할 수 있다. 헤더는 본문과 마찬가지로 그대로 전송되므로, 인증 정보를 담는 요청은 반드시 HTTPS로 보낸다.
 
 ### Cookie와 Set-Cookie
-서버가 응답에 Set-Cookie로 작은 값을 주면, 브라우저가 저장해 두었다가 같은 서버로 요청할 때마다 Cookie 헤더에 담아 자동으로 보낸다. 옷 보관소 번호표처럼, 서버가 준 번호표(쿠키)를 브라우저가 들고 다니며 요청마다 보여 주는 것이다. 세션(Session) 방식 로그인이 이것으로 동작한다. 쿠키와 세션은 [프론트엔드 관점 문서](../../클라이언트-서버%20구조%20프론트엔드%20관점(Frontend)/README.md)에 정리했다.
+서버가 응답에 Set-Cookie로 작은 값을 주면, 브라우저가 저장해 두었다가 조건에 맞는 요청마다 Cookie 헤더에 담아 자동으로 보낸다. 조건은 서버 한 대가 아니라 도메인과 경로로 정한다. 기본은 쿠키를 준 호스트로 가는 요청이고, Domain과 Path 속성으로 범위를 넓히거나 좁힌다. 포트는 구분하지 않아서, 같은 호스트의 다른 포트로 가는 요청에도 쿠키가 붙는다(RFC 6265). 옷 보관소 번호표처럼, 서버가 준 번호표(쿠키)를 브라우저가 들고 다니며 요청마다 보여 주는 것이다. 세션(Session) 방식 로그인이 이것으로 동작한다. 쿠키와 세션은 [프론트엔드 관점 문서](../../클라이언트-서버%20구조%20프론트엔드%20관점(Frontend)/README.md)에 정리했다.
 
 ```http
 HTTP/1.1 200 OK
@@ -148,7 +148,7 @@ GET /mypage HTTP/1.1
 Cookie: sessionId=xyz
 ```
 
-Set-Cookie 뒤에 붙은 HttpOnly는 JavaScript가 이 쿠키를 읽지 못하게 하고, Secure는 HTTPS 연결에서만 보내게 한다. SameSite는 다른 사이트에서 시작된 요청에 쿠키를 붙일지 정한다. Lax는 다른 사이트에서 링크를 눌러 이동해 올 때는 쿠키를 붙이고, 다른 사이트가 몰래 보내는 요청에는 붙이지 않는다.
+Set-Cookie 뒤에 붙은 HttpOnly는 JavaScript가 이 쿠키를 읽지 못하게 하고, Secure는 HTTPS 연결에서만 보내게 한다. SameSite는 다른 사이트에서 시작된 요청에 쿠키를 붙일지 정한다. Lax는 다른 사이트에서 시작된 요청 중 두 조건을 모두 갖춘 것에만 쿠키를 붙인다. 주소창의 주소가 바뀌는 페이지 이동(링크 클릭 등)이어야 하고, GET처럼 안전한 메서드여야 한다. 그래서 다른 사이트의 링크를 눌러 들어올 때는 쿠키가 붙지만, 다른 사이트의 폼이 POST로 보내거나 다른 사이트의 스크립트가 fetch로 보내는 요청에는 붙지 않는다(MDN Set-Cookie 문서 기준. 이 규칙을 담은 쿠키 표준 개정판 RFC 6265bis는 2026년 10월 기준 아직 초안이다).
 
 <br/>
 
@@ -166,7 +166,7 @@ Cache는 원래 숨겨 둔 저장소, 비축품이라는 뜻이다. 나중에 �
 no-cache는 이름과 달리 저장하지 말라는 뜻이 아니다. 저장하지 말라는 것은 no-store다. 자주 헷갈리는 부분이다.
 
 ### ETag와 If-None-Match
-ETag(Entity Tag)는 응답 내용에 붙인 버전 꼬리표다. 내용이 바뀌면 꼬리표도 바뀐다. Entity는 HTTP에서 본문을 부르던 옛 이름이고, 지금 표준에서는 Representation이라고 부른다.
+ETag(Entity Tag)는 응답 내용에 붙인 버전 꼬리표다. 내용이 바뀌면 꼬리표도 바뀐다. Entity는 HTTP에서 본문을 부르던 옛 이름이고, 지금 표준에서는 Representation이라고 부른다. 다만 꼬리표 이름은 지금 표준(RFC 9110)에서도 entity tag 그대로 쓴다.
 
 If-None-Match는 일치하는 것이 없으면이라는 뜻이다. 내가 가진 꼬리표와 일치하지 않을 때만 본문을 보내 달라는 조건을 거는 것이다. 이렇게 조건을 붙인 요청을 조건부 요청(Conditional Request)이라고 한다.
 

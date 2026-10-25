@@ -25,7 +25,7 @@
 npx create-next-app@latest app-name
 ```
 
-`create-next-app` 16.4.2의 `--help` 기준으로 TypeScript(`--ts`)와 Tailwind CSS(`--tailwind`)는 기본으로 켜져 있어서 따로 적지 않아도 된다. 질문 없이 기본값으로 만들려면 `--yes` 를 붙인다. JavaScript로 만들려면 `--js` 를 준다.
+`create-next-app` 16.4.2의 `--help` 기준으로 TypeScript(`--ts`)와 Tailwind CSS(`--tailwind`)는 기본으로 켜져 있어서 따로 적지 않아도 된다. 질문 없이 만들려면 `--yes` 를 붙인다. `--help` 설명은 "Use saved preferences or defaults for unprovided options"라서, 전에 저장해 둔 설정이 있으면 기본값보다 그 값이 먼저 쓰인다. JavaScript로 만들려면 `--js` 를 준다.
 
 <br/>
 

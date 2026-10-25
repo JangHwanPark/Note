@@ -46,6 +46,7 @@ flowchart LR
 - [클라이언트-서버 구조](../클라이언트-서버%20구조(Client-Server%20Architecture)/README.md)는 네트워크 위에서 요청과 응답을 주고받는 역할 구분을 다룬다.
 - [서버의 동시 처리 방식](../서버의%20동시%20처리%20방식(Server%20Concurrency)/README.md)은 서버가 여러 연결을 한꺼번에 처리하는 방법을 다룬다.
 - [로드 밸런싱](../로드%20밸런싱(Load%20Balancing)/README.md)은 요청을 여러 서버에 나눠 주는 방법을 다룬다.
+- [HTTP 메서드와 상태 코드](../WEB/HTTP%20메서드와%20상태%20코드(HTTP%20Methods%20and%20Status%20Codes)/README.md)와 [HTTP 헤더](../WEB/HTTP%20헤더(HTTP%20Headers)/README.md)는 이 네트워크 위에서 웹이 주고받는 메시지를 다룬다.
 
 <br/>
 
@@ -55,4 +56,4 @@ flowchart LR
 - DHCP가 IP 주소를 나눠 주는 과정
 - NAT와 공유기, 사설 IP
 - UDP 자세히 (TCP와의 비교는 소켓 문서)
-- HTTP와 HTTPS
+- HTTPS (HTTP 자체는 [HTTP 메서드와 상태 코드](../WEB/HTTP%20메서드와%20상태%20코드(HTTP%20Methods%20and%20Status%20Codes)/README.md), [HTTP 헤더](../WEB/HTTP%20헤더(HTTP%20Headers)/README.md)에 정리했다)

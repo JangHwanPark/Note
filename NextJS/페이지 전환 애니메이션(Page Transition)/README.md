@@ -71,7 +71,7 @@ export default function Template({ children }: { children: ReactNode }) {
 1. Next.js 공식 문서, [template.js](https://nextjs.org/docs/app/api-reference/file-conventions/template)
 2. Next.js 공식 문서, [Layouts and Pages](https://nextjs.org/docs/app/getting-started/layouts-and-pages)
 
-설명은 Next.js 16.4 공식 문서를 기준으로 했다. 예시 코드는 React 19.2, gsap 3.13, @gsap/react 2.1, TypeScript 5.6 `strict` 로 타입 검사만 했다. App Router는 Next.js에 들어 있는 React canary 버전을 쓰므로, 실제 앱에서 도는 React는 package.json에 적은 버전과 다를 수 있다. `gsap.from()` 과 `useGSAP` 사용법은 [GSAP 01장](../../Libraries/GSAP/01_GSAP%20메서드(GSAP%20Methods)/README.md)과 [GSAP 06장](../../Libraries/GSAP/06_ref와%20className(Ref%20and%20className)/README.md)에 정리했다. Next.js 앱에서 실제로 띄워 보지는 않았다. 템플릿이 다시 마운트되는 조건은 공식 문서의 설명을 옮긴 것이다.
+설명은 Next.js 16.4 공식 문서를 기준으로 했다. 예시 코드는 @types/react 19.3.0, TypeScript 5.6.3 `strict`, gsap 3.15.0, @gsap/react 2.1.2로 타입 검사만 했다. App Router는 Next.js에 들어 있는 React canary 버전을 쓰므로, 실제 앱에서 도는 React는 package.json에 적은 버전과 다를 수 있다. `gsap.from()` 과 `useGSAP` 사용법은 [GSAP 01장](../../Libraries/GSAP/01_GSAP%20메서드(GSAP%20Methods)/README.md)과 [GSAP 06장](../../Libraries/GSAP/06_ref와%20className(Ref%20and%20className)/README.md)에 정리했다. Next.js 앱에서 실제로 띄워 보지는 않았다. 템플릿이 다시 마운트되는 조건은 공식 문서의 설명을 옮긴 것이다.
 
 <br/>
 

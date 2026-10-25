@@ -21,7 +21,7 @@ sequenceDiagram
     participant S as 웹 서버
     U->>B: 주소 입력 (example.com)
     B->>D: example.com의 IP 주소는?
-    D-->>B: 93.184.x.x
+    D-->>B: 203.0.113.10 (예시 주소)
     B->>S: HTML 주세요
     S-->>B: HTML
     B->>S: HTML에 적힌 CSS, JavaScript, 이미지 주세요
@@ -33,7 +33,9 @@ sequenceDiagram
     B-->>U: 화면 일부 갱신
 ```
 
-여기서 중요한 점은 페이지 하나를 보여 주는 데 요청이 한 번이 아니라 여러 번 오간다는 것이다. 이사 갈 때 짐을 트럭 한 대로 한 번에 옮기는 게 아니라 여러 번 나눠 옮기는 것과 같다. 그래서 웹이 느린 이유는 대부분 요청이 너무 많거나, 너무 크거나, 순서가 나쁜 데서 나온다.
+그림의 IP 주소 203.0.113.10은 문서 예시용으로 예약된 주소(RFC 5737)다. example.com의 실제 주소는 때에 따라 바뀐다.
+
+여기서 중요한 점은 페이지 하나를 보여 주는 데 요청이 한 번이 아니라 여러 번 오간다는 것이다. 이사 갈 때 짐을 트럭 한 대로 한 번에 옮기는 게 아니라 여러 번 나눠 옮기는 것과 같다. 그래서 요청의 수, 크기, 순서가 페이지가 뜨는 속도에 큰 영향을 준다. 서버가 느리거나, 받은 JavaScript를 실행하는 데 오래 걸리는 것처럼 다른 원인도 있다.
 
 <br/>
 
@@ -95,7 +97,7 @@ flowchart TB
 
 ### 하이드레이션 (Hydration)
 사전적 의미는 수분 공급. 마른 것에 물을 부어 되살리는 일이다.
-공학적으로는 서버가 보낸 화면에 브라우저가 JavaScript를 연결해서 버튼이 눌리는 화면으로 만드는 과정을 말한다. SSR이나 SSG로 받은 화면은 처음에는 사진처럼 보이기만 하고 버튼을 눌러도 반응하지 않는다. JavaScript가 연결되어야 비로소 움직이는데, 마른 화면에 물을 부어 살려내는 일로 비유할 수 있다.
+공학적으로는 서버가 보낸 화면에 브라우저가 JavaScript를 연결해서 버튼이 눌리는 화면으로 만드는 과정을 말한다. SSR이나 SSG로 받은 화면은 처음에는 JavaScript로 붙인 기능이 아직 동작하지 않는다. 일반 링크(`<a>`)를 누르거나 폼(`<form>`)을 제출하는 것처럼 HTML만으로 되는 동작은 되지만, JavaScript로 만든 버튼 클릭 처리나 화면 갱신은 반응하지 않는다. JavaScript가 연결되어야 비로소 움직이는데, 마른 화면에 물을 부어 살려내는 일로 비유할 수 있다.
 
 <br/>
 
@@ -147,16 +149,21 @@ JavaScript로 꺼낼 수 있다는 건 나쁜 스크립트도 꺼낼 수 있다�
 공학적으로는 웹페이지가 어디서 왔는지를 나타내는 주소 묶음을 말한다. 프로토콜(https), 도메인(example.com), 포트(443) 세 가지가 모두 같아야 같은 출처로 본다.
 
 ### 동일 출처 정책 (Same-Origin Policy)
-브라우저는 기본적으로 한 사이트의 코드가 다른 사이트의 응답을 읽지 못하게 막는다. 아파트에서 내 열쇠로 남의 집 우편함을 열 수 없는 것과 같다.
+브라우저는 기본적으로 한 출처에서 온 코드가 다른 출처의 응답을 읽지 못하게 막는다. 아파트에서 내 열쇠로 남의 집 우편함을 열 수 없는 것과 같다.
+
+출처는 사이트(Site)보다 좁은 단위다. 사이트는 example.com처럼 등록 가능한 도메인을 기준으로 묶기 때문에 www.example.com과 api.example.com은 같은 사이트다. 하지만 호스트가 달라서 서로 다른 출처다. 동일 출처 정책은 출처를 기준으로 하므로 둘 사이에도 적용된다.
 이 규칙이 없으면, 내가 은행에 로그인한 상태에서 수상한 사이트에 들어갔을 때 그 사이트가 몰래 은행 정보를 읽어 갈 수 있다.
 
 ### CORS (Cross-Origin Resource Sharing)
 그런데 실제로는 화면 사이트(www.example.com)와 데이터 서버(api.example.com)의 주소가 다른 경우가 흔하다. 그래서 서버가 이 출처는 내 데이터를 읽어도 된다고 허락하는 규칙을 둔다. 집주인이 특정 사람에게만 우편함 비밀번호를 알려 주는 것과 같다.
 
+브라우저가 허락을 확인하는 방법은 요청의 종류에 따라 다르다. GET, HEAD, POST 중 하나이고 정해진 몇 가지 헤더와 콘텐츠 타입(`application/x-www-form-urlencoded`, `multipart/form-data`, `text/plain`)만 쓰는 단순 요청(Simple Request)은 바로 보낸다. 그 밖의 요청, 예를 들어 `Content-Type: application/json` 을 붙이거나 직접 만든 헤더를 넣은 요청은 실제 요청 전에 OPTIONS 메서드로 사전 요청(Preflight)을 먼저 보낸다.
+
 ```mermaid
 sequenceDiagram
     participant B as 브라우저 (www.example.com)
     participant S as API 서버 (api.example.com)
+    Note over B,S: 사전 요청이 필요한 요청일 때
     B->>S: 사전 확인: www.example.com인데 요청해도 돼? (OPTIONS)
     S-->>B: 응, 그 출처는 허락함
     B->>S: 실제 요청
@@ -164,7 +171,7 @@ sequenceDiagram
     Note over B: 허락받은 출처라 JavaScript에 응답을 넘겨줌
 ```
 
-CORS 오류가 났다면 서버가 요청을 거절한 게 아니라, 서버가 허락 표시를 안 해 줘서 브라우저가 응답을 막은 것이다. 해결도 브라우저가 아니라 서버 설정에서 한다.
+사전 요청에서 허락을 받지 못하면 실제 요청은 아예 보내지 않는다. 단순 요청은 사전 확인 없이 서버까지 가므로, 서버는 이미 요청을 처리했을 수 있다. 다만 응답에 허락 표시(`Access-Control-Allow-Origin`)가 없으면 브라우저가 JavaScript에 응답을 넘겨주지 않는다. 어느 경우든 CORS 오류는 서버가 허락 표시를 해 주지 않아서 생기는 것이고, 해결도 브라우저가 아니라 서버 설정에서 한다.
 
 <br/>
 
@@ -212,10 +219,17 @@ sequenceDiagram
 
 <br/>
 
+## 참고 자료
+- MDN, [Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS)
+- MDN, [Site](https://developer.mozilla.org/en-US/docs/Glossary/Site)
+- RFC 5737, [IPv4 Address Blocks Reserved for Documentation](https://www.rfc-editor.org/rfc/rfc5737.html)
+
+<br/>
+
 ## 더 볼 것 (TODO)
 - 브라우저가 HTML을 화면으로 그리는 과정 (Critical Rendering Path)
 - HTTP 캐시와 브라우저 캐시 (기존 [캐싱](../캐싱(Caching)/README.md) 문서와 연결)
 - 쿠키 보안 설정 (HttpOnly, Secure, SameSite)
-- CORS 사전 요청(Preflight)이 생기는 조건
+- CORS 사전 요청(Preflight) 응답 헤더와 자격 증명(쿠키)을 함께 보내는 요청
 - BFF 패턴 (기존 Architecture/BFF 문서와 연결)
 - HTTP/1.1, HTTP/2, HTTP/3 차이
