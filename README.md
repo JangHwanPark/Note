@@ -18,6 +18,7 @@
 * `NextJS`: **Next.js 프레임워크** 고유의 기능 (CSR과 SSR, 레이아웃, 데이터 패칭 위치)과 풀스택 DTO 설계를 정리합니다.
 * `Libraries`: `ReactQuery`, `React Router`, `GSAP`, `Jest`, `Prettier` 등 개별 라이브러리 및 도구의 사용법을 정리합니다.
 * `인공지능(Artificial Intelligence)`: 인공지능, 머신러닝, 딥러닝, LLM 등 AI 기초 개념과 용어, 그리고 프롬프트, 컨텍스트, 하네스, 루프 엔지니어링, 워크플로와 에이전트, 스펙 주도 개발과 바이브 코딩, 평가 주도 개발, 토큰과 컨텍스트 창 같은 AI 활용 방법을 정리합니다. 주제마다 공식 문서의 실제 예를 모은 예시 문서를 함께 둡니다.
+* `게임 디자인(Game Design)`: 재미란 무엇인가, 게임에서 재미란, 게임관, 시스템과 콘텐츠처럼 게임 디자인 이론을 책처럼 장으로 나눠 정리합니다.
 * `Architecture`: `SaaS`, `BFF`, `FSD`, 모노레포 등 소프트웨어 아키텍처와 폴더 구조 설계를 정리합니다.
 * `Git` / `배포` / `K8S`: 버전 관리, 배포, 인프라(K8S) 관련 지식을 정리합니다.
 * `보안(Security)`: React2Shell, Node2Shell, PHP2Shell, Oracle PeopleSoft 같은 취약점 사건과 공격 방식, 대응 방법을 정리합니다.
