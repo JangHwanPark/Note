@@ -20,6 +20,7 @@
 * `인공지능(Artificial Intelligence)`: 인공지능, 머신러닝, 딥러닝, LLM 등 AI 기초 개념과 용어, 그리고 프롬프트, 컨텍스트, 하네스, 루프 엔지니어링, 워크플로와 에이전트, 스펙 주도 개발과 바이브 코딩, 평가 주도 개발, 토큰과 컨텍스트 창 같은 AI 활용 방법을 정리합니다. 주제마다 공식 문서의 실제 예를 모은 예시 문서를 함께 둡니다.
 * `Architecture`: `SaaS`, `BFF`, `FSD`, 모노레포 등 소프트웨어 아키텍처와 폴더 구조 설계를 정리합니다.
 * `Git` / `배포` / `K8S`: 버전 관리, 배포, 인프라(K8S) 관련 지식을 정리합니다.
+* `보안(Security)`: React2Shell, Node2Shell, PHP2Shell, Oracle PeopleSoft 같은 취약점 사건과 공격 방식, 대응 방법을 정리합니다.
 * `SoftwareTest`: QA 이론 (테스트 레벨, 테스트 설계 기법, 결함 생명주기 등), Playwright와 테스트 자동화, JMeter, API 테스트 체크리스트를 정리합니다.
 * `OpenSource`: 오픈소스에 기여한 과정과 회고를 기록합니다.
 * `Project`: '디에듀', 'DataArts-Studio(Testea)' 등 실제 프로젝트 진행 시 발생한 트러블 슈팅, 개발 노트, 회고를 기록합니다.
