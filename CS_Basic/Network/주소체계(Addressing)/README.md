@@ -17,7 +17,7 @@
 1. 다른 네트워크까지 찾아가는 일은 IP 주소가 맡는다. IP 주소는 앞부분이 네트워크, 뒷부분이 장치를 나타낸다. 서로 다른 네트워크를 이어 길을 골라 주는 장비인 라우터(Router)는 앞부분만 보고 다음 경로를 고를 수 있다.
 2. 같은 네트워크 안에서 실제 장치에 건네는 일은 MAC 주소가 맡는다. 그래서 IP 주소를 알아도 MAC 주소를 따로 알아내야 하고, 이 일을 하는 프로토콜이 [ARP](../ARP(Address%20Resolution%20Protocol)/README.md)다.
 
-사람은 숫자로 된 IP 주소를 외우기 어려우니 그 위에 도메인 이름을 하나 더 둔다. 도메인 이름을 IP 주소로 바꾸는 일은 도메인 이름 시스템(DNS, Domain Name System)이 한다.
+사람은 숫자로 된 IP 주소를 외우기 어려우니 그 위에 도메인 이름을 하나 더 둔다. 도메인 이름을 IP 주소로 바꾸는 일은 도메인 이름 시스템(DNS, Domain Name System)이 한다. 찾는 과정은 [DNS](../DNS(Domain%20Name%20System)/README.md) 문서에 정리했다.
 
 | 구분 | 도메인 이름 | IP 주소 | MAC 주소 |
 | --- | --- | --- | --- |
@@ -26,7 +26,7 @@
 | 크기 | 가변 길이 문자열 | IPv4 32비트, IPv6 128비트 | 48비트 |
 | 정해지는 곳 | 도메인 등록 | 연결한 네트워크(관리자가 직접, 또는 DHCP가 자동으로) | 랜카드 제조 시 |
 
-DHCP(Dynamic Host Configuration Protocol)는 장치에 IP 주소를 자동으로 나눠 주는 프로토콜이다. 와이파이에 붙자마자 IP 주소가 생기는 것은 공유기가 DHCP로 나눠 주기 때문이다.
+DHCP(Dynamic Host Configuration Protocol)는 장치에 IP 주소를 자동으로 나눠 주는 프로토콜이다. 와이파이에 붙자마자 IP 주소가 생기는 것은 공유기가 DHCP로 나눠 주기 때문이다. 주소를 받는 과정은 [DHCP](../DHCP(Dynamic%20Host%20Configuration%20Protocol)/README.md) 문서에 정리했다.
 
 <br/>
 
@@ -128,7 +128,7 @@ www . example.com
 
 이름표에 홍길동만 쓰면 누군지 헷갈리지만 ○○회사 홍길동이라고 쓰면 한 사람으로 정해지는 것과 같다. 다만 순서는 반대여서, 도메인 이름은 오른쪽으로 갈수록 큰 구역이다.
 
-엄밀하게는 맨 끝에 최상위 구역(루트)을 뜻하는 점을 붙여 `www.example.com.` 로 쓰는 것이 완전한 형태지만, 보통은 생략한다.
+엄밀하게는 맨 끝에 모든 이름의 맨 위 구역인 루트(Root)를 뜻하는 점을 붙여 `www.example.com.` 로 쓰는 것이 완전한 형태지만, 보통은 생략한다.
 
 <br/>
 
@@ -182,9 +182,9 @@ ARP의 동작 순서는 [ARP](../ARP(Address%20Resolution%20Protocol)/README.md)
 <br/>
 
 ## 더 볼 것 (TODO)
-- 계층 모델(OSI 7계층)과 각 주소가 쓰이는 계층
-- IPv4 주소 클래스(A, B, C)와 사설 IP 주소
-- 공인 IP와 사설 IP를 바꿔 주는 NAT
-- DHCP가 IP 주소를 나눠 주는 과정
-- DNS가 도메인 이름을 IP 주소로 찾는 과정
+- [계층 모델(OSI 7계층)과 각 주소가 쓰이는 계층](../계층%20모델(OSI%20and%20TCP-IP%20Layers)/README.md)
+- [IPv4 주소 클래스(A, B, C)와 사설 IP 주소](../NAT와%20사설%20IP(NAT%20and%20Private%20IP)/README.md)
+- [공인 IP와 사설 IP를 바꿔 주는 NAT](../NAT와%20사설%20IP(NAT%20and%20Private%20IP)/README.md)
+- [DHCP가 IP 주소를 나눠 주는 과정](../DHCP(Dynamic%20Host%20Configuration%20Protocol)/README.md)
+- [DNS가 도메인 이름을 IP 주소로 찾는 과정](../DNS(Domain%20Name%20System)/README.md)
 - 포트 번호와 IP 주소의 관계는 [소켓](../소켓(Socket)/README.md) 문서 참고

@@ -183,7 +183,7 @@ flowchart TB
 <br/>
 
 ## 무엇을 보고 나눌까 (L4와 L7)
-로드 밸런서는 요청의 어디까지 들여다보느냐에 따라 나뉜다. L4, L7의 L은 Layer(계층)의 약자이고, 숫자는 네트워크를 일곱 층으로 나눈 OSI 7계층의 번호다.
+로드 밸런서는 요청의 어디까지 들여다보느냐에 따라 나뉜다. L4, L7의 L은 Layer(계층)의 약자이고, 숫자는 네트워크를 일곱 층으로 나눈 OSI 7계층의 번호다. 계층 모델은 [계층 모델](../Network/계층%20모델(OSI%20and%20TCP-IP%20Layers)/README.md) 문서에 정리했다.
 
 ### L4 로드 밸런서
 4계층(전송 계층)까지만 본다. IP 주소와 포트 번호만 보고 서버를 고른다. 편지 봉투의 주소만 보고 분류하는 우체국 직원과 같다. 내용을 열어 보지 않으니 빠르다. TCP, UDP 연결 단위로 나눈다.
@@ -249,8 +249,8 @@ least_conn 대신 ip_hash를 쓰면 IP 해시 방식이 된다. max_fails와 fai
 <br/>
 
 ## 더 볼 것 (TODO)
-- OSI 7계층과 TCP/IP 계층
-- 리버스 프록시와 로드 밸런서의 관계
-- DNS 로드 밸런싱과 GSLB (지역별로 가까운 서버로 보내기)
-- 일관된 해싱 (Consistent Hashing)
-- 무중단 배포 방식 (롤링, 블루-그린, 카나리)
+- [OSI 7계층과 TCP/IP 계층](../Network/계층%20모델(OSI%20and%20TCP-IP%20Layers)/README.md)
+- [리버스 프록시와 로드 밸런서의 관계](../리버스%20프록시(Reverse%20Proxy)/README.md)
+- [DNS 로드 밸런싱과 GSLB (지역별로 가까운 서버로 보내기)](../DNS%20로드%20밸런싱과%20GSLB(DNS%20Load%20Balancing%20and%20GSLB)/README.md)
+- [일관된 해싱 (Consistent Hashing)](../일관된%20해싱(Consistent%20Hashing)/README.md)
+- [무중단 배포 방식 (롤링, 블루-그린, 카나리)](../무중단%20배포(Zero-Downtime%20Deployment)/README.md)

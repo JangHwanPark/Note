@@ -171,7 +171,7 @@ sequenceDiagram
     Note over B: 허락받은 출처라 JavaScript에 응답을 넘겨줌
 ```
 
-사전 요청에서 허락을 받지 못하면 실제 요청은 아예 보내지 않는다. 단순 요청은 사전 확인 없이 서버까지 가므로, 서버는 이미 요청을 처리했을 수 있다. 다만 응답에 허락 표시(`Access-Control-Allow-Origin`)가 없으면 브라우저가 JavaScript에 응답을 넘겨주지 않는다. 어느 경우든 CORS 오류는 서버가 허락 표시를 해 주지 않아서 생기는 것이고, 해결도 브라우저가 아니라 서버 설정에서 한다.
+사전 요청에서 허락을 받지 못하면 실제 요청은 아예 보내지 않는다. 단순 요청은 사전 확인 없이 서버까지 가므로, 서버는 이미 요청을 처리했을 수 있다. 다만 응답에 허락 표시(`Access-Control-Allow-Origin`)가 없으면 브라우저가 JavaScript에 응답을 넘겨주지 않는다. 어느 경우든 CORS 오류는 서버가 허락 표시를 해 주지 않아서 생기는 것이고, 해결도 브라우저가 아니라 서버 설정에서 한다. 헤더 하나하나와 자격 증명을 보내는 요청은 [CORS](../WEB/CORS(Cross-Origin%20Resource%20Sharing)/README.md) 노트에 정리했다.
 
 <br/>
 
@@ -229,7 +229,7 @@ sequenceDiagram
 ## 더 볼 것 (TODO)
 - 브라우저가 HTML을 화면으로 그리는 과정 (Critical Rendering Path)
 - HTTP 캐시와 브라우저 캐시 (기존 [캐싱](../캐싱(Caching)/README.md) 문서와 연결)
-- 쿠키 보안 설정 (HttpOnly, Secure, SameSite)
-- CORS 사전 요청(Preflight) 응답 헤더와 자격 증명(쿠키)을 함께 보내는 요청
+- [쿠키 보안 설정 (HttpOnly, Secure, SameSite)](../WEB/쿠키(Cookie)/README.md)
+- [CORS 사전 요청(Preflight) 응답 헤더와 자격 증명(쿠키)을 함께 보내는 요청](../WEB/CORS(Cross-Origin%20Resource%20Sharing)/README.md)
 - BFF 패턴 (기존 Architecture/BFF 문서와 연결)
-- HTTP/1.1, HTTP/2, HTTP/3 차이
+- [HTTP/1.1, HTTP/2, HTTP/3 차이](../WEB/HTTP%20버전(HTTP%20Versions)/README.md)

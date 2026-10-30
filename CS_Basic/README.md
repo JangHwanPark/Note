@@ -6,10 +6,21 @@
 <br/>
 
 ## 네트워크와 웹
-- [네트워크 (Network)](./Network) : 주소체계, ARP, 소켓, TCP 연결 과정
+- [네트워크 (Network)](./Network) : 계층 모델, 주소체계, DHCP, DNS, ARP, NAT와 사설 IP, 소켓, TCP 연결 과정, 흐름 제어와 혼잡 제어, UDP, ICMP와 ping, TCP 재전송, SYN Flood, ARP 스푸핑, 라우팅 테이블
 - [HTTP 메서드와 상태 코드](./WEB/HTTP%20메서드와%20상태%20코드(HTTP%20Methods%20and%20Status%20Codes)) : 요청의 목적을 나타내는 메서드와 결과를 알리는 상태 코드
 - [HTTP 헤더](./WEB/HTTP%20헤더(HTTP%20Headers)) : 요청과 응답에 붙는 부가 정보
-- [쿼리스트링 (Query String)](./WEB/쿼리스트링(Query%20String)) : 아직 작성 전
+- [HTTP 버전](./WEB/HTTP%20버전(HTTP%20Versions)) : HTTP/1.0부터 HTTP/3까지 연결을 쓰는 방식의 변화와 버전을 고르는 방법
+- [HTTPS와 TLS](./WEB/HTTPS와%20TLS(HTTPS%20and%20TLS)) : 암호화, 무결성, 인증을 더하는 TLS와 인증서, TLS 1.3 핸드셰이크
+- [HTTP 캐시](./WEB/HTTP%20캐시(HTTP%20Caching)) : 응답을 저장해 두고 다시 쓰는 규칙, 신선도와 조건부 요청, 캐시 키와 무효화
+- [쿼리스트링](./WEB/쿼리스트링(Query%20String)) : 주소 뒤에 조건을 붙여 보내는 방법과 인코딩
+- [퍼센트 인코딩](./WEB/퍼센트%20인코딩(Percent-Encoding)) : 주소에 쓸 수 없는 글자를 %XX로 바꾸는 규칙, 예약 문자와 encodeURI, encodeURIComponent의 차이
+- [폼 인코딩](./WEB/폼%20인코딩(Form%20Encoding)) : POST 본문에 폼 값을 담는 application/x-www-form-urlencoded와 multipart/form-data, 파일 업로드와 JSON 본문과의 차이
+- [쿠키](./WEB/쿠키(Cookie)) : 쿠키 속성(Domain, Path, 만료, Secure, HttpOnly, SameSite)과 보안
+- [CORS](./WEB/CORS(Cross-Origin%20Resource%20Sharing)) : 다른 출처의 응답을 읽도록 서버가 허락하는 방식, 사전 요청과 자격 증명
+- [REST API 설계 원칙](./WEB/REST%20API%20설계%20원칙(REST%20API%20Design%20Principles)) : 자원 중심 주소 설계, 컬렉션과 페이지네이션, 상태 코드 선택, 문제 상세 형식, 버전 관리와 HATEOAS
+- [페이지네이션](./WEB/페이지네이션(Pagination)) : 오프셋 방식과 커서 방식, 목록이 바뀔 때의 중복과 빠짐, 정렬 기준이 여러 개일 때 커서 만들기
+- [보안 응답 헤더](./WEB/보안%20응답%20헤더(Security%20Response%20Headers)) : 브라우저에게 행동을 지시하는 CSP, HSTS, nosniff, frame-ancestors, Referrer-Policy
+- [멱등 키](./WEB/멱등%20키(Idempotency%20Key)) : 멱등하지 않은 요청을 안전하게 다시 보내도록 요청마다 붙이는 고유한 키와 서버의 처리
 
 <br/>
 
@@ -18,12 +29,30 @@
 - [클라이언트-서버 구조 프론트엔드 관점](./클라이언트-서버%20구조%20프론트엔드%20관점(Frontend)) : 브라우저, CSR과 SSR, 인증, CORS, 실시간 통신
 - [클라이언트-서버 구조 게임 관점](./클라이언트-서버%20구조%20게임%20관점(Game)) : 1초에도 수십 번 정보를 주고받는 게임에서의 클라이언트와 서버
 - [서버의 동시 처리 방식](./서버의%20동시%20처리%20방식(Server%20Concurrency)) : 멀티 프로세스, 멀티 스레드, 이벤트 루프로 여러 요청을 한꺼번에 처리하는 방법
+- [C10K 문제](./C10K%20문제(C10K%20Problem)) : 연결 1만 개를 서버 한 대로 받을 때 연결마다 스레드와 select, poll이 막히는 이유, epoll, kqueue, IOCP 같은 이벤트 통지 방식
+- [블로킹과 논블로킹](./블로킹과%20논블로킹(Blocking%20and%20Non-blocking)) : 호출한 쪽이 멈춰 기다리는지와 결과를 누가 챙기는지로 나눈 네 조합, 운영체제의 I/O 모델
+- [코루틴과 async/await](./코루틴과%20async-await(Coroutine%20and%20async-await)) : 멈췄다가 이어 가는 함수, 협력적 멀티태스킹, 스택이 있는/없는 코루틴, await가 스레드를 멈추지 않는 이유
+- [컨텍스트 스위칭](./컨텍스트%20스위칭(Context%20Switching)) : CPU 하나가 여러 작업을 번갈아 돌릴 때 문맥을 저장하고 복원하는 과정과 그 비용
+- [동기화 도구](./동기화%20도구(Synchronization%20Primitives)) : 여러 스레드가 같은 데이터를 쓸 때 생기는 경쟁 상태와 락, 뮤텍스, 세마포어, 교착 상태
 - [로드 밸런싱](./로드%20밸런싱(Load%20Balancing)) : 요청을 여러 서버에 나눠 보내는 방법
+- [DNS 로드 밸런싱과 GSLB](./DNS%20로드%20밸런싱과%20GSLB(DNS%20Load%20Balancing%20and%20GSLB)) : DNS 응답으로 요청을 여러 서버와 지역에 나누는 방법, TTL과 캐시의 한계, 헬스 체크와 지리 기반 응답
+- [일관된 해싱](./일관된%20해싱(Consistent%20Hashing)) : 서버가 늘거나 줄어도 대부분의 키가 제자리에 남게 나누는 방법, 해시 링과 가상 노드
+- [리버스 프록시](./리버스%20프록시(Reverse%20Proxy)) : 서버 앞에서 요청을 대신 받아 넘기는 중간 서버, 로드 밸런서와의 관계와 X-Forwarded-For
+- [무중단 배포](./무중단%20배포(Zero-Downtime%20Deployment)) : 사용자가 오류를 보지 않게 새 버전으로 바꾸는 방법, 우아한 종료와 롤링, 블루-그린, 카나리
 - [캐싱](./캐싱(Caching)) : 자주 쓰는 데이터를 가까운 곳에 저장해 두고 다시 쓰는 방법
+- [캐시 무효화와 캐시 스탬피드](./캐시%20무효화와%20캐시%20스탬피드(Cache%20Invalidation%20and%20Cache%20Stampede)) : 원본이 바뀐 뒤 옛 값을 지우는 방법과 순서, 만료 순간 요청이 원본으로 몰리는 문제와 대응
+- [캐시 쓰기 정책](./캐시%20쓰기%20정책(Cache%20Write%20Policy)) : 쓰기를 원본에 언제 반영할지 정하는 라이트 스루와 라이트 백, 쓰기 할당, CPU와 애플리케이션 캐시에서의 모습
+- [CPU 캐시](./CPU%20캐시(CPU%20Cache)) : CPU와 메모리의 속도 차이를 메우는 L1, L2, L3 캐시와 캐시 라인, 지역성이 실행 속도에 드러나는 모습
 
 <br/>
 
 ## 프로그래밍 기초
 - [변수](./변수(Variable)) : 값에 이름을 붙여 저장하고 다시 쓰는 방법
+- [정적 타입과 동적 타입](./정적%20타입과%20동적%20타입(Static%20and%20Dynamic%20Typing)) : 타입을 언제 검사하는지, 타입 추론, 강한 타입과 약한 타입이라는 말의 한계, 점진적 타입
 - [함수 설계 원리](./함수%20설계%20원리(Function%20Design%20Principles)) : 좋은 함수를 만들기 위한 원칙
+- [값에 의한 전달과 참조에 의한 전달](./값에%20의한%20전달과%20참조에%20의한%20전달(Pass%20by%20Value%20and%20Pass%20by%20Reference)) : 함수에 인자를 넘기는 방식, 복사본을 주는 것과 원본을 가리키는 것, 자바와 자바스크립트, 파이썬이 쓰는 공유에 의한 전달
+- [명령과 질의 분리](./명령과%20질의%20분리(Command%20Query%20Separation)) : 상태를 바꾸는 함수와 값을 묻는 함수를 나누는 원칙, 지키기 어려운 경우와 HTTP GET의 안전과의 관계
+- [함수형 프로그래밍과 불변성](./함수형%20프로그래밍과%20불변성(Functional%20Programming%20and%20Immutability)) : 일급 함수와 고차 함수, 참조 투명성, 값을 고치지 않고 새로 만드는 불변성과 그 비용
+- [스택 프레임](./스택%20프레임(Stack%20Frame)) : 함수 호출마다 스택에 쌓이는 메모리 묶음과 스택 오버플로
+- [가비지 컬렉션](./가비지%20컬렉션(Garbage%20Collection)) : 쓰지 않는 힙 메모리를 자동으로 돌려받는 방법, 참조 카운팅과 마크 앤 스윕, 세대별 수집
 - [프론트엔드에서 클래스보다 함수를 선호하는 이유](./프론트엔드에서%20클래스보다%20함수를%20선호하는%20이유) : 프론트엔드에서 함수 기반이 기본이 된 이유와 클래스의 역할

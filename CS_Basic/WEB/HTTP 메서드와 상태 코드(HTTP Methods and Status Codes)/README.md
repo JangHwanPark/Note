@@ -71,7 +71,7 @@ sequenceDiagram
 
 ## 자주 쓰는 메서드
 ### GET
-Get은 얻다, 가져오다라는 뜻이다. 자원을 조회한다. 서버의 데이터를 바꾸지 않는다. 브라우저 주소창에 주소를 입력하거나 링크를 누르면 GET 요청이 나간다. 보낼 조건은 본문 대신 주소 뒤 [쿼리스트링](../쿼리스트링(Query%20String)/README.md)(작성 전)에 붙인다.
+Get은 얻다, 가져오다라는 뜻이다. 자원을 조회한다. 서버의 데이터를 바꾸지 않는다. 브라우저 주소창에 주소를 입력하거나 링크를 누르면 GET 요청이 나간다. 보낼 조건은 본문 대신 주소 뒤 [쿼리스트링](../쿼리스트링(Query%20String)/README.md)에 붙인다.
 
 ### POST
 Post는 우편으로 부치다, 게시판에 붙이다라는 뜻이다. 서버에 데이터를 보내 새 자원을 만들거나 처리를 맡긴다. 회원가입, 글쓰기, 결제처럼 보낼 데이터가 있을 때 쓰고, 그 데이터는 본문에 담는다.
@@ -86,7 +86,7 @@ Patch는 옷에 덧대는 헝겊 조각, 땜질이라는 뜻이다. 자원의 �
 Delete는 지우다라는 뜻이다. 자원을 삭제한다.
 
 ### 그 밖의 메서드
-HEAD는 GET과 같은데 본문 없이 헤더만 받는다. 파일 크기나 수정 시각만 확인할 때 쓴다. OPTIONS는 그 자원에 어떤 메서드를 쓸 수 있는지 묻는다. 브라우저가 다른 출처로 요청하기 전에 미리 허락을 묻는 교차 출처 리소스 공유(CORS, Cross-Origin Resource Sharing)의 [사전 요청](../../클라이언트-서버%20구조%20프론트엔드%20관점(Frontend)/README.md)이 이 메서드를 쓴다. TRACE는 받은 요청을 그대로 되돌려 보내 달라는 메서드로, 요청이 중간에 어떻게 바뀌었는지 점검할 때 쓴다.
+HEAD는 GET과 같은데 본문 없이 헤더만 받는다. 파일 크기나 수정 시각만 확인할 때 쓴다. OPTIONS는 그 자원에 어떤 메서드를 쓸 수 있는지 묻는다. 브라우저가 다른 출처로 요청하기 전에 미리 허락을 묻는 교차 출처 리소스 공유(CORS, Cross-Origin Resource Sharing)의 [사전 요청](../CORS(Cross-Origin%20Resource%20Sharing)/README.md#사전-요청의-모양)이 이 메서드를 쓴다. TRACE는 받은 요청을 그대로 되돌려 보내 달라는 메서드로, 요청이 중간에 어떻게 바뀌었는지 점검할 때 쓴다.
 
 | 메서드 | 하는 일 | 본문 | 예시 |
 | --- | --- | --- | --- |
@@ -294,9 +294,9 @@ DELETE를 두 번 보낸 부분을 보면, 응답은 204와 404로 다르지만 
 
 ## 더 볼 것 (TODO)
 - [HTTP 헤더 (Content-Type, Authorization, Cache-Control 등)](../HTTP%20헤더(HTTP%20Headers)/README.md)
-- HTTP 버전별 차이 (HTTP/1.1, HTTP/2, HTTP/3)
-- HTTPS와 TLS
-- HTTP 캐시와 조건부 요청 (ETag, Last-Modified)
-- REST API 설계 원칙
-- 멱등하지 않은 요청을 안전하게 다시 보내는 방법 (멱등 키)
+- [HTTP 버전별 차이 (HTTP/1.1, HTTP/2, HTTP/3)](../HTTP%20버전(HTTP%20Versions)/README.md)
+- [HTTPS와 TLS](../HTTPS와%20TLS(HTTPS%20and%20TLS)/README.md)
+- [HTTP 캐시와 조건부 요청 (ETag, Last-Modified)](../HTTP%20캐시(HTTP%20Caching)/README.md)
+- [REST API 설계 원칙](../REST%20API%20설계%20원칙(REST%20API%20Design%20Principles)/README.md)
+- [멱등하지 않은 요청을 안전하게 다시 보내는 방법 (멱등 키)](../멱등%20키(Idempotency%20Key)/README.md)
 - [HTTP 메서드별 API 테스트 체크리스트](../../../SoftwareTest/API%20테스트%20체크리스트(API%20Test%20Checklist)/README.md)

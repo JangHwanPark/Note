@@ -79,7 +79,7 @@ ack = x + 1은 x번까지 잘 받았으니 다음엔 x + 1번을 보내 달라�
 소켓 문서에서 본 connect와 accept 사이에 이 핸드셰이크가 일어난다.
 
 - 서버가 listen을 부르면 운영체제가 연결 요청(SYN)을 받을 준비를 한다.
-- 클라이언트가 connect를 부르면 운영체제가 SYN을 보낸다. 기본(블로킹) 방식에서 connect는 핸드셰이크가 끝나야 돌아온다.
+- 클라이언트가 connect를 부르면 운영체제가 SYN을 보낸다. 기본([블로킹](../../블로킹과%20논블로킹(Blocking%20and%20Non-blocking)/README.md)) 방식에서 connect는 핸드셰이크가 끝나야 돌아온다.
 - 핸드셰이크는 서버 프로그램이 아니라 운영체제가 알아서 처리한다. 완성된 연결은 대기열에 쌓인다.
 - 서버 프로그램이 accept를 부르면 대기열에서 이미 핸드셰이크가 끝난 연결을 하나 꺼내 온다.
 
@@ -201,9 +201,9 @@ netstat -an | grep 3000
 <br/>
 
 ## 더 볼 것 (TODO)
-- 흐름 제어와 혼잡 제어 (받는 쪽과 네트워크가 감당할 만큼만 보내기)
-- 재전송 방식 자세히 (타임아웃, 중복 ACK)
-- TLS handshake (HTTPS 연결 과정)
-- SYN Flood 공격과 대응
-- HTTP Keep-Alive와 연결 재사용
-- TCP 대신 UDP 위에서 동작하는 QUIC와 HTTP/3
+- [흐름 제어와 혼잡 제어 (받는 쪽과 네트워크가 감당할 만큼만 보내기)](../흐름%20제어와%20혼잡%20제어(Flow%20and%20Congestion%20Control)/README.md)
+- [재전송 방식 자세히 (타임아웃, 중복 ACK)](../TCP%20재전송(TCP%20Retransmission)/README.md)
+- [TLS handshake (HTTPS 연결 과정)](../../WEB/HTTPS와%20TLS(HTTPS%20and%20TLS)/README.md)
+- [SYN Flood 공격과 대응](../SYN%20Flood(SYN%20Flood)/README.md)
+- [HTTP Keep-Alive와 연결 재사용](../../WEB/HTTP%20버전(HTTP%20Versions)/README.md)
+- [TCP 대신 UDP 위에서 동작하는 QUIC와 HTTP/3](../../WEB/HTTP%20버전(HTTP%20Versions)/README.md)

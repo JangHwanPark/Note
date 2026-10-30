@@ -137,8 +137,8 @@ return은 결국 스택 맨 위의 기록을 지우고, 그 아래 기록에 값
 <br/>
 
 ## 더 볼 것 (TODO)
-- 명령과 질의 분리 (CQS, Command Query Separation)
-- 함수형 프로그래밍과 불변성
-- 스택 프레임에 실제로 무엇이 저장되는지 (매개변수, 지역 변수, 돌아갈 주소)
-- 재귀 호출과 스택 오버플로
+- [명령과 질의 분리 (CQS, Command Query Separation)](../명령과%20질의%20분리(Command%20Query%20Separation)/README.md)
+- [함수형 프로그래밍과 불변성](../함수형%20프로그래밍과%20불변성(Functional%20Programming%20and%20Immutability)/README.md)
+- [스택 프레임에 실제로 무엇이 저장되는지 (매개변수, 지역 변수, 돌아갈 주소)](../스택%20프레임(Stack%20Frame)/README.md)
+- [재귀 호출과 스택 오버플로](../스택%20프레임(Stack%20Frame)/README.md)
 - 프론트엔드에서 부수효과를 다루는 방식 (React의 useEffect 등, 별도 문서)

@@ -141,9 +141,9 @@ x = x + 1
 <br/>
 
 ## 더 볼 것 (TODO)
-- 스택과 힙의 내부 구조, 스택 프레임(Stack Frame)
-- 가비지 컬렉션(Garbage Collection)의 동작 방식
-- 정적 타입과 동적 타입 더 깊이, 타입 추론, 강한 타입과 약한 타입
-- 값에 의한 전달과 참조에 의한 전달(함수 인자)
+- [스택과 힙의 내부 구조, 스택 프레임(Stack Frame)](../스택%20프레임(Stack%20Frame)/README.md)
+- [가비지 컬렉션(Garbage Collection)의 동작 방식](../가비지%20컬렉션(Garbage%20Collection)/README.md)
+- [정적 타입과 동적 타입 더 깊이, 타입 추론, 강한 타입과 약한 타입](../정적%20타입과%20동적%20타입(Static%20and%20Dynamic%20Typing)/README.md)
+- [값에 의한 전달과 참조에 의한 전달(함수 인자)](../값에%20의한%20전달과%20참조에%20의한%20전달(Pass%20by%20Value%20and%20Pass%20by%20Reference)/README.md)
 - 정적 범위(Static Scope, 렉시컬 스코프라고도 함)와 동적 범위(Dynamic Scope), 클로저(Closure)
 - 언어별 변수 선언 방식 비교는 각 언어 노트로 분리

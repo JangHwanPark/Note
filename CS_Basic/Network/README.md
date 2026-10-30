@@ -37,10 +37,21 @@ flowchart LR
 ## 노트 목록
 읽는 순서대로 적었다.
 
-1. [주소체계](주소체계(Addressing)/README.md)는 IP 주소, MAC 주소, 서브넷 마스크, 도메인 이름이 각각 무엇이고 왜 여러 종류가 필요한지 다룬다.
-2. [ARP](ARP(Address%20Resolution%20Protocol)/README.md)는 IP 주소로 MAC 주소를 알아내는 과정과, 스위치, 라우터, 게이트웨이가 데이터를 넘기는 방식을 다룬다.
-3. [소켓](소켓(Socket)/README.md)은 프로그램이 네트워크에 연결되는 출입구와 포트 번호, 서버가 연결을 받는 과정을 다룬다.
-4. [TCP 연결 과정](TCP%20연결%20과정(TCP%20Handshake)/README.md)은 3-way handshake로 연결을 맺고 4-way handshake로 끊는 과정을 다룬다.
+1. [계층 모델](계층%20모델(OSI%20and%20TCP-IP%20Layers)/README.md)은 네트워크 일을 층으로 나누는 OSI 7계층과 TCP/IP 4계층, 계층마다 헤더가 붙는 캡슐화, 아래 노트들이 각각 어느 계층 이야기인지를 다룬다. 전체 지도로 먼저 훑고, 다른 노트를 읽은 뒤 다시 보면 좋다.
+2. [주소체계](주소체계(Addressing)/README.md)는 IP 주소, MAC 주소, 서브넷 마스크, 도메인 이름이 각각 무엇이고 왜 여러 종류가 필요한지 다룬다.
+3. [DHCP](DHCP(Dynamic%20Host%20Configuration%20Protocol)/README.md)는 장치가 네트워크에 붙을 때 IP 주소, 서브넷 마스크, 게이트웨이, DNS 서버를 자동으로 받는 과정과 임대를 다룬다.
+4. [DNS](DNS(Domain%20Name%20System)/README.md)는 도메인 이름을 IP 주소로 찾는 과정과 네임 서버의 계층 구조, 캐시와 TTL, 자주 보는 레코드를 다룬다.
+5. [ARP](ARP(Address%20Resolution%20Protocol)/README.md)는 IP 주소로 MAC 주소를 알아내는 과정과, 스위치, 라우터, 게이트웨이가 데이터를 넘기는 방식을 다룬다.
+6. [NAT와 사설 IP](NAT와%20사설%20IP(NAT%20and%20Private%20IP)/README.md)는 공인 IP와 사설 IP, 공유기가 주소와 포트를 바꿔 주는 과정, 포트 포워딩을 다룬다.
+7. [소켓](소켓(Socket)/README.md)은 프로그램이 네트워크에 연결되는 출입구와 포트 번호, 서버가 연결을 받는 과정을 다룬다.
+8. [TCP 연결 과정](TCP%20연결%20과정(TCP%20Handshake)/README.md)은 3-way handshake로 연결을 맺고 4-way handshake로 끊는 과정을 다룬다.
+9. [흐름 제어와 혼잡 제어](흐름%20제어와%20혼잡%20제어(Flow%20and%20Congestion%20Control)/README.md)는 TCP가 받는 쪽이 감당할 만큼(수신 윈도우)과 네트워크가 감당할 만큼(혼잡 윈도우)만 보내는 방법, 느린 시작과 혼잡 회피, 손실을 혼잡 신호로 읽는 방식을 다룬다.
+10. [UDP](UDP(User%20Datagram%20Protocol)/README.md)는 연결 없이 보내는 방식이 해 주는 것과 해 주지 않는 것, 8바이트 헤더, 데이터그램 경계, 잃어버림을 응용 프로그램이 다루는 방법을 다룬다.
+11. [ICMP와 ping](ICMP와%20ping(ICMP%20and%20ping)/README.md)은 IP가 알려 주지 않는 실패를 알리는 ICMP, ping으로 왕복 시간을 재는 방법, TTL과 traceroute로 경로를 알아내는 원리를 다룬다.
+12. [TCP 재전송](TCP%20재전송(TCP%20Retransmission)/README.md)은 TCP가 잃어버린 데이터를 알아채는 두 방법(타임아웃, 중복 ACK), 타임아웃 시간을 정하는 방법, 빠진 부분만 골라 알리는 SACK을 다룬다.
+13. [SYN Flood](SYN%20Flood(SYN%20Flood)/README.md)는 반쯤 열린 연결로 서버의 연결 대기열을 채우는 공격과, SYN 쿠키를 비롯한 대응 방법을 다룬다.
+14. [ARP 스푸핑](ARP%20스푸핑(ARP%20Spoofing)/README.md)은 인증 없는 ARP에 거짓 응답을 보내 다른 장치의 ARP 캐시를 덮어쓰는 공격과, 정적 항목, DHCP 스누핑, DAI 같은 대응과 알아채는 방법을 다룬다.
+15. [라우팅 테이블](라우팅%20테이블(Routing%20Table)/README.md)은 라우터와 내 PC가 다음에 보낼 곳을 고르는 표의 항목, 가장 긴 접두사 일치, 기본 경로와 직접 연결 경로, `route print`로 표를 읽는 법을 다룬다.
 
 ### 함께 보면 좋은 노트
 - [클라이언트-서버 구조](../클라이언트-서버%20구조(Client-Server%20Architecture)/README.md)는 네트워크 위에서 요청과 응답을 주고받는 역할 구분을 다룬다.
@@ -51,9 +62,4 @@ flowchart LR
 <br/>
 
 ## 더 볼 것 (TODO)
-- 계층 모델(OSI 7계층, TCP/IP 4계층)과 각 노트가 어느 계층 이야기인지
-- DNS가 도메인 이름을 IP 주소로 찾는 과정
-- DHCP가 IP 주소를 나눠 주는 과정
-- NAT와 공유기, 사설 IP
-- UDP 자세히 (TCP와의 비교는 소켓 문서)
-- HTTPS (HTTP 자체는 [HTTP 메서드와 상태 코드](../WEB/HTTP%20메서드와%20상태%20코드(HTTP%20Methods%20and%20Status%20Codes)/README.md), [HTTP 헤더](../WEB/HTTP%20헤더(HTTP%20Headers)/README.md)에 정리했다)
+- [HTTPS](../WEB/HTTPS와%20TLS(HTTPS%20and%20TLS)/README.md) (HTTP 자체는 [HTTP 메서드와 상태 코드](../WEB/HTTP%20메서드와%20상태%20코드(HTTP%20Methods%20and%20Status%20Codes)/README.md), [HTTP 헤더](../WEB/HTTP%20헤더(HTTP%20Headers)/README.md)에 정리했다)

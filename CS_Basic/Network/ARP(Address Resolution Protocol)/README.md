@@ -63,7 +63,7 @@ ARP 표준(RFC 826)이 정한 메시지는 Request와 Reply 두 가지다.
 <br/>
 
 ## 스위치에서 보면
-네트워크 장비와 주소는 맡는 일에 따라 층(계층)으로 나눈다. 여기서는 MAC 주소를 다루는 층을 2계층, IP 주소를 다루는 층을 3계층, 포트 번호를 다루는 층을 4계층이라고만 알아 두고, 계층 모델은 따로 정리한다.
+네트워크 장비와 주소는 맡는 일에 따라 층(계층)으로 나눈다. 여기서는 MAC 주소를 다루는 층을 2계층, IP 주소를 다루는 층을 3계층, 포트 번호를 다루는 층을 4계층이라고만 알아 두고, 계층 모델은 [계층 모델](../계층%20모델(OSI%20and%20TCP-IP%20Layers)/README.md) 문서에 정리했다.
 
 ### 스위치 (Switch)
 사전적 의미는 전환기. 흐름을 이쪽저쪽으로 바꿔 주는 장치다.
@@ -114,7 +114,7 @@ ARP 표준(RFC 826)이 정한 메시지는 Request와 Reply 두 가지다.
 데이터는 출발지에서 목적지까지 여러 라우터를 거친다. 라우터는 데이터를 받을 때마다 2계층 정보(MAC 주소가 든 프레임 헤더)를 떼고, 다음 구간에 맞는 MAC 주소로 새로 붙여서 보낸다. 다음 라우터의 MAC 주소도 ARP로 알아낸다.
 
 - MAC 주소는 구간마다 바뀐다. 한 구간 안에서 건네주는 데만 쓰기 때문이다.
-- IP 주소는 출발지부터 목적지까지 그대로다. 최종 목적지를 가리키기 때문이다. (공유기의 네트워크 주소 변환(NAT, Network Address Translation)처럼 IP 주소를 바꾸는 예외는 따로 다룬다.)
+- IP 주소는 출발지부터 목적지까지 그대로다. 최종 목적지를 가리키기 때문이다. (공유기의 네트워크 주소 변환(NAT, Network Address Translation)처럼 IP 주소를 바꾸는 예외는 [NAT와 사설 IP](../NAT와%20사설%20IP(NAT%20and%20Private%20IP)/README.md)에서 다룬다.)
 
 릴레이 택배와 비슷하다. 송장의 최종 주소는 끝까지 그대로지만, 구간마다 다음 터미널로 가는 트럭 번호는 새로 정한다.
 
@@ -138,8 +138,8 @@ RARP, DHCP, DNS와의 비교는 [주소체계](../주소체계(Addressing)/READM
 <br/>
 
 ## 더 볼 것 (TODO)
-- 라우팅 테이블 읽는 법 (`route print`, `netstat -r`)
-- ICMP와 ping, traceroute
-- NAT와 공유기
-- ARP 스푸핑 (거짓 ARP Reply로 통신을 가로채는 공격)
-- 계층 모델(OSI 7계층)
+- [라우팅 테이블 읽는 법 (`route print`, `netstat -r`)](../라우팅%20테이블(Routing%20Table)/README.md)
+- [ICMP와 ping, traceroute](../ICMP와%20ping(ICMP%20and%20ping)/README.md)
+- [NAT와 공유기](../NAT와%20사설%20IP(NAT%20and%20Private%20IP)/README.md)
+- [ARP 스푸핑 (거짓 ARP Reply로 통신을 가로채는 공격)](../ARP%20스푸핑(ARP%20Spoofing)/README.md)
+- [계층 모델(OSI 7계층)](../계층%20모델(OSI%20and%20TCP-IP%20Layers)/README.md)

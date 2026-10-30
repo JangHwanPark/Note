@@ -116,7 +116,7 @@ Tomcat 같은 서블릿 컨테이너(Servlet Container)가 이 방식을 쓴다.
 
 요리사 한 명이 모든 손님을 맡는데, 기다리는 시간에 멍하니 서 있지 않는 방식이다. 오븐에 빵을 넣고 다 구워질 때까지 기다리는 대신, 타이머를 맞춰 두고 바로 다음 손님 주문을 받는다. 타이머가 울리면(이벤트) 빵을 꺼내 마무리한다.
 
-서버로 바꿔 말하면, 데이터베이스에 질문을 보내 놓고 대답을 기다리지 않는다(논블로킹, Non-blocking). 그사이 다른 요청을 처리하다가, 대답이 도착했다는 알림이 오면 이어서 처리한다.
+서버로 바꿔 말하면, 데이터베이스에 질문을 보내 놓고 대답을 기다리지 않는다(논블로킹, Non-blocking. 블로킹과의 차이는 [블로킹과 논블로킹](../블로킹과%20논블로킹(Blocking%20and%20Non-blocking)/README.md) 문서에 정리했다). 그사이 다른 요청을 처리하다가, 대답이 도착했다는 알림이 오면 이어서 처리한다.
 
 ```mermaid
 flowchart LR
@@ -208,9 +208,9 @@ flowchart LR
 <br/>
 
 ## 더 볼 것 (TODO)
-- 컨텍스트 스위칭 (Context Switching)
-- 락, 뮤텍스, 세마포어 같은 동기화 도구
-- 블로킹과 논블로킹, 동기와 비동기의 차이
+- [컨텍스트 스위칭 (Context Switching)](../컨텍스트%20스위칭(Context%20Switching)/README.md)
+- [락, 뮤텍스, 세마포어 같은 동기화 도구](../동기화%20도구(Synchronization%20Primitives)/README.md)
+- [블로킹과 논블로킹, 동기와 비동기의 차이](../블로킹과%20논블로킹(Blocking%20and%20Non-blocking)/README.md)
 - 브라우저와 Node.js의 이벤트 루프 구조 (콜 스택, 태스크 큐, 마이크로태스크 큐)
-- C10K 문제
-- 코루틴과 async/await
+- [C10K 문제](../C10K%20문제(C10K%20Problem)/README.md)
+- [코루틴과 async/await](../코루틴과%20async-await(Coroutine%20and%20async-await)/README.md)

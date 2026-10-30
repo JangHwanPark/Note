@@ -136,7 +136,7 @@ Authorization의 사전적 의미는 허가, 권한 부여다. 이름은 권한�
 그래서 토큰이 새면 누구든 그 사람 행세를 할 수 있다. 헤더는 본문과 마찬가지로 그대로 전송되므로, 인증 정보를 담는 요청은 반드시 HTTPS로 보낸다.
 
 ### Cookie와 Set-Cookie
-서버가 응답에 Set-Cookie로 작은 값을 주면, 브라우저가 저장해 두었다가 조건에 맞는 요청마다 Cookie 헤더에 담아 자동으로 보낸다. 조건은 서버 한 대가 아니라 도메인과 경로로 정한다. 기본은 쿠키를 준 호스트로 가는 요청이고, Domain과 Path 속성으로 범위를 넓히거나 좁힌다. 포트는 구분하지 않아서, 같은 호스트의 다른 포트로 가는 요청에도 쿠키가 붙는다(RFC 6265). 옷 보관소 번호표처럼, 서버가 준 번호표(쿠키)를 브라우저가 들고 다니며 요청마다 보여 주는 것이다. 세션(Session) 방식 로그인이 이것으로 동작한다. 쿠키와 세션은 [프론트엔드 관점 문서](../../클라이언트-서버%20구조%20프론트엔드%20관점(Frontend)/README.md)에 정리했다.
+서버가 응답에 Set-Cookie로 작은 값을 주면, 브라우저가 저장해 두었다가 조건에 맞는 요청마다 Cookie 헤더에 담아 자동으로 보낸다. 조건은 서버 한 대가 아니라 도메인과 경로로 정한다. 기본은 쿠키를 준 호스트로 가는 요청이고, Domain과 Path 속성으로 범위를 넓히거나 좁힌다. 포트는 구분하지 않아서, 같은 호스트의 다른 포트로 가는 요청에도 쿠키가 붙는다(RFC 6265). 옷 보관소 번호표처럼, 서버가 준 번호표(쿠키)를 브라우저가 들고 다니며 요청마다 보여 주는 것이다. 세션(Session) 방식 로그인이 이것으로 동작한다. 쿠키와 세션은 [프론트엔드 관점 문서](../../클라이언트-서버%20구조%20프론트엔드%20관점(Frontend)/README.md)에 정리했다. 속성과 보안은 [쿠키](../쿠키(Cookie)/README.md) 문서에 정리했다.
 
 ```http
 HTTP/1.1 200 OK
@@ -197,7 +197,7 @@ Last-Modified와 If-Modified-Since도 같은 일을 한다. 꼬리표 대신 마
 ## 그 밖에 자주 보는 헤더
 - Location은 이동할 주소를 알린다. 301, 302 응답이나, 201 Created에서 새로 만든 자원의 주소를 알릴 때 쓴다
 - Retry-After는 언제 다시 시도하면 되는지 알린다. 429 Too Many Requests나 503 Service Unavailable 응답에 함께 올 수 있다
-- Origin은 요청이 어느 출처(스킴, 도메인, 포트의 조합)에서 시작됐는지 알린다. 서버는 응답의 Access-Control-Allow-Origin으로 그 출처를 허락할지 답한다. 이 방식을 CORS(Cross-Origin Resource Sharing)라고 하며 [프론트엔드 관점 문서](../../클라이언트-서버%20구조%20프론트엔드%20관점(Frontend)/README.md)에 정리했다
+- Origin은 요청이 어느 출처(스킴, 도메인, 포트의 조합)에서 시작됐는지 알린다. 서버는 응답의 Access-Control-Allow-Origin으로 그 출처를 허락할지 답한다. 이 방식을 CORS(Cross-Origin Resource Sharing)라고 하며 [CORS](../CORS(Cross-Origin%20Resource%20Sharing)/README.md) 노트에 정리했다
 
 <br/>
 
@@ -262,8 +262,8 @@ const url = 'http://localhost:3000/users/1';
 <br/>
 
 ## 더 볼 것 (TODO)
-- HTTP 캐시와 조건부 요청 자세히 (공용 캐시, CDN, 캐시 무효화)
-- CORS 관련 헤더와 사전 요청 (Preflight)
-- 보안 관련 응답 헤더 (Content-Security-Policy, Strict-Transport-Security)
-- HTTP/2의 헤더 압축 (HPACK)
-- 쿠키 속성 자세히 (Domain, Path, Expires, SameSite)
+- [HTTP 캐시와 조건부 요청 자세히 (공용 캐시, CDN, 캐시 무효화)](../HTTP%20캐시(HTTP%20Caching)/README.md)
+- [CORS 관련 헤더와 사전 요청 (Preflight)](../CORS(Cross-Origin%20Resource%20Sharing)/README.md)
+- [보안 관련 응답 헤더 (Content-Security-Policy, Strict-Transport-Security)](../보안%20응답%20헤더(Security%20Response%20Headers)/README.md)
+- HTTP/2의 헤더 압축 (HPACK, 개념은 [HTTP 버전](../HTTP%20버전(HTTP%20Versions)/README.md)에 정리했고 표 구조는 아직)
+- [쿠키 속성 자세히 (Domain, Path, Expires, SameSite)](../쿠키(Cookie)/README.md)

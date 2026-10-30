@@ -67,7 +67,7 @@ TTL(Time To Live)은 사본이 살아 있을 시간이다. TTL이 지난 항목�
 <br/>
 
 ## 더 볼 것 (TODO)
-- HTTP 캐시 헤더 (Cache-Control, ETag)
-- 라이트 백 (Write-Back, Write-Behind)
-- CPU 캐시의 구조 (L1, L2, L3)
-- 캐시 무효화 전략과 캐시 스탬피드
+- [HTTP 캐시 헤더 (Cache-Control, ETag)](../WEB/HTTP%20캐시(HTTP%20Caching)/README.md)
+- [라이트 백 (Write-Back, Write-Behind)](../캐시%20쓰기%20정책(Cache%20Write%20Policy)/README.md)
+- [CPU 캐시의 구조 (L1, L2, L3)](../CPU%20캐시(CPU%20Cache)/README.md)
+- [캐시 무효화 전략과 캐시 스탬피드](../캐시%20무효화와%20캐시%20스탬피드(Cache%20Invalidation%20and%20Cache%20Stampede)/README.md)

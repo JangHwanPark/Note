@@ -192,7 +192,7 @@ UDP는 스포츠 생중계와 같다. 놓친 장면을 다시 보여 주지 않�
 <br/>
 
 ## 더 볼 것 (TODO)
-- TCP와 UDP 차이 자세히
+- [TCP와 UDP 차이 자세히](../Network/UDP(User%20Datagram%20Protocol)/README.md)
 - 장르별 넷코드(Netcode) 비교 (FPS, RTS, 격투 게임)
 - MMORPG 서버 구조 (채널, 존, 샤딩)
 - 매치메이킹 서버와 게임 서버의 분리
