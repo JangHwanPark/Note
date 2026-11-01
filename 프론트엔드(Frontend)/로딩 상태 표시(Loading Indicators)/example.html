@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>로딩 상태 표시 예제</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --text: #1f2328;
+    --muted: #59636e;
+    --line: #d8dee4;
+    --accent: #0969da;
+    --accent-weak: #cfe3fb;
+    --skeleton: #e3e7eb;
+    --skeleton-hi: #f4f6f8;
+    --danger: #cf222e;
+    --radius: 10px;
+    font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; word-break: keep-all; overflow-wrap: anywhere; }
+  main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 16px; }
+
+  .speed {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px;
+    margin: 0 0 20px; padding: 12px 16px;
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  }
+  .speed legend { font-weight: 600; padding: 0 4px; }
+  .speed p { flex-basis: 100%; margin: 0; color: var(--muted); font-size: .9rem; }
+
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+  .card { min-width: 0; padding: 16px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
+  .card h2 { font-size: 1.1rem; margin: 0 0 4px; }
+  .desc { color: var(--muted); font-size: .9rem; margin: 0 0 12px; }
+
+  button {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: inherit; padding: 7px 14px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+  }
+  button.secondary { background: var(--card); color: var(--accent); }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  /* aria-disabled는 모양을 바꾸지 않으므로 비활성으로 보이게 하는 스타일을 따로 준다 */
+  button[aria-disabled="true"] { opacity: .65; cursor: not-allowed; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+  .status { margin: 0; min-height: 1.6em; font-size: .9rem; color: var(--muted); }
+  .alert { margin: 8px 0 0; min-height: 1.6em; font-size: .9rem; color: var(--danger); }
+  .loading-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; min-height: 24px; }
+
+  .visually-hidden {
+    position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  /* 스피너 */
+  .spinner {
+    display: inline-block; flex: none; width: 20px; height: 20px; border-radius: 50%;
+    border: 3px solid var(--accent-weak); border-top-color: var(--accent);
+    animation: spin 1s linear infinite;
+  }
+  button .spinner { width: 16px; height: 16px; border-width: 2px; border-color: rgba(255, 255, 255, .45); border-top-color: #fff; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fade { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+  .list { list-style: none; margin: 10px 0 0; padding: 0; }
+  .list li { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .list li:last-child { border-bottom: 0; }
+
+  /* 진행 표시줄 */
+  progress {
+    -webkit-appearance: none; appearance: none; display: block;
+    width: 100%; height: 10px; margin: 10px 0 4px; border: 0; border-radius: 999px;
+    background-color: var(--skeleton); overflow: hidden;
+  }
+  progress::-webkit-progress-bar { background: transparent; }
+  progress::-webkit-progress-value { background: var(--accent); border-radius: 999px; transition: width .2s; }
+  progress::-moz-progress-bar { background: var(--accent); border-radius: 999px; }
+  /* value가 없는 비확정형: 막대 일부가 계속 오간다 */
+  progress:not([value]) {
+    background-image: linear-gradient(var(--accent), var(--accent));
+    background-repeat: no-repeat; background-size: 40% 100%;
+    animation: slide 1.4s linear infinite;
+  }
+  progress:not([value])::-moz-progress-bar { background: transparent; }
+  @keyframes slide { from { background-position: -70% 0; } to { background-position: 170% 0; } }
+  .progress-text { margin: 0; font-size: .9rem; min-height: 1.6em; }
+
+  /* 스켈레톤 */
+  .post { padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .post:last-child { border-bottom: 0; }
+  .post h3 { margin: 0; font-size: 1rem; line-height: 1.6; }
+  .post p { margin: 0; font-size: .9rem; color: var(--muted); line-height: 1.6; }
+  .sk {
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--skeleton) 0 40%, var(--skeleton-hi) 50%, var(--skeleton) 60% 100%);
+    background-size: 300% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+  /* 실제 글과 같은 높이가 되도록 줄 높이(글자 크기 x 1.6)에 맞춘다 */
+  .sk-group { display: flex; flex-direction: column; }
+  .sk-title { width: 55%; height: 1rem; margin: .3rem 0; }
+  .sk-line { width: 90%; height: .8rem; margin: .32rem 0; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+  .feed { min-height: 40px; margin-top: 10px; }
+
+  /* 버튼 */
+  .field { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .field input { font: inherit; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; min-width: 0; flex: 1 1 140px; }
+  .count-note { margin: 10px 0 0; font-size: .9rem; }
+
+  /* 낙관적 업데이트 */
+  .like { background: var(--card); color: var(--text); border-color: var(--line); }
+  .like svg { width: 18px; height: 18px; fill: none; stroke: var(--danger); stroke-width: 2; }
+  .like[aria-pressed="true"] svg { fill: var(--danger); }
+  .pending { font-size: .85rem; color: var(--muted); }
+  .check { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: .9rem; }
+
+  /* 준비된 것부터 보여 주기 */
+  .regions { display: grid; gap: 10px; margin-top: 12px; }
+  .region { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+  .region h3 { margin: 0 0 4px; font-size: .95rem; }
+  .region-body { font-size: .9rem; min-height: 2.6rem; }
+  .region-body p { margin: 0; }
+  .region-body .sk-line { width: 80%; }
+  /* 새로 고치는 동안 이전 내용을 지우지 않고 흐리게 남겨 오래된 내용임을 알린다 */
+  .stale { opacity: .45; }
+  .muted { color: var(--muted); }
+
+  /* 동작 줄이기: 움직임을 없애지 않고 크기와 위치가 바뀌지 않는 투명도 변화로 바꾼다 */
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation: fade 2s ease-in-out infinite; }
+    .sk { background: var(--skeleton); animation: fade 2s ease-in-out infinite; }
+    progress:not([value]) { background-position: 50% 0; animation: fade 2s ease-in-out infinite; }
+    progress::-webkit-progress-value { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>로딩 상태 표시 예제</h1>
+  <p class="lead">각 상자의 버튼을 눌러 기다리는 동안 화면이 어떻게 바뀌는지 봅니다. 기다리는 시간은 모두 흉내 낸 것입니다.</p>
+
+  <fieldset class="speed">
+    <legend>응답 속도</legend>
+    <label><input type="radio" name="speed" value="300" checked> 빠른 응답 (0.3초)</label>
+    <label><input type="radio" name="speed" value="3000"> 느린 응답 (3초)</label>
+    <p>스피너, 스켈레톤, 버튼, 좋아요 예제에 적용됩니다. 표시는 0.5초가 지나도 끝나지 않을 때만 띄우고, 한 번 띄우면 0.2초 이상 유지합니다.</p>
+  </fieldset>
+
+  <div class="grid">
+    <!-- 1. 스피너 -->
+    <section class="card" aria-labelledby="t-spinner">
+      <h2 id="t-spinner">스피너</h2>
+      <p class="desc">얼마나 남았는지 모를 때 일하는 중이라는 사실만 알립니다. 빠른 응답에서는 스피너가 나타나지 않습니다.</p>
+      <button type="button" id="comments-btn">댓글 불러오기</button>
+      <div class="loading-line">
+        <span class="spinner" id="comments-spinner" aria-hidden="true" hidden></span>
+        <p class="status" role="status" id="comments-status"></p>
+      </div>
+      <ul class="list" id="comments" aria-busy="false"></ul>
+    </section>
+
+    <!-- 2. 진행 표시줄 -->
+    <section class="card" aria-labelledby="t-progress">
+      <h2 id="t-progress">진행 표시줄</h2>
+      <p class="desc">파일 개수를 세는 동안은 비확정형으로, 전체 양을 알게 되면 확정형으로 바꿉니다. 예제라서 걸리는 시간을 줄였습니다.</p>
+      <div class="row">
+        <button type="button" id="convert-btn">파일 변환 시작</button>
+        <button type="button" class="secondary" id="convert-cancel" hidden>취소</button>
+      </div>
+      <div id="convert-box" hidden>
+        <label for="convert" class="visually-hidden">파일 변환</label>
+        <progress id="convert"></progress>
+        <p class="progress-text" id="convert-text"></p>
+      </div>
+      <p class="status" role="status" id="convert-status"></p>
+    </section>
+
+    <!-- 3. 스켈레톤 화면 -->
+    <section class="card" aria-labelledby="t-skeleton">
+      <h2 id="t-skeleton">스켈레톤 화면</h2>
+      <p class="desc">들어올 글 목록과 같은 모양의 뼈대를 먼저 그려 무엇이 어디에 나타날지 보여 줍니다.</p>
+      <button type="button" id="feed-btn">글 목록 불러오기</button>
+      <div class="feed" id="feed" aria-busy="false"></div>
+      <progress id="feed-loading" class="visually-hidden" aria-label="글 목록 불러오는 중" hidden></progress>
+      <p class="status" role="status" id="feed-status"></p>
+    </section>
+
+    <!-- 4. 버튼 안의 로딩 상태 -->
+    <section class="card" aria-labelledby="t-button">
+      <h2 id="t-button">버튼 안의 로딩 상태</h2>
+      <p class="desc">누르는 즉시 저장 중으로 바뀝니다. 끝나기 전에 여러 번 누르거나 Enter를 눌러도 한 번만 저장됩니다.</p>
+      <form id="profile-form">
+        <div class="field">
+          <label for="profile-name">이름</label>
+          <input id="profile-name" name="name" value="홍길동" autocomplete="off">
+        </div>
+        <button type="submit" id="save-btn">
+          <span class="spinner" id="save-spinner" aria-hidden="true" hidden></span>
+          <span id="save-label">프로필 저장</span>
+        </button>
+      </form>
+      <!-- 페이지를 열 때부터 있는 비어 있는 라이브 영역 -->
+      <div aria-live="polite" class="visually-hidden" id="save-live"></div>
+      <p class="count-note">실제로 저장된 횟수: <strong id="save-count">0</strong>번</p>
+    </section>
+
+    <!-- 5. 낙관적 업데이트 -->
+    <section class="card" aria-labelledby="t-optimistic">
+      <h2 id="t-optimistic">낙관적 업데이트</h2>
+      <p class="desc">누르면 저장을 기다리지 않고 바로 반영합니다. 저장에 실패하면 원래대로 되돌리고 알립니다.</p>
+      <div class="row">
+        <button type="button" class="like" id="like-btn" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+          좋아요 <span id="like-count">12</span>
+        </button>
+        <span class="pending" id="like-pending" hidden>저장 중</span>
+      </div>
+      <label class="check"><input type="checkbox" id="like-fail"> 다음 저장을 실패하게 하기</label>
+      <p class="alert" role="alert" id="like-alert"></p>
+    </section>
+
+    <!-- 6. 준비된 것부터 보여 주기 -->
+    <section class="card" aria-labelledby="t-progressive">
+      <h2 id="t-progressive">준비된 것부터 보여 주기</h2>
+      <p class="desc">세 영역이 준비되는 대로 따로 채워집니다. 새로 고칠 때는 이전 내용을 지우지 않고 흐리게 남겨 둡니다.</p>
+      <button type="button" id="page-btn">페이지 불러오기</button>
+      <div class="regions">
+        <section class="region" aria-labelledby="t-r1">
+          <h3 id="t-r1">내 정보</h3>
+          <div class="region-body" id="r-profile" aria-busy="false"><p class="muted">아직 불러오지 않았습니다</p></div>
+        </section>
+        <section class="region" aria-labelledby="t-r2">
+          <h3 id="t-r2">최근 주문</h3>
+          <div class="region-body" id="r-orders" aria-busy="false"><p class="muted">아직 불러오지 않았습니다</p></div>
+        </section>
+        <section class="region" aria-labelledby="t-r3">
+          <h3 id="t-r3">추천 상품</h3>
+          <div class="region-body" id="r-picks" aria-busy="false"><p class="muted">아직 불러오지 않았습니다</p></div>
+        </section>
+      </div>
+      <p class="status" role="status" id="page-status" style="margin-top: 8px"></p>
+    </section>
+  </div>
+</main>
+
+<script>
+  // spin-delay README의 기본값(지연 500, 최소 시간 200)을 따른다
+  const DELAY = 500;
+  const MIN_SHOWN = 200;
+
+  const $ = (sel) => document.querySelector(sel);
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const responseTime = () => Number($('input[name="speed"]:checked').value);
+
+  // 지연이 지나도 안 끝났을 때만 띄우고, 띄웠으면 최소 시간은 남겨 두어 번쩍임을 막는다
+  function delayedIndicator(show, hide) {
+    let shownAt = null;
+    const timer = setTimeout(() => { shownAt = performance.now(); show(); }, DELAY);
+    return async function stop() {
+      clearTimeout(timer);
+      if (shownAt === null) return;
+      const left = MIN_SHOWN - (performance.now() - shownAt);
+      if (left > 0) await wait(left);
+      hide();
+    };
+  }
+
+  // 1. 스피너
+  {
+    const btn = $('#comments-btn');
+    const list = $('#comments');
+    const spinner = $('#comments-spinner');
+    const status = $('#comments-status');
+    const comments = ['오늘 정리한 내용 잘 봤습니다', '예제가 있어서 이해가 쉬웠어요', '다음 글도 기다릴게요'];
+    let loading = false;
+
+    btn.addEventListener('click', async () => {
+      if (loading) return;
+      loading = true;
+      list.setAttribute('aria-busy', 'true');
+      status.textContent = '';
+      const stop = delayedIndicator(
+        () => { spinner.hidden = false; status.textContent = '댓글 불러오는 중'; },
+        () => { spinner.hidden = true; }
+      );
+      await wait(responseTime());
+      await stop();
+      list.innerHTML = comments.map((c) => `<li>${c}</li>`).join('');
+      list.setAttribute('aria-busy', 'false');
+      // 표시가 사라진 것을 볼 수 없는 사용자를 위해 끝났다는 사실도 알린다
+      status.textContent = `댓글 ${comments.length}개를 불러왔습니다`;
+      loading = false;
+    });
+  }
+
+  // 2. 진행 표시줄
+  {
+    const startBtn = $('#convert-btn');
+    const cancelBtn = $('#convert-cancel');
+    const box = $('#convert-box');
+    const bar = $('#convert');
+    const text = $('#convert-text');
+    const status = $('#convert-status');
+    const TOTAL = 20;
+    let runId = 0;
+    let running = false;
+
+    startBtn.addEventListener('click', async () => {
+      if (running) return;
+      running = true;
+      const id = ++runId;
+      // 이미 값을 준 막대를 비확정형으로 되돌리려면 value 속성을 지워야 한다
+      bar.removeAttribute('value');
+      box.hidden = false;
+      cancelBtn.hidden = false;
+      text.textContent = '변환할 파일을 세는 중';
+      status.textContent = '파일 변환 준비 중';
+
+      await wait(1000);
+      if (id !== runId) return;
+
+      bar.max = TOTAL;
+      status.textContent = `파일 ${TOTAL}개 변환 시작`;
+      let announced = 0;
+      for (let i = 1; i <= TOTAL; i++) {
+        bar.value = i - 1;
+        text.textContent = `${TOTAL}개 중 ${i}번째 파일 변환 중`;
+        await wait(200);
+        if (id !== runId) return;
+        bar.value = i;
+        // 값이 바뀔 때마다 읽히면 다른 것을 들을 수 없으므로 25% 간격으로만 알린다
+        const step = Math.floor((i / TOTAL) * 4) * 25;
+        if (step > announced && step < 100) {
+          announced = step;
+          status.textContent = `${step}% 진행`;
+        }
+      }
+      text.textContent = `${TOTAL}개 모두 변환`;
+      status.textContent = `파일 ${TOTAL}개를 모두 변환했습니다`;
+      cancelBtn.hidden = true;
+      running = false;
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      runId++;
+      running = false;
+      box.hidden = true;
+      cancelBtn.hidden = true;
+      status.textContent = '변환을 취소했습니다';
+      // 누른 버튼이 사라지므로 포커스를 시작 버튼으로 옮긴다
+      startBtn.focus();
+    });
+  }
+
+  // 3. 스켈레톤 화면
+  {
+    const btn = $('#feed-btn');
+    const feed = $('#feed');
+    const hiddenBar = $('#feed-loading');
+    const status = $('#feed-status');
+    const posts = [
+      ['로딩 표시 고르는 법', '기다리는 시간에 따라 표시가 달라진다.'],
+      ['스켈레톤과 스피너', '무엇이 어디에 올지 미리 보여 준다.'],
+      ['동작 줄이기 설정', '움직임을 투명도 변화로 바꾼다.']
+    ];
+    // 실제로 들어올 글 수와 모양에 맞춰 뼈대를 그린다. 회색 상자는 장식이라 보조 기술에서 숨긴다
+    const skeleton = posts.map(() =>
+      '<div class="post sk-group" aria-hidden="true"><div class="sk sk-title"></div><div class="sk sk-line"></div></div>'
+    ).join('');
+    let loading = false;
+
+    btn.addEventListener('click', async () => {
+      if (loading) return;
+      loading = true;
+      feed.setAttribute('aria-busy', 'true');
+      feed.setAttribute('aria-describedby', 'feed-loading');
+      hiddenBar.hidden = false;
+      status.textContent = '';
+      // 다시 불러올 때는 이미 보이는 글을 지우지 않고 흐리게만 한다
+      const stop = feed.dataset.loaded
+        ? delayedIndicator(() => { feed.classList.add('stale'); }, () => {})
+        : delayedIndicator(() => { feed.innerHTML = skeleton; }, () => {});
+      await wait(responseTime());
+      await stop();
+      feed.innerHTML = posts.map(([title, body]) => `<article class="post"><h3>${title}</h3><p>${body}</p></article>`).join('');
+      feed.classList.remove('stale');
+      feed.dataset.loaded = 'true';
+      feed.setAttribute('aria-busy', 'false');
+      feed.removeAttribute('aria-describedby');
+      hiddenBar.hidden = true;
+      status.textContent = `글 ${posts.length}개를 불러왔습니다`;
+      loading = false;
+    });
+  }
+
+  // 4. 버튼 안의 로딩 상태
+  {
+    const form = $('#profile-form');
+    const btn = $('#save-btn');
+    const spinner = $('#save-spinner');
+    const label = $('#save-label');
+    const live = $('#save-live');
+    const countEl = $('#save-count');
+    let saved = 0;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      // aria-disabled는 동작을 막지 않으므로 로딩 중에 들어온 클릭과 Enter는 여기서 무시한다
+      if (btn.getAttribute('aria-disabled') === 'true') return;
+      // disabled를 쓰면 탭 순서에서 빠져 포커스를 잃으므로 aria-disabled를 쓴다
+      btn.setAttribute('aria-disabled', 'true');
+      label.textContent = '저장 중';
+      live.textContent = '프로필 저장 중';
+      const stop = delayedIndicator(
+        () => { spinner.hidden = false; },
+        () => { spinner.hidden = true; }
+      );
+      await wait(responseTime());
+      await stop();
+      saved += 1;
+      countEl.textContent = String(saved);
+      btn.removeAttribute('aria-disabled');
+      label.textContent = '프로필 저장';
+      live.textContent = '프로필을 저장했습니다';
+    });
+  }
+
+  // 5. 낙관적 업데이트
+  {
+    const btn = $('#like-btn');
+    const countEl = $('#like-count');
+    const pendingEl = $('#like-pending');
+    const failBox = $('#like-fail');
+    const alertEl = $('#like-alert');
+    let liked = false;
+    let count = 12;
+    let pending = false;
+
+    const render = () => {
+      btn.setAttribute('aria-pressed', String(liked));
+      countEl.textContent = String(count);
+    };
+
+    btn.addEventListener('click', async () => {
+      // 응답 전에 또 바꾸면 되돌릴 기준이 엇갈리므로 이 예제에서는 응답을 기다린다
+      if (pending) return;
+      pending = true;
+      const before = { liked, count };
+      liked = !liked;
+      count += liked ? 1 : -1;
+      render();
+      alertEl.textContent = '';
+      const shouldFail = failBox.checked;
+      const stop = delayedIndicator(
+        () => { pendingEl.hidden = false; },
+        () => { pendingEl.hidden = true; }
+      );
+      await wait(responseTime());
+      await stop();
+      if (shouldFail) {
+        ({ liked, count } = before);
+        render();
+        alertEl.textContent = '좋아요를 반영하지 못했습니다. 잠시 뒤 다시 눌러 주세요.';
+        failBox.checked = false;
+      }
+      pending = false;
+    });
+  }
+
+  // 6. 준비된 것부터 보여 주기
+  {
+    const btn = $('#page-btn');
+    const status = $('#page-status');
+    const skeleton = '<div class="sk-group" aria-hidden="true"><div class="sk sk-line"></div><div class="sk sk-line"></div></div>';
+    const regions = [
+      { el: $('#r-profile'), ms: 400, html: (t) => `<p>홍길동, 일반 회원</p><p class="muted">${t} 기준</p>` },
+      { el: $('#r-orders'), ms: 1200, html: (t) => `<p>주문 2건, 1건 배송 중</p><p class="muted">${t} 기준</p>` },
+      { el: $('#r-picks'), ms: 2400, html: (t) => `<p>노트, 볼펜, 책갈피</p><p class="muted">${t} 기준</p>` }
+    ];
+    let loading = false;
+
+    btn.addEventListener('click', async () => {
+      if (loading) return;
+      loading = true;
+      const time = new Date().toLocaleTimeString('ko-KR');
+      status.textContent = '페이지 불러오는 중';
+      await Promise.all(regions.map(async (r) => {
+        r.el.setAttribute('aria-busy', 'true');
+        const loaded = r.el.dataset.loaded;
+        if (!loaded) r.el.innerHTML = '';
+        const stop = delayedIndicator(
+          () => { if (loaded) r.el.classList.add('stale'); else r.el.innerHTML = skeleton; },
+          () => {}
+        );
+        await wait(r.ms);
+        await stop();
+        r.el.innerHTML = r.html(time);
+        r.el.classList.remove('stale');
+        r.el.setAttribute('aria-busy', 'false');
+        r.el.dataset.loaded = 'true';
+      }));
+      status.textContent = '모든 영역을 불러왔습니다';
+      btn.textContent = '새로 고치기';
+      loading = false;
+    });
+  }
+</script>
+</body>
+</html>

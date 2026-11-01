@@ -20,7 +20,7 @@ Interface의 사전적 의미는 두 영역이 맞닿는 면, 경계면이다.
 <br/>
 
 ## 더 볼 것 (TODO)
-- 토스트(Toast)와 스낵바: 잠깐 떴다 사라지는 알림
-- 스켈레톤 로딩(Skeleton Loading): 데이터를 받는 동안 윤곽만 보여 주기
+- 토스트(Toast)와 스낵바: 잠깐 떴다 사라지는 알림 (언제 쓰는지와 접근성은 [알림과 피드백](../../프론트엔드(Frontend)/알림과%20피드백(Notifications%20and%20Feedback)/README.md)에 정리)
+- 스켈레톤 로딩(Skeleton Loading): 데이터를 받는 동안 윤곽만 보여 주기 (언제 쓰는지와 접근성은 [로딩 상태 표시](../../프론트엔드(Frontend)/로딩%20상태%20표시(Loading%20Indicators)/README.md)에 정리)
 - 무한 스크롤(Infinite Scroll): 페이지네이션 대신 스크롤 끝에서 다음 데이터 불러오기
 - 다크 모드 전환

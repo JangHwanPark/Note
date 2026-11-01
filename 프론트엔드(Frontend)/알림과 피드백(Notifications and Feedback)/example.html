@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>알림과 피드백 예제</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --text: #1f2328;
+    --muted: #5b636e;
+    --line: #d8dde3;
+    --accent: #2457c5;
+    --accent-weak: #e8eefb;
+    --danger: #b42318;
+    --danger-weak: #fdecea;
+    --warn-weak: #fff4d6;
+    --warn-line: #e3b341;
+    --dark: #2b2f36;
+    --radius: 10px;
+    --motion: 200ms;
+    font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); }
+  header, main, footer { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+  header { padding-top: 24px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.1rem; margin: 0 0 6px; }
+  p { margin: 0 0 10px; }
+  .lead { color: var(--muted); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 16px 0 24px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    min-width: 0;
+  }
+  .rule { color: var(--muted); font-size: 0.9rem; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+  button {
+    font: inherit;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  button:hover { background: var(--accent-weak); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+  button.text { border-color: transparent; background: transparent; color: var(--accent); font-weight: 600; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  /* 토스트: 영역은 처음부터 비워 둔 채 있고, 글자가 들어올 때만 보인다 */
+  .toast {
+    position: fixed; top: 16px; right: 16px; z-index: 10;
+    max-width: min(360px, calc(100vw - 32px));
+    background: var(--dark); color: #fff;
+    border-radius: 8px; padding: 12px 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    transition: opacity var(--motion), transform var(--motion);
+  }
+  .toast:empty { opacity: 0; transform: translateY(-8px); padding: 0; pointer-events: none; }
+
+  /* 스낵바: 화면 아래, 본문 위에 겹쳐 뜬다 */
+  .snackbar {
+    position: fixed; left: 50%; bottom: 16px; z-index: 10;
+    transform: translateX(-50%);
+    width: min(480px, calc(100vw - 32px));
+    background: var(--dark); color: #fff;
+    border-radius: 8px; padding: 8px 8px 8px 16px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+  .snackbar[hidden] { display: none; }
+  .snackbar p { margin: 0; flex: 1 1 140px; }
+  .snackbar button.text { color: #9db8ff; }
+
+  .mail-list { list-style: none; padding: 0; margin: 0 0 10px; }
+  .mail-list li {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 6px 6px 12px; margin-bottom: 6px;
+  }
+
+  /* 배너: 떠 있지 않고 콘텐츠 사이에 끼어 아래 내용을 밀어낸다 */
+  .banner {
+    background: var(--warn-weak);
+    border: 1px solid var(--warn-line);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-top: 16px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+  }
+  .banner[hidden] { display: none; }
+  .banner p { margin: 0; flex: 1 1 200px; }
+
+  /* 모달, 바텀 시트, 코치마크는 모두 브라우저 기본 dialog를 쓴다 */
+  dialog {
+    border: none; border-radius: var(--radius); padding: 20px;
+    max-width: min(420px, calc(100vw - 32px));
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    color: var(--text);
+  }
+  dialog::backdrop { background: rgba(0, 0, 0, 0.45); }
+  dialog h2 { margin-bottom: 8px; }
+  .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+  .sheet {
+    margin: auto auto 0;
+    width: min(560px, 100vw); max-width: 100vw;
+    max-height: 50vh; overflow: auto;
+    border-radius: 16px 16px 0 0;
+    padding: 8px 16px 16px;
+  }
+  .sheet[open] { animation: sheet-up var(--motion) ease-out; }
+  @keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+  .grabber { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 4px auto 12px; }
+  .sheet-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .sheet ul { list-style: none; padding: 0; margin: 8px 0 0; }
+  .sheet li button { width: 100%; text-align: left; border: none; border-radius: 8px; padding: 12px; }
+  .sheet li button[aria-current="true"] { background: var(--accent-weak); font-weight: 600; }
+
+  .coach { margin: 0; inset: auto; position: fixed; max-width: min(300px, calc(100vw - 32px)); }
+  .coach-target { outline: 3px solid #ffd33d !important; outline-offset: 4px; }
+  .step { color: var(--muted); font-size: 0.9rem; margin-bottom: 4px; }
+
+  /* 인라인 오류: 색만 쓰지 않고 글자와 기호를 함께 둔다 */
+  .field { display: grid; gap: 4px; margin-bottom: 10px; }
+  .field input {
+    font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; width: 100%;
+  }
+  .field input[aria-invalid="true"] { border: 2px solid var(--danger); background: var(--danger-weak); }
+  .error { color: var(--danger); font-size: 0.9rem; margin: 0; }
+  .error:empty { display: none; }
+  .error::before { content: "! "; font-weight: 700; }
+
+  /* 툴팁: 감싼 상자 전체에 hover를 걸어서 포인터를 툴팁 위로 옮겨도 사라지지 않게 한다 */
+  .tip-wrap { position: relative; display: inline-block; }
+  .tooltip {
+    position: absolute; left: 0; top: 100%; margin-top: 6px; z-index: 5;
+    background: var(--dark); color: #fff; font-size: 0.9rem;
+    padding: 6px 10px; border-radius: 6px; width: max-content; max-width: 220px;
+  }
+  /* 버튼과 툴팁 사이 빈틈을 지날 때 hover가 끊기지 않도록 보이지 않는 다리를 놓는다 */
+  .tooltip::before { content: ""; position: absolute; left: 0; right: 0; top: -8px; height: 8px; }
+  .tooltip[hidden] { display: none; }
+
+  /* 배지 */
+  .bell { position: relative; padding: 8px 10px; line-height: 0; }
+  .bell svg { width: 22px; height: 22px; }
+  .badge {
+    position: absolute; top: -6px; right: -8px;
+    min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px;
+    background: var(--danger); color: #fff; font-size: 0.75rem; line-height: 20px; font-weight: 700;
+    border: 2px solid var(--surface);
+  }
+  .badge[hidden] { display: none; }
+
+  .log { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 96px; }
+  .log ol { margin: 0; padding-left: 20px; color: var(--muted); }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root { --motion: 0ms; }
+    .sheet[open] { animation: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>알림과 피드백 예제</h1>
+  <p class="lead">노트에서 다룬 아홉 가지 패턴을 하나씩 눌러 볼 수 있습니다.</p>
+</header>
+
+<main>
+  <!-- 배너는 화면 위쪽, 콘텐츠 사이에 들어간다. role="banner"는 사이트 머리글 뜻이라 붙이지 않는다 -->
+  <div class="banner" id="banner" hidden>
+    <p>오프라인 상태입니다. 바꾼 내용은 연결되면 저장됩니다.</p>
+    <div class="row">
+      <button type="button" class="text" id="banner-retry">다시 연결</button>
+      <button type="button" class="text" id="banner-close">닫기</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="h-toast">
+      <h2 id="h-toast">토스트</h2>
+      <p class="rule">방해하지 않고 5초 뒤 저절로 사라집니다. 행동 버튼이 없고 포커스를 옮기지 않습니다. 놓쳐도 아래 최근 알림에서 다시 볼 수 있습니다.</p>
+      <button type="button" class="primary" id="toast-btn">설정 저장</button>
+    </section>
+
+    <section class="card" aria-labelledby="h-snack">
+      <h2 id="h-snack" tabindex="-1">스낵바</h2>
+      <p class="rule">행동(실행 취소)이 있으므로 누르거나 닫을 때까지 남습니다. 한 번에 하나만 뜨고 새 것이 오면 바뀝니다.</p>
+      <ul class="mail-list" id="mail-list">
+        <li data-id="1"><span>회의 일정 안내</span><button type="button" class="del">삭제</button></li>
+        <li data-id="2"><span>이번 달 청구서</span><button type="button" class="del">삭제</button></li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="h-banner">
+      <h2 id="h-banner">배너</h2>
+      <p class="rule">해결될 때까지 남는 상태 알림입니다. 화면 위쪽에 끼어 들어가 아래 내용을 밀어냅니다. 버튼은 글자 버튼 두 개까지 둡니다.</p>
+      <button type="button" id="banner-btn">연결 끊김 흉내 내기</button>
+    </section>
+
+    <section class="card" aria-labelledby="h-modal">
+      <h2 id="h-modal">모달 대화 상자</h2>
+      <p class="rule">되돌릴 수 없는 작업이라 확인을 받습니다. 열리면 덜 파괴적인 취소 버튼에 포커스가 가고, Esc로 닫히며, 닫히면 이 버튼으로 포커스가 돌아옵니다.</p>
+      <button type="button" class="danger" id="modal-btn">파일 영구 삭제</button>
+    </section>
+
+    <section class="card" aria-labelledby="h-sheet">
+      <h2 id="h-sheet">바텀 시트</h2>
+      <p class="rule">고를 것이 있을 때 아래에서 올라옵니다. 항목을 고르거나, 바깥 어두운 막을 누르거나, 닫기 버튼이나 Esc로 닫습니다.</p>
+      <button type="button" id="sheet-btn">정렬: 최신순</button>
+    </section>
+
+    <section class="card" aria-labelledby="h-form">
+      <h2 id="h-form">인라인 오류</h2>
+      <p class="rule">입력란을 지나가기만 해서는 검사하지 않고, 제출할 때 검사합니다. 오류는 입력란 바로 아래에 글자로 보이고, 입력한 값은 지우지 않습니다.</p>
+      <form id="form" novalidate>
+        <div class="field">
+          <label for="email">이메일</label>
+          <!-- MDN은 aria-errormessage를 권하지만 지원 정도가 달라 aria-describedby도 함께 연결한다 -->
+          <input id="email" type="email" autocomplete="email" aria-errormessage="email-err" aria-describedby="email-err">
+          <p class="error" id="email-err"></p>
+        </div>
+        <button type="submit" class="primary">가입하기</button>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="h-tip">
+      <h2 id="h-tip">툴팁</h2>
+      <p class="rule">마우스를 올리거나 포커스를 두면 나타납니다. 포인터를 툴팁 위로 옮겨도 남아 있고, Esc로 닫을 수 있습니다. 툴팁은 포커스를 받지 않습니다.</p>
+      <span class="tip-wrap" id="tip-wrap">
+        <button type="button" id="tip-btn" aria-describedby="tip-1">저장</button>
+        <span role="tooltip" id="tip-1" class="tooltip" hidden>Ctrl+S로도 저장할 수 있습니다</span>
+      </span>
+    </section>
+
+    <section class="card" aria-labelledby="h-coach">
+      <h2 id="h-coach">코치마크</h2>
+      <p class="rule">화면을 덮으므로 모달처럼 다룹니다. 가리키는 대상을 위치만이 아니라 글자로도 설명하고, 키보드로 넘기거나 건너뛸 수 있습니다.</p>
+      <button type="button" id="coach-btn">기능 안내 보기</button>
+    </section>
+
+    <section class="card" aria-labelledby="h-badge">
+      <h2 id="h-badge">배지</h2>
+      <p class="rule">숫자는 화면에만 보이고, 스크린 리더는 버튼 이름으로 개수를 읽습니다. 알림을 열면 배지가 사라집니다.</p>
+      <div class="row">
+        <button type="button" class="bell" id="bell" aria-label="알림, 읽지 않음 3개">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <span class="badge" id="badge" aria-hidden="true">3</span>
+        </button>
+        <button type="button" id="badge-add">새 알림 받기</button>
+      </div>
+    </section>
+  </div>
+
+  <section class="log" aria-labelledby="h-log">
+    <h2 id="h-log">최근 알림</h2>
+    <p class="rule">저절로 사라진 알림도 여기서 다시 확인할 수 있습니다.</p>
+    <ol id="log"></ol>
+  </section>
+</main>
+
+<!-- 라이브 영역은 처음부터 비워 둔 채 두고, 나중에 글자만 바꾼다 -->
+<div class="toast" id="toast" role="status"></div>
+<div class="sr-only" id="announcer" role="status"></div>
+
+<div class="snackbar" id="snackbar" hidden>
+  <p id="snack-msg"></p>
+  <button type="button" class="text" id="snack-undo">실행 취소</button>
+  <button type="button" class="text" id="snack-close" aria-label="알림 닫기">닫기</button>
+</div>
+
+<!-- showModal()로 열면 바깥이 비활성(inert)이 되므로 aria-modal 조건을 실제로 만족한다 -->
+<dialog id="modal" role="alertdialog" aria-modal="true" aria-labelledby="del-title" aria-describedby="del-desc">
+  <h2 id="del-title">파일을 삭제할까요?</h2>
+  <p id="del-desc">삭제한 파일은 되돌릴 수 없습니다.</p>
+  <div class="actions">
+    <button type="button" id="modal-cancel" autofocus>취소</button>
+    <button type="button" class="danger" id="modal-ok">삭제</button>
+  </div>
+</dialog>
+
+<dialog id="sheet" class="sheet" aria-labelledby="sheet-title">
+  <div class="grabber" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <h2 id="sheet-title">정렬 기준</h2>
+    <button type="button" class="text" id="sheet-close">닫기</button>
+  </div>
+  <ul>
+    <li><button type="button" data-sort="최신순" aria-current="true">최신순</button></li>
+    <li><button type="button" data-sort="이름순">이름순</button></li>
+    <li><button type="button" data-sort="크기순">크기순</button></li>
+  </ul>
+</dialog>
+
+<dialog id="coach" class="coach" aria-labelledby="coach-title" aria-describedby="coach-desc">
+  <p class="step" id="coach-step"></p>
+  <h2 id="coach-title"></h2>
+  <p id="coach-desc"></p>
+  <div class="actions">
+    <button type="button" class="text" id="coach-skip">건너뛰기</button>
+    <button type="button" class="primary" id="coach-next" autofocus>다음</button>
+  </div>
+</dialog>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function addLog(text) {
+    const li = document.createElement('li');
+    li.textContent = text;
+    $('log').prepend(li);
+  }
+
+  // 같은 문장을 연달아 넣으면 바뀐 것이 없어 읽지 않으므로, 비운 뒤 잠깐 있다가 넣는다
+  function announce(region, text) {
+    region.textContent = '';
+    setTimeout(() => { region.textContent = text; }, 50);
+  }
+
+  /* 토스트 */
+  let toastTimer;
+  $('toast-btn').addEventListener('click', () => {
+    announce($('toast'), '설정을 저장했습니다.');
+    addLog('설정을 저장했습니다.');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { $('toast').textContent = ''; }, 5000);
+  });
+
+  /* 스낵바 */
+  let lastDeleted = null;
+  // 누른 버튼이 사라지거나 숨겨지면 포커스가 문서 처음으로 떨어지므로, 목록 안 가까운 자리로 옮긴다
+  function focusMailList(preferred) {
+    const target = (preferred && preferred.isConnected && preferred.querySelector('.del'))
+      || $('mail-list').querySelector('.del')
+      || $('h-snack');
+    target.focus();
+  }
+  function closeSnackbar() {
+    $('snackbar').hidden = true;
+    lastDeleted = null;
+  }
+  $('mail-list').addEventListener('click', (e) => {
+    const btn = e.target.closest('.del');
+    if (!btn) return;
+    const li = btn.closest('li');
+    lastDeleted = { li, next: li.nextElementSibling };
+    const neighbor = li.nextElementSibling || li.previousElementSibling;
+    li.remove();
+    focusMailList(neighbor);
+    const msg = '메일을 삭제했습니다.';
+    $('snack-msg').textContent = msg;
+    $('snackbar').hidden = false;
+    // 스낵바 상자는 숨겨졌다 나타나므로, 읽어 주기는 미리 있던 영역에 맡긴다
+    announce($('announcer'), msg + ' 실행 취소할 수 있습니다.');
+    addLog(msg);
+  });
+  $('snack-undo').addEventListener('click', () => {
+    if (lastDeleted) {
+      $('mail-list').insertBefore(lastDeleted.li, lastDeleted.next);
+      lastDeleted.li.querySelector('.del').focus();
+      announce($('announcer'), '삭제를 취소했습니다.');
+      addLog('삭제를 취소했습니다.');
+    }
+    closeSnackbar();
+  });
+  $('snack-close').addEventListener('click', () => {
+    closeSnackbar();
+    focusMailList(null);
+  });
+
+  /* 배너 */
+  $('banner-btn').addEventListener('click', () => {
+    $('banner').hidden = false;
+    announce($('announcer'), '오프라인 상태입니다.');
+    addLog('오프라인 상태입니다.');
+  });
+  $('banner-retry').addEventListener('click', () => {
+    $('banner').hidden = true;
+    $('banner-btn').focus();
+    announce($('announcer'), '다시 연결되었습니다.');
+    addLog('다시 연결되었습니다.');
+  });
+  $('banner-close').addEventListener('click', () => {
+    $('banner').hidden = true;
+    $('banner-btn').focus();
+  });
+
+  /* 모달, 바텀 시트, 코치마크가 함께 쓰는 열기와 포커스 복귀 */
+  function openDialog(dialog, trigger) {
+    dialog.showModal();
+    // 닫히는 방법(버튼, Esc, 바깥 누르기)과 상관없이 연 버튼으로 포커스를 돌려준다
+    dialog.addEventListener('close', () => trigger.focus(), { once: true });
+  }
+
+  /* 모달 */
+  $('modal-btn').addEventListener('click', () => openDialog($('modal'), $('modal-btn')));
+  $('modal-cancel').addEventListener('click', () => $('modal').close());
+  $('modal-ok').addEventListener('click', () => {
+    $('modal').close();
+    announce($('announcer'), '파일을 삭제했습니다.');
+    addLog('파일을 삭제했습니다.');
+  });
+
+  /* 바텀 시트 */
+  $('sheet-btn').addEventListener('click', () => openDialog($('sheet'), $('sheet-btn')));
+  $('sheet-close').addEventListener('click', () => $('sheet').close());
+  // 바깥 막을 누른 클릭도 대상이 dialog로 잡히므로, 시트 안 여백과 구분하려고 좌표로 판단한다
+  $('sheet').addEventListener('click', (e) => {
+    const r = $('sheet').getBoundingClientRect();
+    const outside = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+    if (e.target === $('sheet') && outside) $('sheet').close();
+  });
+  $('sheet').querySelectorAll('[data-sort]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      $('sheet').querySelectorAll('[data-sort]').forEach((b) => b.removeAttribute('aria-current'));
+      btn.setAttribute('aria-current', 'true');
+      $('sheet-btn').textContent = '정렬: ' + btn.dataset.sort;
+      $('sheet').close();
+    });
+  });
+
+  /* 인라인 오류 */
+  const email = $('email');
+  function validateEmail() {
+    const v = email.value.trim();
+    if (v === '') return '이메일을 입력해 주세요.';
+    if (!v.includes('@')) return '이메일 주소에 @가 빠졌습니다.';
+    return '';
+  }
+  function showError(msg) {
+    $('email-err').textContent = msg;
+    if (msg) email.setAttribute('aria-invalid', 'true');
+    else email.removeAttribute('aria-invalid');
+  }
+  $('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const msg = validateEmail();
+    showError(msg);
+    if (msg) {
+      email.focus();
+    } else {
+      announce($('announcer'), '가입 신청을 받았습니다.');
+      addLog('가입 신청을 받았습니다.');
+    }
+  });
+  // 한 번 오류가 난 뒤에는 고치는 즉시 오류를 걷어 낸다
+  email.addEventListener('input', () => {
+    if (email.getAttribute('aria-invalid') === 'true') showError(validateEmail());
+  });
+
+  /* 툴팁 */
+  const tip = $('tip-1');
+  let tipTimer;
+  const showTip = (delay) => {
+    clearTimeout(tipTimer);
+    tipTimer = setTimeout(() => { tip.hidden = false; }, delay);
+  };
+  const hideTip = () => { clearTimeout(tipTimer); tip.hidden = true; };
+  $('tip-wrap').addEventListener('mouseenter', () => showTip(tip.hidden ? 300 : 0));
+  // 포인터가 비스듬히 지나가다 잠깐 벗어나도 바로 사라지지 않게 조금 기다린다
+  $('tip-wrap').addEventListener('mouseleave', () => {
+    if (document.activeElement === $('tip-btn')) return;
+    clearTimeout(tipTimer);
+    tipTimer = setTimeout(() => { tip.hidden = true; }, 400);
+  });
+  $('tip-btn').addEventListener('focus', () => showTip(0));
+  $('tip-btn').addEventListener('blur', hideTip);
+  // WCAG 1.4.13: 포인터나 포커스를 옮기지 않고도 닫을 수 있어야 한다
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !tip.hidden) hideTip();
+  });
+
+  /* 코치마크 */
+  const coachSteps = [
+    { target: 'sheet-btn', title: '정렬 바꾸기', desc: '바텀 시트 칸의 정렬 버튼을 누르면 목록을 최신순, 이름순, 크기순으로 바꿀 수 있습니다.' },
+    { target: 'bell', title: '알림 확인', desc: '배지 칸의 종 모양 알림 버튼에서 읽지 않은 알림 개수를 볼 수 있습니다.' }
+  ];
+  let coachIndex = 0;
+  function renderCoach() {
+    document.querySelectorAll('.coach-target').forEach((el) => el.classList.remove('coach-target'));
+    const step = coachSteps[coachIndex];
+    const target = $(step.target);
+    target.classList.add('coach-target');
+    target.scrollIntoView({ block: 'center' });
+    $('coach-step').textContent = (coachIndex + 1) + ' / ' + coachSteps.length;
+    $('coach-title').textContent = step.title;
+    $('coach-desc').textContent = step.desc;
+    $('coach-next').textContent = coachIndex === coachSteps.length - 1 ? '완료' : '다음';
+    // 말풍선을 대상 바로 아래에 두되 화면 밖으로 나가지 않게 한다
+    const r = target.getBoundingClientRect();
+    const box = $('coach');
+    const width = box.offsetWidth || 300;
+    box.style.left = Math.max(16, Math.min(r.left, window.innerWidth - width - 16)) + 'px';
+    box.style.top = Math.min(r.bottom + 12, window.innerHeight - box.offsetHeight - 16) + 'px';
+  }
+  $('coach-btn').addEventListener('click', () => {
+    coachIndex = 0;
+    openDialog($('coach'), $('coach-btn'));
+    renderCoach();
+    $('coach-next').focus();
+  });
+  $('coach-next').addEventListener('click', () => {
+    if (coachIndex < coachSteps.length - 1) {
+      coachIndex++;
+      renderCoach();
+    } else {
+      $('coach').close();
+    }
+  });
+  $('coach-skip').addEventListener('click', () => $('coach').close());
+  $('coach').addEventListener('close', () => {
+    document.querySelectorAll('.coach-target').forEach((el) => el.classList.remove('coach-target'));
+  });
+
+  /* 배지 */
+  let unread = 3;
+  function renderBadge() {
+    $('badge').hidden = unread === 0;
+    $('badge').textContent = unread > 999 ? '999+' : String(unread);
+    $('bell').setAttribute('aria-label', unread === 0 ? '알림' : '알림, 읽지 않음 ' + unread + '개');
+  }
+  $('badge-add').addEventListener('click', () => { unread++; renderBadge(); });
+  $('bell').addEventListener('click', () => {
+    unread = 0;
+    renderBadge();
+    addLog('알림을 모두 읽었습니다.');
+  });
+</script>
+</body>
+</html>

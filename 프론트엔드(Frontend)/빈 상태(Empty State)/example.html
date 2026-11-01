@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>빈 상태 예제</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --text: #1d232b;
+    --muted: #5b6573;
+    --line: #dde1e7;
+    --accent: #2457c5;
+    --accent-text: #ffffff;
+    --danger: #b3261e;
+    --soft: #eef2fb;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.6;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 24px; }
+  .demo {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .demo > h2 { font-size: 1.15rem; margin: 0 0 4px; }
+  .demo > .desc { color: var(--muted); margin: 0 0 16px; font-size: .95rem; }
+  button {
+    font: inherit;
+    border-radius: 8px;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--text);
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+  button.small { padding: 4px 10px; font-size: .9rem; }
+  button:focus-visible, input:focus-visible, h3:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  h3:focus { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 8px; }
+  .list li {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 12px; border-top: 1px solid var(--line);
+  }
+  .list li:first-child { border-top: 0; }
+  .list li span { overflow-wrap: anywhere; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .empty {
+    text-align: center;
+    padding: 28px 16px;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    background: var(--soft);
+  }
+  .empty svg { width: 72px; height: 72px; display: block; margin: 0 auto 8px; }
+  .empty h3 { font-size: 1.05rem; margin: 0 0 4px; border-radius: 4px; }
+  .empty p { margin: 0 0 14px; color: var(--muted); }
+  .empty.problem { background: #fdf3f2; border-color: #f0c9c5; border-style: solid; }
+  .empty.problem h3 { color: var(--danger); }
+  label { font-size: .95rem; }
+  input[type="search"] {
+    font: inherit; width: 100%; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text);
+  }
+  .status { min-height: 1.6em; margin: 6px 0 10px; color: var(--muted); font-size: .9rem; }
+  fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 12px; padding: 8px 12px 10px; }
+  legend { font-size: .9rem; color: var(--muted); padding: 0 4px; }
+  .choices { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .loading { display: flex; align-items: center; gap: 10px; padding: 16px 12px; color: var(--muted); }
+  .spinner {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 3px solid var(--line); border-top-color: var(--accent);
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 50% { opacity: .35; } }
+  /* 멈춘 표시는 작업이 멈춘 것처럼 보이므로, 회전 대신 크기와 위치가 바뀌지 않는 투명도 변화를 쓴다 */
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation: pulse 1.6s ease-in-out infinite; border-color: var(--accent); }
+  }
+  .hint { margin: 0; padding: 16px 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>빈 상태 예제</h1>
+  <p class="lead">비어 있는 이유에 따라 다른 화면과 문구를 보여 주는 예제입니다.</p>
+
+  <!-- 1. 처음 사용 + 마지막 항목 삭제 뒤 포커스 -->
+  <section class="demo" aria-labelledby="first-title">
+    <h2 id="first-title">처음 사용</h2>
+    <p class="desc">보고서를 만들어 보고, 모두 지워 보세요. 마지막 항목을 지우면 빈 상태 제목으로 포커스가 옮겨 갑니다.</p>
+
+    <ul class="list" id="report-list" hidden></ul>
+    <div class="toolbar" id="report-toolbar" hidden style="margin-top:12px">
+      <button type="button" id="report-add-more">보고서 하나 더 만들기</button>
+    </div>
+
+    <div class="empty" id="report-empty">
+      <!-- 장식 그림이라 스크린 리더가 건너뛰게 한다 -->
+      <svg viewBox="0 0 72 72" aria-hidden="true" focusable="false">
+        <path d="M10 22h20l6 6h26v30a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4z" fill="#c9d6f2"/>
+        <path d="M10 26h52v32a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4z" fill="#9db4e6"/>
+      </svg>
+      <h3 id="report-empty-title" tabindex="-1">첫 보고서를 만들어 보세요</h3>
+      <p>아직 만든 보고서가 없습니다. 보고서를 만들면 이곳에 모입니다.</p>
+      <button type="button" class="primary" id="report-add">보고서 만들기</button>
+    </div>
+  </section>
+
+  <!-- 2. 다 비웠을 때 -->
+  <section class="demo" aria-labelledby="done-title">
+    <h2 id="done-title">다 비웠을 때</h2>
+    <p class="desc">할 일을 모두 완료하면 비어 있는 것이 좋은 소식이라는 화면이 나옵니다.</p>
+
+    <ul class="list" id="todo-list"></ul>
+
+    <div class="empty" id="todo-empty" hidden>
+      <svg viewBox="0 0 72 72" aria-hidden="true" focusable="false">
+        <circle cx="36" cy="36" r="26" fill="#cfe8d6"/>
+        <path d="M24 37l8 8 16-17" fill="none" stroke="#2e7d4f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h3 id="todo-empty-title" tabindex="-1">오늘 할 일을 모두 끝냈습니다</h3>
+      <p>새 할 일이 생기면 이곳에 표시됩니다.</p>
+    </div>
+    <!-- 예제를 처음 상태로 돌리는 조작용 버튼이라 빈 상태 영역 밖에 둔다 -->
+    <div class="toolbar" id="todo-toolbar" hidden style="margin:12px 0 0">
+      <button type="button" id="todo-reset">예제 다시 채우기</button>
+    </div>
+  </section>
+
+  <!-- 3. 검색, 필터 결과 없음 -->
+  <section class="demo" aria-labelledby="search-title">
+    <h2 id="search-title">검색 결과 없음</h2>
+    <p class="desc">상품이 있어도 검색어에 맞는 것이 없으면 조건을 바꾸는 길을 알려 줍니다. 결과 개수는 짧은 상태 메시지로 알립니다.</p>
+
+    <label for="search-input">상품 검색</label>
+    <input type="search" id="search-input" autocomplete="off">
+    <!-- 처음에는 비워 두었다가, 검색이 끝나면 글자를 넣는다 -->
+    <p class="status" role="status" id="search-status"></p>
+
+    <ul class="list" id="product-list"></ul>
+
+    <div class="empty" id="search-empty" hidden>
+      <h3 id="search-empty-title">검색어에 맞는 상품이 없습니다</h3>
+      <p>철자를 확인하거나 다른 검색어로 찾아보세요.</p>
+      <button type="button" id="search-clear">검색어 지우기</button>
+    </div>
+  </section>
+
+  <!-- 4. 불러오기: 로딩, 빈 상태, 오류 구분 -->
+  <section class="demo" aria-labelledby="load-title">
+    <h2 id="load-title">불러오는 중, 비어 있음, 불러오지 못함</h2>
+    <p class="desc">불러오기가 끝나기 전에는 비어 있다는 말을 하지 않습니다. 불러오지 못했을 때도 비어 있다고 쓰지 않습니다.</p>
+
+    <fieldset>
+      <legend>불러온 결과를 무엇으로 할지 고르세요</legend>
+      <div class="choices">
+        <label><input type="radio" name="outcome" value="items" checked> 내용 있음</label>
+        <label><input type="radio" name="outcome" value="empty"> 비어 있음</label>
+        <label><input type="radio" name="outcome" value="error"> 오류</label>
+        <label><input type="radio" name="outcome" value="denied"> 권한 없음</label>
+        <label><input type="radio" name="outcome" value="offline"> 오프라인</label>
+      </div>
+    </fieldset>
+    <div class="toolbar">
+      <button type="button" class="primary" id="load-button">주문 불러오기</button>
+    </div>
+    <p class="status" role="status" id="load-status"></p>
+
+    <div id="load-area" aria-busy="false">
+      <p class="hint" id="load-hint">주문 불러오기를 누르면 이곳에 결과가 나타납니다.</p>
+      <div class="loading" id="load-loading" hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <span>주문을 불러오는 중입니다</span>
+      </div>
+      <ul class="list" id="order-list" hidden></ul>
+      <div class="empty" id="load-empty" hidden>
+        <h3>아직 들어온 주문이 없습니다</h3>
+        <p>새 주문이 들어오면 이곳에 표시됩니다.</p>
+      </div>
+      <div class="empty problem" id="load-problem" hidden>
+        <h3 id="problem-title"></h3>
+        <p id="problem-body"></p>
+        <button type="button" id="problem-action"></button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // 1. 처음 사용
+  const reportList = document.getElementById('report-list');
+  const reportEmpty = document.getElementById('report-empty');
+  const reportToolbar = document.getElementById('report-toolbar');
+  let reportCount = 0;
+
+  function renderReports() {
+    const isEmpty = reportList.children.length === 0;
+    reportList.hidden = isEmpty;
+    reportToolbar.hidden = isEmpty;
+    reportEmpty.hidden = !isEmpty;
+  }
+
+  function addReport() {
+    reportCount += 1;
+    const li = document.createElement('li');
+    const name = document.createElement('span');
+    name.textContent = '보고서 ' + reportCount;
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'small';
+    del.textContent = '삭제';
+    del.setAttribute('aria-label', name.textContent + ' 삭제');
+    del.addEventListener('click', () => {
+      li.remove();
+      renderReports();
+      // 지운 버튼이 사라지면 포커스가 body로 빠지므로, 빈 상태 제목으로 옮긴다
+      if (reportList.children.length === 0) {
+        document.getElementById('report-empty-title').focus();
+      } else {
+        reportList.querySelector('button').focus();
+      }
+    });
+    li.append(name, del);
+    reportList.append(li);
+    renderReports();
+  }
+
+  document.getElementById('report-add').addEventListener('click', addReport);
+  document.getElementById('report-add-more').addEventListener('click', addReport);
+
+  // 2. 다 비웠을 때
+  const todoList = document.getElementById('todo-list');
+  const todoEmpty = document.getElementById('todo-empty');
+  const todoToolbar = document.getElementById('todo-toolbar');
+  const todos = ['회의록 정리하기', '견적서 보내기', '일정 확인하기'];
+
+  function fillTodos() {
+    todoList.innerHTML = '';
+    todos.forEach((text) => {
+      const li = document.createElement('li');
+      const label = document.createElement('span');
+      label.textContent = text;
+      const done = document.createElement('button');
+      done.type = 'button';
+      done.className = 'small';
+      done.textContent = '완료';
+      done.setAttribute('aria-label', text + ' 완료');
+      done.addEventListener('click', () => {
+        li.remove();
+        if (todoList.children.length === 0) {
+          todoList.hidden = true;
+          todoEmpty.hidden = false;
+          todoToolbar.hidden = false;
+          document.getElementById('todo-empty-title').focus();
+        } else {
+          todoList.querySelector('button').focus();
+        }
+      });
+      li.append(label, done);
+      todoList.append(li);
+    });
+    todoList.hidden = false;
+    todoEmpty.hidden = true;
+    todoToolbar.hidden = true;
+  }
+
+  document.getElementById('todo-reset').addEventListener('click', () => {
+    fillTodos();
+    todoList.querySelector('button').focus();
+  });
+  fillTodos();
+
+  // 3. 검색 결과 없음
+  const products = ['머그컵', '텀블러', '유리컵', '컵받침', '수저 세트', '앞치마'];
+  const productList = document.getElementById('product-list');
+  const searchInput = document.getElementById('search-input');
+  const searchStatus = document.getElementById('search-status');
+  const searchEmpty = document.getElementById('search-empty');
+  let searchTimer;
+
+  function renderProducts(query) {
+    const q = query.trim();
+    const matched = products.filter((p) => p.includes(q));
+    productList.innerHTML = '';
+    matched.forEach((p) => {
+      const li = document.createElement('li');
+      li.textContent = p;
+      productList.append(li);
+    });
+    const isEmpty = matched.length === 0;
+    productList.hidden = isEmpty;
+    searchEmpty.hidden = !isEmpty;
+    if (isEmpty) {
+      document.getElementById('search-empty-title').textContent =
+        '"' + q + '"에 맞는 상품이 없습니다';
+    }
+    return matched.length;
+  }
+
+  function announce(count, query) {
+    if (query.trim() === '') {
+      searchStatus.textContent = '전체 상품 ' + count + '개';
+    } else {
+      searchStatus.textContent = count === 0 ? '검색 결과 없음' : '검색 결과 ' + count + '개';
+    }
+  }
+
+  searchInput.addEventListener('input', () => {
+    const count = renderProducts(searchInput.value);
+    // 글자마다 읽어 주면 시끄러우므로, 입력이 잠시 멈춘 뒤에 한 번만 알린다
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => announce(count, searchInput.value), 400);
+  });
+
+  document.getElementById('search-clear').addEventListener('click', () => {
+    searchInput.value = '';
+    clearTimeout(searchTimer);
+    announce(renderProducts(''), '');
+    searchInput.focus();
+  });
+
+  renderProducts('');
+
+  // 4. 불러오기
+  const loadButton = document.getElementById('load-button');
+  const loadArea = document.getElementById('load-area');
+  const loadStatus = document.getElementById('load-status');
+  const parts = {
+    hint: document.getElementById('load-hint'),
+    loading: document.getElementById('load-loading'),
+    items: document.getElementById('order-list'),
+    empty: document.getElementById('load-empty'),
+    problem: document.getElementById('load-problem'),
+  };
+
+  const problems = {
+    error: {
+      title: '주문 목록을 불러오지 못했습니다',
+      body: '잠시 문제가 생겼습니다. 다시 시도해 주세요.',
+      action: '다시 시도',
+    },
+    denied: {
+      title: '이 목록을 볼 권한이 없습니다',
+      body: '관리자에게 권한을 요청하면 주문 목록을 볼 수 있습니다.',
+      action: '권한 요청하기',
+    },
+    offline: {
+      title: '인터넷에 연결되어 있지 않습니다',
+      body: '연결을 확인한 뒤 다시 시도해 주세요.',
+      action: '다시 시도',
+    },
+  };
+
+  function show(name) {
+    Object.entries(parts).forEach(([key, el]) => { el.hidden = key !== name; });
+  }
+
+  // 서버 요청을 흉내 낸다. 고른 결과에 따라 목록, 빈 배열, 실패 중 하나를 돌려준다
+  function fakeFetch(outcome) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (outcome === 'items') resolve(['주문 1001', '주문 1002', '주문 1003']);
+        else if (outcome === 'empty') resolve([]);
+        else reject(outcome);
+      }, 1200);
+    });
+  }
+
+  // 버튼을 disabled로 바꾸면 그 버튼에 있던 포커스가 흔들리므로, 불러오는 중에는 클릭만 무시한다
+  let loading = false;
+
+  async function load() {
+    if (loading) return;
+    const outcome = document.querySelector('input[name="outcome"]:checked').value;
+    // 결과를 알기 전에는 빈 상태가 아니라 로딩 상태를 보여 준다
+    show('loading');
+    loadArea.setAttribute('aria-busy', 'true');
+    loading = true;
+    loadStatus.textContent = '불러오는 중';
+    try {
+      const orders = await fakeFetch(outcome);
+      if (orders.length === 0) {
+        show('empty');
+        loadStatus.textContent = '주문 없음';
+      } else {
+        parts.items.innerHTML = '';
+        orders.forEach((o) => {
+          const li = document.createElement('li');
+          li.textContent = o;
+          parts.items.append(li);
+        });
+        show('items');
+        loadStatus.textContent = '주문 ' + orders.length + '건';
+      }
+    } catch (kind) {
+      const p = problems[kind] || problems.error;
+      document.getElementById('problem-title').textContent = p.title;
+      document.getElementById('problem-body').textContent = p.body;
+      document.getElementById('problem-action').textContent = p.action;
+      document.getElementById('problem-action').dataset.kind = kind;
+      show('problem');
+      loadStatus.textContent = p.title;
+    } finally {
+      loadArea.setAttribute('aria-busy', 'false');
+      loading = false;
+    }
+  }
+
+  loadButton.addEventListener('click', load);
+  document.getElementById('problem-action').addEventListener('click', (e) => {
+    const kind = e.target.dataset.kind;
+    if (kind === 'sent') return;
+    if (kind === 'denied') {
+      // 실제로는 요청 화면으로 이어져야 한다. 예제에서는 문구만 바꾸고 포커스는 그대로 둔다
+      e.target.textContent = '권한을 요청했습니다';
+      e.target.dataset.kind = 'sent';
+      loadStatus.textContent = '권한을 요청했습니다';
+    } else {
+      // 누른 버튼이 로딩 중에 사라지므로, 포커스를 불러오기 버튼으로 먼저 옮긴다
+      loadButton.focus();
+      load();
+    }
+  });
+
+  show('hint');
+</script>
+</body>
+</html>

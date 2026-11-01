@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>주문 상세 - 예제 상점</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --text: #1d2129;
+    --muted: #5b6270;
+    --border: #d3d7de;
+    --accent: #1f4fbf;
+    --focus: #f2b600;
+    --error: #a3221a;
+    --error-bg: #fdf0ef;
+    --notice: #6b4a00;
+    --notice-bg: #fff5d9;
+    --ok: #1d6b35;
+    --ok-bg: #eaf6ee;
+    --radius: 8px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.6;
+  }
+  .layout {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: 280px minmax(0, 1fr); align-items: start; }
+    .panel { position: sticky; top: 16px; }
+  }
+  h1, h2, h3 { line-height: 1.3; }
+  h1 { font-size: 1.6rem; margin: 0 0 16px; }
+  h2 { font-size: 1.15rem; margin: 0; }
+  a { color: var(--accent); }
+  :focus-visible, [tabindex="-1"]:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+  button {
+    font: inherit;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); color: #fff; }
+  button[aria-disabled="true"] { opacity: 0.6; cursor: progress; }
+  .vh {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  /* 조작판: 예제 바깥이라는 것이 보이도록 점선 테두리 */
+  .panel {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .panel h2 { margin-bottom: 8px; }
+  .panel label { display: block; font-weight: 600; margin-top: 12px; }
+  .panel select { display: block; width: 100%; font: inherit; padding: 6px; margin-top: 4px; }
+  .panel .check { display: flex; gap: 8px; align-items: center; font-weight: 600; margin-top: 16px; }
+  .panel .check input { width: 18px; height: 18px; }
+  .panel button { width: 100%; margin-top: 12px; }
+  .panel p { color: var(--muted); font-size: 0.9rem; margin: 12px 0 0; }
+
+  .site-header {
+    display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 12px 16px; margin-bottom: 12px;
+  }
+  .logo { font-weight: 700; }
+  .site-header nav { display: flex; gap: 16px; }
+
+  /* 오프라인 배너: 비어 있을 때도 라이브 영역이 접근성 트리에 남도록 숨기지 않고 접기만 한다 */
+  .banner { margin-bottom: 12px; }
+  .banner:not(:empty) {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--notice-bg); color: var(--notice);
+    border: 1px solid currentColor; border-left-width: 6px; border-radius: var(--radius);
+    padding: 12px 16px;
+  }
+
+  main { display: grid; gap: 12px; }
+  #order-page { display: grid; gap: 12px; }
+  #order-page[hidden], #page-error[hidden] { display: none; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px;
+  }
+  .card-head { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .card dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+  .card dt { color: var(--muted); }
+  .card dd { margin: 0; overflow-wrap: anywhere; }
+  .content { margin: 8px 0 0; padding-left: 1.4em; }
+  .content:empty { display: none; }
+
+  /* 아이콘 모양 공통: 색을 못 구분해도 기호와 글자로 알 수 있게 한다 */
+  .icon {
+    flex: none; display: inline-grid; place-items: center;
+    width: 1.4em; height: 1.4em; border-radius: 50%;
+    border: 2px solid currentColor; font-weight: 700; font-size: 0.85em; line-height: 1;
+  }
+
+  .loading:not(:empty) { color: var(--muted); display: flex; gap: 8px; align-items: center; margin: 8px 0 0; }
+  .loading:empty, .section-error:empty, .form-error:empty, .form-ok:empty { margin: 0; padding: 0; border: 0; }
+  .loading:not(:empty)::before {
+    content: ""; width: 1em; height: 1em; flex: none;
+    border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .loading:not(:empty)::before { animation: none; border-top-color: var(--border); border-style: dotted; }
+  }
+
+  .section-error:not(:empty), .form-error:not(:empty) {
+    background: var(--error-bg); color: var(--error);
+    border-left: 6px solid var(--error); border-radius: 4px;
+    padding: 10px 12px 10px 44px; margin: 8px 0 0; position: relative;
+  }
+  /* 앞의 느낌표는 장식이고 뜻은 글자가 전한다. 대체 텍스트를 비워 두어 두 번 읽히지 않게 한다 */
+  .section-error:not(:empty)::before, .form-error:not(:empty)::before {
+    content: "!" / "";
+    position: absolute; left: 12px; top: 11px;
+    width: 1.4em; height: 1.4em; border-radius: 50%; border: 2px solid currentColor;
+    display: grid; place-items: center; font-weight: 700; font-size: 0.85em; line-height: 1;
+  }
+  .section-extra { margin: 6px 0 0; }
+  .form-ok:not(:empty) {
+    background: var(--ok-bg); color: var(--ok); border-left: 6px solid var(--ok);
+    border-radius: 4px; padding: 10px 12px; margin: 8px 0 0;
+  }
+
+  /* 오류 요약 */
+  .error-summary {
+    background: var(--surface); color: var(--text);
+    border: 4px solid var(--error); border-radius: var(--radius); padding: 16px;
+  }
+  .error-summary[hidden] { display: none; }
+  .error-summary h2 { display: flex; gap: 8px; align-items: center; color: var(--error); margin-bottom: 8px; }
+  .error-summary ul { margin: 0; padding-left: 1.2em; }
+  .error-summary a { color: var(--error); font-weight: 600; }
+
+  /* 폼 */
+  form { display: grid; gap: 14px; margin-top: 8px; }
+  .field label { display: block; font-weight: 600; }
+  .field .hint { display: block; color: var(--muted); font-size: 0.9rem; }
+  .field input {
+    display: block; width: 100%; max-width: 22em; font: inherit; padding: 8px;
+    border: 2px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text);
+  }
+  .field.has-error { border-left: 4px solid var(--error); padding-left: 12px; }
+  .field.has-error input { border-color: var(--error); border-width: 3px; }
+  .field-error { color: var(--error); font-weight: 600; margin: 2px 0 4px; display: flex; gap: 6px; align-items: flex-start; }
+  .field-error[hidden] { display: none; }
+  .form-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+  .page-error .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .page-error p { margin: 0 0 8px; }
+
+  footer { color: var(--muted); font-size: 0.9rem; padding: 8px 4px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="panel" aria-labelledby="panel-title">
+    <h2 id="panel-title">예제 조작판</h2>
+    <p>가짜 요청이 어떻게 끝날지 고릅니다. 실제로 서버에 연결하지 않습니다.</p>
+
+    <label for="page-outcome">페이지 불러오기 결과</label>
+    <select id="page-outcome">
+      <option value="success">성공</option>
+      <option value="network">네트워크 끊김</option>
+      <option value="timeout">시간 초과</option>
+      <option value="server">서버 오류</option>
+      <option value="notfound">찾을 수 없음</option>
+      <option value="forbidden">권한 없음</option>
+      <option value="partial">일부만 실패 (추천 상품만)</option>
+    </select>
+    <button type="button" id="reload-page" class="primary">이 결과로 페이지 다시 불러오기</button>
+
+    <label for="save-outcome">배송지 저장 결과</label>
+    <select id="save-outcome">
+      <option value="success">성공</option>
+      <option value="network">네트워크 끊김</option>
+      <option value="timeout">시간 초과</option>
+      <option value="server">서버 오류</option>
+    </select>
+
+    <label class="check"><input type="checkbox" id="sim-offline"> 오프라인 흉내 내기</label>
+
+    <p>영역마다 있는 다시 불러오기 버튼도 위에서 고른 결과를 따릅니다. 오프라인을 켜면 고른 결과와 상관없이 연결 끊김으로 실패합니다. 시간 초과는 응답을 4초까지 기다린 뒤 멈춥니다.</p>
+  </aside>
+
+  <div class="app">
+    <header class="site-header">
+      <span class="logo">예제 상점</span>
+      <nav aria-label="주요 메뉴">
+        <a href="#" data-go-home>주문 목록</a>
+        <a href="#help">고객센터</a>
+      </nav>
+    </header>
+
+    <div id="offline-banner" class="banner" role="status"></div>
+
+    <main id="main">
+      <div id="order-page">
+        <!-- 오류 요약은 본문 맨 위, h1 위에 둔다. 포커스를 옮겨 알리는 방식을 쓴다 -->
+        <div id="error-summary" class="error-summary" tabindex="-1" hidden>
+          <h2 id="error-summary-title"><span class="icon" aria-hidden="true">!</span>문제가 있습니다</h2>
+          <ul></ul>
+        </div>
+
+        <h1 id="order-title" tabindex="-1">주문 상세</h1>
+
+        <section id="order-info" class="card" aria-labelledby="order-info-title" tabindex="-1">
+          <div class="card-head"><h2 id="order-info-title">주문 정보</h2></div>
+          <dl>
+            <dt>주문일</dt><dd>2026년 10월 30일</dd>
+            <dt>상품</dt><dd>무선 키보드 1개</dd>
+            <dt>배송지</dt><dd id="current-address">김하늘, 우편번호 06236</dd>
+          </dl>
+        </section>
+
+        <section id="shipping" class="card" aria-labelledby="shipping-title" data-name="배송 현황">
+          <div class="card-head">
+            <h2 id="shipping-title">배송 현황</h2>
+            <button type="button" class="reload">배송 현황 다시 불러오기</button>
+          </div>
+          <p class="loading" role="status"></p>
+          <!-- 처음에는 비워 두었다가, 실패하면 글자만 넣는다. 버튼과 링크는 이 밖에 둔다 -->
+          <p class="section-error" role="alert"></p>
+          <p class="section-extra" hidden><a href="#help">고객센터 문의 방법 보기</a></p>
+          <ol class="content"></ol>
+        </section>
+
+        <section id="recommend" class="card" aria-labelledby="recommend-title" data-name="추천 상품">
+          <div class="card-head">
+            <h2 id="recommend-title">추천 상품</h2>
+            <button type="button" class="reload">추천 상품 다시 불러오기</button>
+          </div>
+          <p class="loading" role="status"></p>
+          <p class="section-error" role="alert"></p>
+          <p class="section-extra" hidden><a href="#help">고객센터 문의 방법 보기</a></p>
+          <ul class="content"></ul>
+        </section>
+
+        <section id="address" class="card" aria-labelledby="address-title">
+          <div class="card-head"><h2 id="address-title">배송지 바꾸기</h2></div>
+          <form id="address-form" novalidate>
+            <div class="field" id="field-name">
+              <label for="name">받는 사람</label>
+              <p class="field-error" id="name-error" hidden><span class="vh">오류:</span><span class="icon" aria-hidden="true">!</span><span class="msg"></span></p>
+              <input id="name" name="name" type="text" autocomplete="name">
+            </div>
+            <div class="field" id="field-phone">
+              <label for="phone">휴대폰 번호</label>
+              <span class="hint" id="phone-hint">숫자만 입력해도 되고 하이픈을 넣어도 됩니다</span>
+              <p class="field-error" id="phone-error" hidden><span class="vh">오류:</span><span class="icon" aria-hidden="true">!</span><span class="msg"></span></p>
+              <input id="phone" name="phone" type="text" inputmode="numeric" autocomplete="tel" aria-describedby="phone-hint">
+            </div>
+            <div class="field" id="field-postcode">
+              <label for="postcode">우편번호</label>
+              <p class="field-error" id="postcode-error" hidden><span class="vh">오류:</span><span class="icon" aria-hidden="true">!</span><span class="msg"></span></p>
+              <input id="postcode" name="postcode" type="text" inputmode="numeric" autocomplete="postal-code">
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="primary" id="save-button">배송지 저장</button>
+            </div>
+            <p class="form-ok" role="status"></p>
+            <p class="form-error" role="alert"></p>
+            <p class="form-extra" hidden><a href="#order-info">주문 정보에서 지금 배송지 확인하기</a></p>
+          </form>
+        </section>
+      </div>
+
+      <div id="page-error" class="card page-error" hidden></div>
+    </main>
+
+    <footer id="help" tabindex="-1">
+      고객센터: 예제 화면이라 실제 연락처는 없습니다. 실제 서비스라면 여기에 전화번호와 운영 시간을 함께 적습니다.
+    </footer>
+  </div>
+</div>
+
+<!-- 페이지 전체 오류. 상태 코드 숫자, 빨간 글자, 이동 경로는 넣지 않는다 -->
+<template id="tpl-notfound">
+  <h1 tabindex="-1">페이지를 찾을 수 없습니다</h1>
+  <p>주소를 직접 입력하셨다면 맞게 입력했는지 확인해 주세요.</p>
+  <p>주소를 붙여 넣으셨다면 주소 전체를 복사했는지 확인해 주세요.</p>
+  <p>찾으시는 주문은 주문 목록에서 다시 찾을 수 있습니다.</p>
+  <div class="actions">
+    <button type="button" class="primary" data-go-home>주문 목록으로 가기</button>
+  </div>
+</template>
+
+<template id="tpl-forbidden">
+  <h1 tabindex="-1">이 주문을 볼 수 있는 권한이 없습니다</h1>
+  <p>이 주문은 주문한 계정으로만 볼 수 있습니다. 다른 계정으로 로그인되어 있다면 주문한 계정으로 다시 로그인해 주세요.</p>
+  <p>선물 받은 주문이라면 보내신 분께 배송 조회를 부탁하거나 고객센터에 문의해 주세요.</p>
+  <div class="actions">
+    <button type="button" class="primary" data-demo-login>다른 계정으로 로그인</button>
+    <a href="#help">고객센터에 문의하기</a>
+  </div>
+  <p class="demo-note" role="status"></p>
+</template>
+
+<script>
+  const NORMAL_DELAY = 600;      // 보통 응답 시간
+  const SLOW_AFTER = 1500;       // 이때부터 "평소보다 오래 걸린다"를 보여 준다
+  const GIVE_UP_AFTER = 4000;    // 이때까지 응답이 없으면 기다리기를 멈춘다
+  const LATE_RESPONSE = 10000;   // 시간 초과를 흉내 낼 때 가짜 서버가 응답하는 시점
+  const BASE_TITLE = '주문 상세 - 예제 상점';
+  const PAGE_ERROR_TITLE = {
+    notfound: '페이지를 찾을 수 없습니다 - 예제 상점',
+    forbidden: '볼 수 있는 권한이 없습니다 - 예제 상점'
+  };
+
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const orderPage = $('#order-page');
+  const pageError = $('#page-error');
+  const summary = $('#error-summary');
+  const form = $('#address-form');
+
+  let simOffline = false;      // 조작판의 오프라인 흉내. 가짜 요청을 실제로 실패시킨다
+  let browserOffline = false;  // 브라우저 offline 이벤트. 배너 힌트로만 쓴다
+
+  const DATA = {
+    shipping: ['10월 30일 결제 완료', '10월 31일 상품 준비 중', '11월 1일 배송 출발'],
+    recommend: ['손목 받침대', '키캡 세트', '키보드 덮개'],
+    save: { ok: true }
+  };
+
+  // 가짜 요청. 연결 끊김은 실제 fetch처럼 상태 코드 없이 실패한다
+  function fakeRequest(target, outcome) {
+    if (simOffline) outcome = 'network';
+    if (outcome === 'partial') outcome = target === 'recommend' ? 'server' : 'success';
+    return new Promise((resolve, reject) => {
+      const fail = (status) => setTimeout(() => {
+        const err = new Error('request failed');
+        err.status = status;
+        err.network = status === null;
+        reject(err);
+      }, NORMAL_DELAY);
+      if (outcome === 'network') return fail(null);
+      if (outcome === 'server') return fail(target === 'recommend' ? 503 : 500);
+      if (outcome === 'notfound') return fail(404);
+      if (outcome === 'forbidden') return fail(403);
+      const delay = outcome === 'timeout' ? LATE_RESPONSE : NORMAL_DELAY;
+      setTimeout(() => resolve(DATA[target]), delay);
+    });
+  }
+
+  // 끝없이 기다리지 않도록 시간 제한을 건다. 늦게 온 응답은 무시된다
+  function withTimeout(promise, onSlow) {
+    let slowTimer, limitTimer;
+    const limit = new Promise((_, reject) => {
+      slowTimer = setTimeout(onSlow, SLOW_AFTER);
+      limitTimer = setTimeout(() => {
+        const err = new Error('timeout');
+        err.timeout = true;
+        reject(err);
+      }, GIVE_UP_AFTER);
+    });
+    return Promise.race([promise, limit]).finally(() => {
+      clearTimeout(slowTimer);
+      clearTimeout(limitTimer);
+    });
+  }
+
+  // 상태 코드는 실패를 구분하는 단서로만 쓰고 화면에는 보여 주지 않는다
+  function classify(err) {
+    if (err.timeout) return 'timeout';
+    if (err.network) return 'network';
+    if (err.status === 404) return 'notfound';
+    if (err.status === 403) return 'forbidden';
+    if (err.status >= 500) return 'server';
+    return 'unknown';
+  }
+
+  const SECTION_MESSAGE = {
+    network: (name) => `인터넷 연결이 끊겨 ${name}을 불러오지 못했습니다. 연결을 확인한 뒤 다시 불러와 주세요.`,
+    timeout: (name) => `응답이 늦어 ${name}을 기다리다 멈췄습니다. 잠시 뒤 다시 불러와 주세요.`,
+    server: (name) => `저희 쪽 문제로 ${name}을 불러오지 못했습니다. 잠시 뒤 다시 불러와 주세요.`,
+    // 원인을 모르면 지어내지 않고 다음 할 일만 준다
+    unknown: (name) => `${name}을 불러오지 못했습니다. 잠시 뒤 다시 불러와 주세요.`
+  };
+
+  const sections = {};
+  for (const id of ['shipping', 'recommend']) {
+    const el = document.getElementById(id);
+    sections[id] = {
+      id, el,
+      name: el.dataset.name,
+      loading: $('.loading', el),
+      error: $('.section-error', el),
+      extra: $('.section-extra', el),
+      content: $('.content', el),
+      reload: $('.reload', el),
+      data: null,
+      fails: 0,
+      busy: false,
+      requestNo: 0
+    };
+    sections[id].reload.addEventListener('click', () => loadSection(sections[id]));
+  }
+
+  // 영역 하나를 불러온다. 요청과 그리기를 한 try로 감싸 실패가 이 영역 밖으로 번지지 않게 한다(오류 경계와 같은 생각)
+  async function loadSection(s) {
+    if (s.busy) return;
+    s.busy = true;
+    const myRequest = ++s.requestNo;
+    s.reload.setAttribute('aria-disabled', 'true');
+    s.el.setAttribute('aria-busy', 'true');
+    s.error.textContent = '';  // 비워 두어야 다음 실패 때 내용 변화로 다시 읽힌다
+    s.loading.textContent = `${s.name}을 불러오는 중입니다.`;
+    try {
+      const data = await withTimeout(fakeRequest(s.id, $('#page-outcome').value), () => {
+        s.loading.textContent = '평소보다 오래 걸리고 있습니다. 조금만 더 기다려 주세요.';
+      });
+      if (myRequest !== s.requestNo) return;
+      render(s, data);
+      s.data = data;
+      s.fails = 0;
+      s.extra.hidden = true;
+    } catch (err) {
+      const kind = classify(err);
+      if (kind === 'notfound' || kind === 'forbidden') {
+        showPageError(kind);  // 주문 자체를 볼 수 없으면 영역이 아니라 페이지 전체가 막힌다
+      } else {
+        s.fails++;
+        let text = SECTION_MESSAGE[kind](s.name) + ' 다른 내용은 그대로 이용할 수 있습니다.';
+        // 이미 받아 둔 내용은 지우지 않는다
+        if (s.data) text += ` 마지막으로 불러온 ${s.name}은 아래에 그대로 있습니다.`;
+        if (s.fails >= 3) text += ' 여러 번 시도해도 불러오지 못하고 있습니다. 나중에 다시 확인하시거나 고객센터에 문의해 주세요.';
+        s.error.textContent = text;
+        s.extra.hidden = s.fails < 3;
+      }
+    } finally {
+      s.loading.textContent = '';
+      s.el.removeAttribute('aria-busy');
+      s.reload.removeAttribute('aria-disabled');
+      s.busy = false;
+    }
+  }
+
+  function render(s, items) {
+    const list = items.map((text) => {
+      const li = document.createElement('li');
+      li.textContent = text;
+      return li;
+    });
+    s.content.replaceChildren(...list);
+  }
+
+  function loadPage() {
+    showOrderPage(false);
+    for (const s of Object.values(sections)) {
+      s.fails = 0;  // 페이지를 새로 불러오면 실패 횟수는 처음부터 센다
+      loadSection(s);
+    }
+  }
+
+  // 페이지 전체 오류: 본문만 바꾸고 머리글과 주요 메뉴는 남긴다. 제목을 바꾸고 포커스를 h1로 옮긴다
+  function showPageError(kind) {
+    if (!pageError.hidden) return;
+    pageError.replaceChildren($('#tpl-' + kind).content.cloneNode(true));
+    pageError.dataset.kind = kind;
+    orderPage.hidden = true;
+    pageError.hidden = false;
+    updateTitle();
+    $('h1', pageError).focus();
+  }
+
+  function showOrderPage(moveFocus) {
+    if (pageError.hidden) return;
+    pageError.hidden = true;
+    pageError.replaceChildren();
+    orderPage.hidden = false;
+    updateTitle();
+    if (moveFocus) $('#order-title').focus();
+  }
+
+  // 화면만 바꾸는 페이지라 브라우저가 제목을 바꿔 주지 않으므로 직접 맞춘다
+  // 입력 오류가 있으면 제목 앞에 "오류: "를 붙여 스크린 리더가 가장 먼저 듣게 한다
+  function updateTitle() {
+    if (!pageError.hidden) document.title = PAGE_ERROR_TITLE[pageError.dataset.kind];
+    else document.title = (summary.hidden ? '' : '오류: ') + BASE_TITLE;
+  }
+
+  /* ---------- 폼 ---------- */
+  const FIELDS = ['name', 'phone', 'postcode'];
+
+  function validate(values) {
+    const errors = [];
+    if (!values.name) errors.push(['name', '받는 사람 이름을 입력하세요']);
+    const phone = values.phone.replace(/[\s-]/g, '');
+    if (!phone) errors.push(['phone', '휴대폰 번호를 입력하세요']);
+    else if (!/^\d{10,11}$/.test(phone)) errors.push(['phone', '휴대폰 번호는 01012345678처럼 숫자 10자리나 11자리로 입력하세요']);
+    if (!values.postcode) errors.push(['postcode', '우편번호를 입력하세요']);
+    else if (!/^\d{5}$/.test(values.postcode)) errors.push(['postcode', '우편번호는 06236처럼 숫자 5자리로 입력하세요']);
+    return errors;
+  }
+
+  function clearFieldErrors() {
+    for (const id of FIELDS) {
+      const input = document.getElementById(id);
+      input.removeAttribute('aria-invalid');
+      const described = (input.getAttribute('aria-describedby') || '').split(' ').filter((x) => x && x !== id + '-error');
+      if (described.length) input.setAttribute('aria-describedby', described.join(' '));
+      else input.removeAttribute('aria-describedby');
+      document.getElementById(id + '-error').hidden = true;
+      document.getElementById('field-' + id).classList.remove('has-error');
+    }
+  }
+
+  function showValidationErrors(errors) {
+    const items = errors.map(([id, message]) => {
+      const input = document.getElementById(id);
+      const box = document.getElementById(id + '-error');
+      $('.msg', box).textContent = message;   // 요약과 입력란 옆 문구를 똑같이 쓴다
+      box.hidden = false;
+      document.getElementById('field-' + id).classList.add('has-error');
+      input.setAttribute('aria-invalid', 'true');
+      input.setAttribute('aria-describedby', ((input.getAttribute('aria-describedby') || '') + ' ' + id + '-error').trim());
+
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = '#' + id;
+      a.textContent = message;
+      li.append(a);
+      return li;
+    });
+    $('ul', summary).replaceChildren(...items);
+    summary.hidden = false;
+    updateTitle();
+    summary.focus();
+  }
+
+  // 요약의 링크를 누르면 해당 입력란으로 포커스를 옮기고, 라벨까지 보이게 스크롤한다
+  summary.addEventListener('click', (e) => {
+    const a = e.target.closest('a');
+    if (!a) return;
+    e.preventDefault();
+    const input = document.getElementById(a.getAttribute('href').slice(1));
+    $('label[for="' + input.id + '"]').scrollIntoView({ block: 'start' });
+    input.focus({ preventScroll: true });
+  });
+
+  const SAVE_MESSAGE = {
+    network: '인터넷 연결이 끊겨 배송지를 저장하지 못했습니다. 입력하신 내용은 그대로 남아 있습니다. 연결을 확인한 뒤 다시 저장해 주세요.',
+    // 시간 초과는 처리됐는지 모르므로 "저장되지 않았다"고 단정하지 않고 확인하는 길을 준다
+    timeout: '응답이 늦어 기다리기를 멈췄습니다. 배송지가 바뀌었는지는 아직 알 수 없습니다. 주문 정보에서 지금 배송지를 확인한 뒤, 바뀌지 않았다면 다시 저장해 주세요.',
+    server: '저희 쪽 문제로 배송지를 저장하지 못했습니다. 입력하신 내용은 그대로 남아 있습니다. 잠시 뒤 다시 저장해 주세요.',
+    unknown: '배송지를 저장하지 못했습니다. 입력하신 내용은 그대로 남아 있습니다. 잠시 뒤 다시 저장해 주세요.'
+  };
+
+  let saving = false;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (saving) return;
+    const values = Object.fromEntries(FIELDS.map((id) => [id, document.getElementById(id).value.trim()]));
+    const okBox = $('.form-ok', form);
+    const errBox = $('.form-error', form);
+    const extra = $('.form-extra', form);
+    okBox.textContent = '';
+    errBox.textContent = '';
+    extra.hidden = true;
+    clearFieldErrors();
+
+    const errors = validate(values);
+    if (errors.length) return showValidationErrors(errors);
+    summary.hidden = true;
+    updateTitle();
+
+    saving = true;
+    const button = $('#save-button');
+    button.setAttribute('aria-disabled', 'true');
+    button.textContent = '저장하는 중';
+    try {
+      await withTimeout(fakeRequest('save', $('#save-outcome').value), () => {
+        button.textContent = '저장하는 중 (평소보다 오래 걸립니다)';
+      });
+      $('#current-address').textContent = `${values.name}, 우편번호 ${values.postcode}`;
+      okBox.textContent = '배송지를 저장했습니다.';
+    } catch (err) {
+      const kind = classify(err);
+      errBox.textContent = SAVE_MESSAGE[kind] || SAVE_MESSAGE.unknown;
+      extra.hidden = kind !== 'timeout';
+    } finally {
+      button.removeAttribute('aria-disabled');
+      button.textContent = '배송지 저장';
+      saving = false;
+    }
+  });
+
+  /* ---------- 오프라인 배너 ---------- */
+  function updateBanner() {
+    const banner = $('#offline-banner');
+    if (simOffline || browserOffline) {
+      if (banner.textContent) return;
+      banner.innerHTML = '<span class="icon" aria-hidden="true">!</span><span><strong>연결 끊김:</strong> 인터넷 연결이 끊긴 것 같습니다. 이미 불러온 내용은 그대로 볼 수 있고, 연결이 돌아오면 이 안내는 사라집니다.</span>';
+    } else {
+      banner.textContent = '';
+    }
+  }
+  $('#sim-offline').addEventListener('change', (e) => {
+    simOffline = e.target.checked;
+    updateBanner();
+  });
+  // navigator.onLine은 믿을 만하지 않으므로 기능을 끄지 않고 배너 힌트로만 쓴다
+  window.addEventListener('offline', () => { browserOffline = true; updateBanner(); });
+  window.addEventListener('online', () => { browserOffline = false; updateBanner(); });
+  browserOffline = !navigator.onLine;
+  updateBanner();
+
+  /* ---------- 그 밖의 버튼 ---------- */
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-go-home]')) {
+      e.preventDefault();
+      showOrderPage(true);
+    }
+    if (e.target.closest('[data-demo-login]')) {
+      $('.demo-note', pageError).textContent = '예제 화면이라 로그인 화면은 따로 없습니다.';
+    }
+  });
+  $('#reload-page').addEventListener('click', loadPage);
+
+  loadPage();
+</script>
+</body>
+</html>
