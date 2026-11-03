@@ -197,4 +197,4 @@ const base = 'http://localhost:3000/stores';
 - [POST 본문의 폼 인코딩 (application/x-www-form-urlencoded와 multipart/form-data)](../폼%20인코딩(Form%20Encoding)/README.md)
 - [쿼리스트링과 캐시 (쿼리스트링이 다르면 다른 저장본으로 다루는 이유)](../HTTP%20캐시(HTTP%20Caching)/README.md)
 - [쪽 나누기 방식 비교 (쪽 번호 방식과 커서 방식)](../페이지네이션(Pagination)/README.md)
-- 프론트엔드에서 쿼리스트링으로 화면 상태(검색어, 필터) 유지하기 (별도 문서)
+- 프론트엔드에서 쿼리스트링으로 화면 상태(검색어, 필터) 유지하기는 [같은 화면에서 주소만 바뀔 때](../../../프론트엔드(Frontend)/같은%20화면에서%20주소만%20바뀔%20때(URL%20Changes%20Within%20a%20Screen)/README.md) 노트에 정리했다

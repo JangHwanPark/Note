@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>상품 목록 - 예제 상점</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --text: #1d2129;
+    --muted: #5b6270;
+    --line: #d3d7de;
+    --accent: #1f4fbf;
+    --focus: #f2b600;
+    --radius: 8px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .layout {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: 280px minmax(0, 1fr); align-items: start; }
+    .panel { position: sticky; top: 16px; }
+  }
+  h1, h2 { line-height: 1.3; }
+  h1 { font-size: 1.6rem; margin: 0 0 12px; }
+  h2 { font-size: 1.15rem; margin: 0 0 8px; }
+  a { color: var(--accent); }
+  :focus-visible, [tabindex="-1"]:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+  button, select, input { font: inherit; }
+  .vh {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  /* 조작판: 예제 바깥이라는 것이 보이도록 점선 테두리 */
+  .panel {
+    background: var(--surface);
+    border: 2px dashed var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .panel dl { margin: 0; font-size: 0.95rem; }
+  .panel dt { font-weight: 600; margin-top: 8px; }
+  .panel dd { margin: 0; color: var(--muted); }
+  .panel p { color: var(--muted); font-size: 0.9rem; margin: 12px 0 0; }
+
+  main {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px 16px; min-width: 0;
+  }
+
+  [role="tablist"] { display: flex; gap: 4px; border-bottom: 2px solid var(--line); margin-bottom: 16px; }
+  [role="tab"] {
+    padding: 8px 14px; border: 1px solid var(--line); border-bottom: 0;
+    border-radius: 6px 6px 0 0; background: var(--bg); color: var(--text); cursor: pointer;
+  }
+  [role="tab"][aria-selected="true"] { background: var(--surface); color: var(--accent); font-weight: 700; border-color: var(--accent); }
+
+  .controls { display: grid; gap: 12px; margin-bottom: 16px; }
+  @media (min-width: 640px) { .controls { grid-template-columns: 1fr 1fr; } }
+  .controls label.block { display: block; font-weight: 600; }
+  .controls input[type="search"], .controls select {
+    width: 100%; padding: 6px 8px; border: 2px solid #8a919e; border-radius: 6px;
+  }
+  .controls fieldset { border: 0; padding: 0; margin: 0; grid-column: 1 / -1; }
+  .controls legend { font-weight: 600; padding: 0; }
+  .checks { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .checks label { display: flex; gap: 6px; align-items: center; }
+  .checks input { width: 18px; height: 18px; margin: 0; }
+
+  .result-head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  .count { color: var(--muted); margin: 0; }
+  .products { list-style: none; margin: 8px 0 0; padding: 0; }
+  .products li { display: flex; justify-content: space-between; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .products li:first-child { border-top: 0; }
+  .empty { color: var(--muted); }
+
+  .pagination ul { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 16px 0 0; }
+  .pagination a { display: inline-block; min-width: 2.4em; padding: 4px 8px; text-align: center; border: 1px solid var(--line); border-radius: 6px; text-decoration: none; }
+  .pagination a[aria-current="page"] { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="panel" aria-labelledby="panel-title">
+    <h2 id="panel-title">조작판</h2>
+    <dl>
+      <dt>주소의 쿼리스트링 (풀어 쓴 값)</dt><dd id="out-url"></dd>
+      <dt>이 탭의 방문 기록 항목 수</dt><dd id="out-history"></dd>
+      <dt>탭 제목</dt><dd id="out-title"></dd>
+      <dt>포커스가 있는 곳</dt><dd id="out-focus"></dd>
+      <dt>상태 알림 글자</dt><dd id="out-status"></dd>
+    </dl>
+    <p>검색어는 기록을 쌓지 않고 바꾸기만 하고(replaceState), 분류, 정렬, 페이지, 탭은 기록을 하나씩 쌓는다(pushState). 뒤로 가기를 눌러 차이를 볼 수 있다.</p>
+  </aside>
+
+  <main>
+    <h1>상품 목록</h1>
+    <div role="tablist" aria-label="보기">
+      <button role="tab" id="tab-list" aria-controls="panel-list" aria-selected="true">상품</button>
+      <button role="tab" id="tab-ship" aria-controls="panel-ship" aria-selected="false" tabindex="-1">배송 안내</button>
+    </div>
+
+    <section role="tabpanel" id="panel-list" aria-labelledby="tab-list">
+      <div class="controls">
+        <div>
+          <label class="block" for="q">상품 이름 검색</label>
+          <input type="search" id="q" autocomplete="off">
+        </div>
+        <div>
+          <label class="block" for="sort">정렬</label>
+          <select id="sort">
+            <option value="name">이름순</option>
+            <option value="price-asc">가격 낮은 순</option>
+            <option value="price-desc">가격 높은 순</option>
+          </select>
+        </div>
+        <fieldset>
+          <legend>분류</legend>
+          <div class="checks" id="cats"></div>
+        </fieldset>
+      </div>
+
+      <div class="result-head">
+        <h2 id="results-title" tabindex="-1">검색 결과</h2>
+        <p class="count" id="count" role="status"></p>
+      </div>
+      <ul class="products" id="products"></ul>
+      <p class="empty" id="empty" hidden></p>
+      <nav class="pagination" aria-label="검색 결과 페이지" id="pagination"></nav>
+    </section>
+
+    <section role="tabpanel" id="panel-ship" aria-labelledby="tab-ship" hidden tabindex="0">
+      <p>주문하신 상품은 결제 다음 날부터 2~3일 안에 도착합니다. 이 내용은 예제를 위한 문구입니다.</p>
+    </section>
+  </main>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const SITE = '예제 상점';
+  const PER_PAGE = 5;
+  const SORT_LABEL = { name: '이름순', 'price-asc': '가격 낮은 순', 'price-desc': '가격 높은 순' };
+  const CATS = { input: '입력 장치', display: '모니터', audio: '음향' };
+  const NAMES = ['무선 키보드', '기계식 키보드', '무선 마우스', '트랙볼', '펜 태블릿', '27인치 모니터', '휴대용 모니터', '모니터 받침대', '블루투스 스피커', '헤드셋', '이어폰', '마이크', '키보드 손목 받침', '게임 패드', '웹캠', '사운드바'];
+  const CAT_OF = ['input', 'input', 'input', 'input', 'input', 'display', 'display', 'display', 'audio', 'audio', 'audio', 'audio', 'input', 'input', 'display', 'audio'];
+  const PRODUCTS = NAMES.map((name, i) => ({ id: i + 1, name, cat: CAT_OF[i], price: ((i * 7) % 16 + 2) * 5000 }));
+
+  // 화면의 상태는 언제나 주소에서 읽는다. 뒤로 가기, 새로 고침, 공유한 주소가 모두 같은 길로 그려진다
+  function readState() {
+    const p = new URLSearchParams(location.search);
+    return {
+      tab: p.get('tab') === 'ship' ? 'ship' : 'list',
+      q: p.get('q') || '',
+      cats: (p.get('cat') || '').split(',').filter((c) => c in CATS),
+      sort: ['name', 'price-asc', 'price-desc'].includes(p.get('sort')) ? p.get('sort') : 'name',
+      page: Math.max(1, parseInt(p.get('page'), 10) || 1),
+    };
+  }
+
+  function toQuery(s) {
+    const p = new URLSearchParams();
+    if (s.tab !== 'list') p.set('tab', s.tab);
+    if (s.q) p.set('q', s.q);
+    if (s.cats.length) p.set('cat', s.cats.join(','));
+    if (s.sort !== 'name') p.set('sort', s.sort);
+    if (s.page > 1) p.set('page', String(s.page));
+    const q = p.toString();
+    // 조건이 없으면 ?까지 지운 주소로 돌아간다
+    return q ? `?${q}` : location.pathname;
+  }
+
+  // push는 뒤로 가기로 돌아올 기록 항목을 하나 쌓고, replace는 지금 기록 항목을 고쳐 쓴다
+  function commit(next, how) {
+    const url = toQuery(next);
+    // 주소가 그대로면 기록을 쌓지 않는다
+    if (url === (location.search || location.pathname)) return;
+    if (how === 'push') history.pushState(null, '', url);
+    else history.replaceState(null, '', url);
+    render({ cause: how });
+  }
+
+  function filtered(s) {
+    let list = PRODUCTS.filter((p) => p.name.includes(s.q.trim()));
+    if (s.cats.length) list = list.filter((p) => s.cats.includes(p.cat));
+    const by = { name: (a, b) => a.name.localeCompare(b.name, 'ko'), 'price-asc': (a, b) => a.price - b.price, 'price-desc': (a, b) => b.price - a.price };
+    return list.sort(by[s.sort]);
+  }
+
+  let lastStatus = '';
+  function setStatus(text) {
+    // 같은 글이면 다시 넣지 않는다. 바뀐 것이 없는데 또 읽히지 않도록
+    if (text === lastStatus) return;
+    lastStatus = text;
+    $('count').textContent = text;
+  }
+
+  function render({ cause, focusResults } = {}) {
+    const s = readState();
+
+    // 탭. 숨겨질 탭 영역 안에 포커스가 있었다면 고른 탭으로 옮긴다
+    const isList = s.tab === 'list';
+    const hiding = isList ? $('panel-ship') : $('panel-list');
+    const lostFocus = hiding.contains(document.activeElement) && !hiding.hidden;
+    $('tab-list').setAttribute('aria-selected', String(isList));
+    $('tab-ship').setAttribute('aria-selected', String(!isList));
+    $('tab-list').tabIndex = isList ? 0 : -1;
+    $('tab-ship').tabIndex = isList ? -1 : 0;
+    $('panel-list').hidden = !isList;
+    $('panel-ship').hidden = isList;
+    if (lostFocus) (isList ? $('tab-list') : $('tab-ship')).focus();
+
+    // 입력 요소는 사용자가 지금 만지는 중일 수 있으니 값이 다를 때만 맞춘다
+    if ($('q').value !== s.q && document.activeElement !== $('q')) $('q').value = s.q;
+    if (document.activeElement === $('q') && cause === 'pop') $('q').value = s.q;
+    $('sort').value = s.sort;
+    document.querySelectorAll('#cats input').forEach((c) => { c.checked = s.cats.includes(c.value); });
+
+    const list = filtered(s);
+    const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+    const page = Math.min(s.page, pages);
+    // 범위를 넘는 페이지 번호로 열었다면 주소도 실제로 그린 쪽으로 고쳐 쓴다
+    if (page !== s.page) history.replaceState(null, '', toQuery({ ...s, page }));
+    const shown = list.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+    const ul = $('products');
+    ul.textContent = '';
+    shown.forEach((p) => {
+      const li = document.createElement('li');
+      const name = document.createElement('span');
+      name.textContent = `${p.name} (${CATS[p.cat]})`;
+      const price = document.createElement('span');
+      price.textContent = `${p.price.toLocaleString('ko-KR')}원`;
+      li.append(name, price);
+      ul.append(li);
+    });
+    $('empty').hidden = list.length > 0;
+    $('empty').textContent = list.length ? '' : '조건에 맞는 상품이 없습니다. 검색어를 줄이거나 분류 선택을 풀어 보세요.';
+
+    renderPagination(page, pages);
+
+    // 제목에는 탭과 페이지 번호를 담는다
+    const parts = [];
+    if (!isList) parts.push('배송 안내');
+    else {
+      parts.push(s.q ? `"${s.q}" 검색 결과` : '상품 목록');
+      if (pages > 1) parts.push(`${page}/${pages}쪽`);
+    }
+    document.title = `${parts.join(' ')} - ${SITE}`;
+
+    // 결과 수는 상태 알림으로 알린다. 포커스는 옮기지 않는다
+    if (isList) {
+      // 정렬만 바꾸면 결과 수가 같으므로 정렬 이름도 함께 넣어 바뀐 것을 알린다
+      const text = list.length ? `상품 ${list.length}개, ${SORT_LABEL[s.sort]}${pages > 1 ? `, ${page}/${pages}쪽` : ''}` : '조건에 맞는 상품 0개';
+      setStatus(text);
+    }
+
+    // 페이지 번호를 눌렀을 때만 새 목록의 처음으로 포커스와 스크롤을 옮긴다
+    if (focusResults) {
+      $('results-title').focus({ preventScroll: true });
+      $('results-title').scrollIntoView({ block: 'start' });
+    }
+    report();
+  }
+
+  function renderPagination(page, pages) {
+    const nav = $('pagination');
+    nav.textContent = '';
+    nav.hidden = pages <= 1;
+    if (pages <= 1) return;
+    const ul = document.createElement('ul');
+    const s = readState();
+    const add = (label, target, opts = {}) => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = toQuery({ ...s, page: target });
+      a.textContent = label;
+      if (opts.aria) a.setAttribute('aria-label', opts.aria);
+      if (opts.current) a.setAttribute('aria-current', 'page');
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (target === page) return;
+        history.pushState(null, '', a.getAttribute('href'));
+        render({ cause: 'push', focusResults: true });
+      });
+      li.append(a);
+      ul.append(li);
+    };
+    if (page > 1) add('이전', page - 1, { aria: '이전 쪽' });
+    for (let i = 1; i <= pages; i++) add(String(i), i, { aria: `${i}쪽`, current: i === page });
+    if (page < pages) add('다음', page + 1, { aria: '다음 쪽' });
+    nav.append(ul);
+  }
+
+  // 분류 체크박스
+  Object.entries(CATS).forEach(([value, label]) => {
+    const l = document.createElement('label');
+    l.innerHTML = `<input type="checkbox" value="${value}"> ${label}`;
+    $('cats').append(l);
+  });
+  $('cats').addEventListener('change', () => {
+    const cats = [...document.querySelectorAll('#cats input:checked')].map((c) => c.value);
+    // 조건이 바뀌면 목록이 달라지므로 1쪽으로 돌아간다
+    commit({ ...readState(), cats, page: 1 }, 'push');
+  });
+
+  $('sort').addEventListener('change', () => commit({ ...readState(), sort: $('sort').value, page: 1 }, 'push'));
+
+  // 검색어는 치는 동안 잠깐 멈췄을 때 반영하고, 글자마다 기록을 쌓지 않도록 replace로 고쳐 쓴다
+  let qTimer = null;
+  $('q').addEventListener('input', () => {
+    clearTimeout(qTimer);
+    qTimer = setTimeout(() => commit({ ...readState(), q: $('q').value, page: 1 }, 'replace'), 400);
+  });
+
+  // 탭: 화살표로 옮기면 바로 바꾸고(자동 활성화), 기록을 하나 쌓는다
+  const tabs = [$('tab-list'), $('tab-ship')];
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => commit({ ...readState(), tab: i === 0 ? 'list' : 'ship' }, 'push'));
+    t.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      next.focus();
+      next.click();
+    });
+  });
+
+  // 뒤로 가기, 앞으로 가기는 주소만 바뀌므로 주소를 다시 읽어 그린다
+  window.addEventListener('popstate', () => render({ cause: 'pop' }));
+
+  function describe(el) {
+    if (!el || el === document.body) return 'body (문서 처음)';
+    const name = el.getAttribute('aria-label') || (el.labels && el.labels[0] && el.labels[0].textContent.trim()) || el.textContent.trim();
+    return `${el.tagName.toLowerCase()} "${name.slice(0, 24)}"`;
+  }
+  function report() {
+    // 주소는 인코딩되어 있으므로 읽기 쉽게 풀어서 보여 준다
+    $('out-url').textContent = location.search ? decodeURIComponent(location.search) : '(없음)';
+    $('out-history').textContent = String(history.length);
+    $('out-title').textContent = document.title;
+    $('out-focus').textContent = describe(document.activeElement);
+    $('out-status').textContent = $('count').textContent || '(비어 있음)';
+  }
+  document.addEventListener('focusin', report);
+
+  render({ cause: 'load' });
+</script>
+</body>
+</html>
