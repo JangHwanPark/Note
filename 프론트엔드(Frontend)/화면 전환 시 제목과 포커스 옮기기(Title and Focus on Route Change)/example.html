@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>홈 - 예제 상점</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --text: #1d2129;
+    --muted: #5b6270;
+    --line: #d3d7de;
+    --accent: #1f4fbf;
+    --focus: #f2b600;
+    --radius: 8px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .layout {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: 300px minmax(0, 1fr); align-items: start; }
+    .panel { position: sticky; top: 16px; }
+  }
+  h1, h2 { line-height: 1.3; }
+  h1 { font-size: 1.6rem; margin: 0 0 12px; }
+  h2 { font-size: 1.15rem; margin: 0 0 8px; }
+  a { color: var(--accent); }
+  :focus-visible, [tabindex="-1"]:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .vh {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  /* 조작판: 예제 바깥이라는 것이 보이도록 점선 테두리 */
+  .panel {
+    background: var(--surface);
+    border: 2px dashed var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .panel fieldset { border: 0; padding: 0; margin: 0; }
+  .panel legend { font-weight: 600; padding: 0; }
+  .panel .opt { display: flex; gap: 8px; align-items: flex-start; margin-top: 6px; }
+  .panel .opt input { width: 18px; height: 18px; margin: 3px 0 0; flex: none; }
+  .panel dl { margin: 8px 0 0; font-size: 0.95rem; }
+  .panel dt { font-weight: 600; margin-top: 8px; }
+  .panel dd { margin: 0; color: var(--muted); }
+  .panel p { color: var(--muted); font-size: 0.9rem; margin: 12px 0 0; }
+
+  /* 건너뛰기 링크: 평소에는 숨기고 포커스를 받으면 보인다 */
+  /* 스크롤이 내려가 있어도 화면 안에 보이도록 문서가 아니라 화면 기준으로 둔다 */
+  .skip {
+    position: fixed; left: 16px; top: -100px;
+    background: var(--surface); padding: 8px 12px; border-radius: 6px;
+    border: 2px solid var(--accent); z-index: 10;
+  }
+  .skip:focus { top: 8px; }
+
+  .app { min-width: 0; }
+  .site-header {
+    display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 12px 16px; margin-bottom: 12px;
+  }
+  .logo { font-weight: 700; }
+  .site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; padding: 0; }
+  .site-header nav a[aria-current="page"], .site-header nav a.section { font-weight: 700; text-decoration-thickness: 3px; }
+  main {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px 16px; min-height: 60vh;
+  }
+  .loading { color: var(--muted); }
+  .products { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .products li { border-top: 1px solid var(--line); padding: 8px 0; }
+  .products li:first-child { border-top: 0; }
+  .crumb { margin: 0 0 8px; }
+</style>
+</head>
+<body>
+<a class="skip" id="skip" href="#/">본문으로 건너뛰기</a>
+<div class="layout">
+  <aside class="panel" aria-labelledby="panel-title">
+    <h2 id="panel-title">조작판</h2>
+    <fieldset>
+      <legend>화면이 바뀔 때</legend>
+      <label class="opt"><input type="radio" name="mode" value="none"> 내용만 바꾼다</label>
+      <label class="opt"><input type="radio" name="mode" value="title"> 제목도 바꾼다</label>
+      <label class="opt"><input type="radio" name="mode" value="heading" checked> <span>제목을 바꾸고 새 화면의 <code>h1</code>으로 포커스를 옮긴다</span></label>
+      <label class="opt"><input type="radio" name="mode" value="announce"> 제목을 바꾸고 화면 이름을 알린 뒤 건너뛰기 링크로 포커스를 옮긴다</label>
+    </fieldset>
+    <dl>
+      <dt>탭 제목</dt><dd id="out-title"></dd>
+      <dt>포커스가 있는 곳</dt><dd id="out-focus"></dd>
+      <dt>라이브 영역 글자</dt><dd id="out-live"></dd>
+    </dl>
+    <p>스크린 리더는 화면이 바뀐 뒤 포커스가 간 요소와 라이브 영역의 글자를 읽는다. 위 세 줄은 그 재료를 보여 준다. 실제로 어떻게 읽히는지는 스크린 리더마다 다르다.</p>
+  </aside>
+
+  <div class="app">
+    <header class="site-header">
+      <span class="logo">예제 상점</span>
+      <nav aria-label="주요 메뉴">
+        <ul>
+          <li><a href="#/">홈</a></li>
+          <li><a href="#/products">상품 목록</a></li>
+          <li><a href="#/about">회사 소개</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main id="main"></main>
+  </div>
+</div>
+<!-- 화면 이름을 알리는 라이브 영역. 처음부터 비워 둔 채로 둔다 -->
+<p class="vh" id="announcer" aria-live="polite" aria-atomic="true"></p>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const SITE = '예제 상점';
+  const PRODUCTS = Array.from({ length: 20 }, (_, i) => ({ id: i + 1, name: `상품 ${i + 1}`, price: (i + 1) * 1000 }));
+  PRODUCTS[2].name = '무선 키보드';
+
+  // 뒤로 가기에서 스크롤 위치를 직접 되살리기 위해 브라우저의 자동 복원을 끈다
+  history.scrollRestoration = 'manual';
+
+  const mode = () => document.querySelector('input[name="mode"]:checked').value;
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // 화면마다 제목과 내용을 만든다. 상품 상세는 데이터를 받아야 이름을 안다
+  async function view(path) {
+    if (path === '/') {
+      return { title: '홈', html: '<h1 tabindex="-1">예제 상점에 오신 것을 환영합니다</h1><p>위 메뉴에서 상품 목록을 둘러보세요.</p>' };
+    }
+    if (path === '/products') {
+      await wait(300);
+      const items = PRODUCTS.map((p) => `<li><a href="#/products/${p.id}">${p.name}</a> ${p.price.toLocaleString('ko-KR')}원</li>`).join('');
+      return { title: '상품 목록', html: `<h1 tabindex="-1">상품 목록</h1><ul class="products">${items}</ul>` };
+    }
+    const m = path.match(/^\/products\/(\d+)$/);
+    if (m) {
+      await wait(300);
+      const p = PRODUCTS.find((x) => x.id === Number(m[1]));
+      if (p) {
+        return {
+          title: `${p.name} - 상품 목록`,
+          html: `<p class="crumb"><a href="#/products">상품 목록으로</a></p><h1 tabindex="-1">${p.name}</h1><p>가격 ${p.price.toLocaleString('ko-KR')}원</p>`,
+        };
+      }
+    }
+    if (path === '/about') {
+      return { title: '회사 소개', html: '<h1 tabindex="-1">회사 소개</h1><p>예제 상점은 이 노트를 위해 만든 가짜 상점입니다.</p>' };
+    }
+    return { title: '페이지를 찾을 수 없음', html: '<h1 tabindex="-1">페이지를 찾을 수 없습니다</h1><p><a href="#/">홈으로 가기</a></p>' };
+  }
+
+  let navId = 0;
+  let firstLoad = true;
+
+  async function route() {
+    const id = ++navId;
+    // 첫 화면의 데이터가 오기 전에 다른 곳으로 옮겨도 그 이동은 첫 화면이 아니다
+    const isFirst = firstLoad;
+    firstLoad = false;
+    const path = location.hash.slice(1) || '/';
+    const main = $('main');
+    main.setAttribute('aria-busy', 'true');
+    main.innerHTML = '<p class="loading">불러오는 중</p>';
+    const v = await view(path);
+    // 기다리는 사이 다른 화면으로 또 이동했다면 늦게 온 결과는 버린다
+    if (id !== navId) return;
+    main.innerHTML = v.html;
+    main.removeAttribute('aria-busy');
+
+    document.querySelectorAll('.site-header nav a').forEach((a) => {
+      const target = a.getAttribute('href').slice(1);
+      // 지금 화면과 같은 주소인 링크에만 aria-current를 두고, 상위 메뉴는 굵게만 표시한다
+      const exact = path === target;
+      const section = target !== '/' && path.startsWith(`${target}/`);
+      if (exact) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+      a.classList.toggle('section', section);
+    });
+
+    // 뒤로 가기, 앞으로 가기면 저장해 둔 위치로, 새 이동이면 맨 위로
+    const saved = history.state && typeof history.state.scrollY === 'number' ? history.state.scrollY : 0;
+    window.scrollTo(0, saved);
+
+    // 처음 열 때는 브라우저가 페이지를 연 것과 같으므로 아무것도 옮기지 않는다
+    if (isFirst) { document.title = `${v.title} - ${SITE}`; report(); return; }
+
+    const m = mode();
+    if (m !== 'none') document.title = `${v.title} - ${SITE}`;
+    if (m === 'heading') {
+      main.querySelector('h1').focus({ preventScroll: true });
+    }
+    if (m === 'announce') {
+      announce(`${v.title} 화면`);
+      $('skip').focus({ preventScroll: true });
+    }
+    report();
+  }
+
+  function announce(text) {
+    // 같은 글자를 연달아 넣어도 다시 읽히도록 한 번 비운 뒤 넣는다
+    $('announcer').textContent = '';
+    setTimeout(() => { $('announcer').textContent = text; report(); }, 100);
+  }
+
+  function describe(el) {
+    if (!el || el === document.body) return 'body (문서 처음)';
+    const tag = el.tagName.toLowerCase();
+    return `${tag} "${el.textContent.trim().slice(0, 30)}"`;
+  }
+
+  function report() {
+    $('out-title').textContent = document.title;
+    $('out-focus').textContent = describe(document.activeElement);
+    $('out-live').textContent = $('announcer').textContent || '(비어 있음)';
+  }
+
+  // 링크를 누르는 순간의 스크롤 위치를 지금 기록에 남겨 두면, 뒤로 가기로 돌아왔을 때 되살릴 수 있다
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href^="#/"]');
+    if (!a || a.id === 'skip') return;
+    history.replaceState({ scrollY: window.scrollY }, '');
+  });
+
+  // 건너뛰기 링크는 주소를 바꾸지 않고 본문 제목으로 포커스만 옮긴다
+  $('skip').addEventListener('click', (e) => {
+    e.preventDefault();
+    const h1 = $('main').querySelector('h1');
+    if (h1) h1.focus();
+    report();
+  });
+
+  document.addEventListener('focusin', report);
+  window.addEventListener('hashchange', route);
+  route();
+</script>
+</body>
+</html>
