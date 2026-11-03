@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>내 파일 - 예제 보관함</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --text: #1d2129;
+    --muted: #5b6270;
+    --line: #d3d7de;
+    --accent: #1f4fbf;
+    --focus: #f2b600;
+    --danger: #a3221a;
+    --danger-bg: #fdf0ef;
+    --snack: #2b2f36;
+    --radius: 8px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    padding-bottom: 120px;
+  }
+  .layout {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: 280px minmax(0, 1fr); align-items: start; }
+    .panel { position: sticky; top: 16px; }
+  }
+  h1, h2, h3 { line-height: 1.3; }
+  h1 { font-size: 1.6rem; margin: 0 0 16px; }
+  h2 { font-size: 1.15rem; margin: 0 0 8px; }
+  a { color: var(--accent); }
+  :focus-visible, [tabindex="-1"]:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+  button {
+    font: inherit;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); color: #fff; }
+  button.danger { border-color: var(--danger); color: var(--danger); }
+  button.danger.solid { background: var(--danger); color: #fff; }
+  .vh {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  /* 조작판: 예제 바깥이라는 것이 보이도록 점선 테두리 */
+  .panel {
+    background: var(--surface);
+    border: 2px dashed var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .panel fieldset { border: 0; padding: 0; margin: 0; }
+  .panel legend { font-weight: 600; padding: 0; }
+  .panel .opt { display: flex; gap: 8px; align-items: flex-start; margin-top: 6px; }
+  .panel .opt input { width: 18px; height: 18px; margin: 3px 0 0; flex: none; }
+  .panel p { color: var(--muted); font-size: 0.9rem; margin: 12px 0 0; }
+  .log { list-style: none; margin: 8px 0 0; padding: 0; font-size: 0.9rem; max-height: 240px; overflow: auto; }
+  .log li { border-top: 1px solid var(--line); padding: 4px 0; }
+  .log:empty::before { content: "아직 보낸 요청이 없습니다"; color: var(--muted); }
+
+  main { display: grid; gap: 16px; min-width: 0; }
+  section.card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .card-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+  .files { list-style: none; margin: 0; padding: 0; }
+  .files li {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-top: 1px solid var(--line);
+  }
+  .files li:first-child { border-top: 0; }
+  .files .name { font-weight: 600; }
+  .files .actions { display: flex; gap: 8px; }
+  .empty { color: var(--muted); margin: 0; }
+  .hint { color: var(--muted); font-size: 0.9rem; margin: 4px 0 8px; }
+
+  textarea {
+    font: inherit; width: 100%; min-height: 96px; padding: 8px;
+    border: 2px solid #8a919e; border-radius: 6px;
+  }
+  .editor-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+  .dirty { color: var(--muted); }
+
+  /* 스낵바: 비어 있을 때도 라이브 영역이 접근성 트리에 남도록 글자 칸은 늘 둔다 */
+  .snackbar {
+    position: fixed; left: 16px; right: 16px; bottom: 16px;
+    max-width: 560px; margin: 0 auto;
+    background: var(--snack); color: #fff;
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between;
+  }
+  .snackbar[hidden] { display: none; }
+  .snackbar button { border-color: #9db8ff; color: #c9d8ff; background: transparent; }
+  .snackbar .snack-actions { display: flex; gap: 8px; }
+
+  dialog {
+    border: 0; border-radius: var(--radius); padding: 20px;
+    max-width: min(440px, calc(100vw - 32px));
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  dialog::backdrop { background: rgba(20, 24, 31, 0.55); }
+  dialog h2 { margin-bottom: 8px; }
+  dialog ul { margin: 8px 0; padding-left: 1.2em; }
+  .dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="panel" aria-labelledby="panel-title">
+    <h2 id="panel-title">조작판</h2>
+    <fieldset>
+      <legend>휴지통으로 옮길 때 요청을</legend>
+      <label class="opt"><input type="radio" name="mode" value="now" checked> 바로 보내고, 실행 취소하면 복원 요청을 보낸다</label>
+      <label class="opt"><input type="radio" name="mode" value="later"> 8초 미뤘다가 보내고, 그 안에 실행 취소하면 보내지 않는다</label>
+    </fieldset>
+    <h2 style="margin-top:16px">서버로 보낸 요청</h2>
+    <ol class="log" id="log"></ol>
+    <p>요청은 실제로 보내지 않고 여기에 기록만 한다.</p>
+  </aside>
+
+  <main>
+    <h1>내 파일</h1>
+
+    <section class="card" aria-labelledby="files-title">
+      <h2 id="files-title" tabindex="-1">파일</h2>
+      <p class="hint">휴지통으로 옮긴 파일은 실행 취소하거나 휴지통에서 복원할 수 있습니다. 키보드에서는 Ctrl+Z(Mac은 Cmd+Z)로 마지막 이동을 되돌립니다.</p>
+      <ul class="files" id="file-list"></ul>
+      <p class="empty" id="files-empty" hidden>파일이 없습니다.</p>
+    </section>
+
+    <section class="card" aria-labelledby="trash-title">
+      <div class="card-head">
+        <h2 id="trash-title" tabindex="-1">휴지통</h2>
+        <button type="button" class="danger" id="empty-trash">휴지통 비우기</button>
+      </div>
+      <ul class="files" id="trash-list"></ul>
+      <p class="empty" id="trash-empty">휴지통이 비어 있습니다.</p>
+    </section>
+
+    <section class="card" aria-labelledby="memo-title">
+      <h2 id="memo-title">메모</h2>
+      <label for="memo" class="vh">메모 내용</label>
+      <textarea id="memo">다음 주 회의 안건 정리</textarea>
+      <div class="editor-actions">
+        <button type="button" class="primary" id="memo-save">저장</button>
+        <button type="button" id="memo-cancel">편집 취소</button>
+        <span class="dirty" id="memo-state" role="status"></span>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="snackbar" id="snackbar" hidden>
+  <span id="snack-text"></span>
+  <span class="snack-actions">
+    <button type="button" id="snack-undo">실행 취소</button>
+    <button type="button" id="snack-close">닫기</button>
+  </span>
+</div>
+<!-- 스낵바가 숨겨져 있어도 알림이 읽히도록 라이브 영역은 따로 늘 둔다 -->
+<p class="vh" id="announcer" role="status"></p>
+
+<dialog id="confirm" role="alertdialog" aria-labelledby="confirm-title" aria-describedby="confirm-desc">
+  <form method="dialog">
+    <h2 id="confirm-title"></h2>
+    <div id="confirm-desc"></div>
+    <div class="dialog-actions">
+      <!-- 되돌릴 수 없는 행동이므로 처음 포커스는 덜 파괴적인 버튼에 둔다 -->
+      <button value="cancel" id="confirm-cancel" autofocus></button>
+      <button value="confirm" id="confirm-ok" class="danger solid"></button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const DELAY = 8000;
+
+  let files = ['회의록.docx', '예산안.xlsx', '발표 자료.pptx', '사진 모음.zip', '계약서.pdf'];
+  let trash = [];
+  const undoStack = [];          // 되돌릴 수 있는 이동. 마지막 것이 맨 뒤
+  let snackFor = null;         // 스낵바가 가리키는 이동
+
+  function log(text) {
+    const li = document.createElement('li');
+    li.textContent = text;
+    $('log').append(li);
+    li.scrollIntoView({ block: 'nearest' });
+  }
+
+  function announce(text) {
+    // 같은 글을 연달아 넣어도 다시 읽히도록 한 번 비운 뒤 넣는다
+    $('announcer').textContent = '';
+    setTimeout(() => { $('announcer').textContent = text; }, 50);
+  }
+
+  function row(name, buttons) {
+    const li = document.createElement('li');
+    li.dataset.name = name;
+    const span = document.createElement('span');
+    span.className = 'name';
+    span.textContent = name;
+    const actions = document.createElement('span');
+    actions.className = 'actions';
+    buttons.forEach(([label, cls, onClick]) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = cls;
+      b.textContent = label;
+      // 같은 글자의 버튼이 줄마다 있으므로 파일 이름을 이름에 넣는다
+      b.setAttribute('aria-label', `${name} ${label}`);
+      b.addEventListener('click', () => onClick(name, li));
+      actions.append(b);
+    });
+    li.append(span, actions);
+    return li;
+  }
+
+  function render() {
+    const list = $('file-list');
+    list.textContent = '';
+    files.forEach((name) => list.append(row(name, [['휴지통으로', '', moveToTrash]])));
+    $('files-empty').hidden = files.length > 0;
+    const t = $('trash-list');
+    t.textContent = '';
+    trash.forEach((name) => t.append(row(name, [['복원', '', restore], ['영구 삭제', 'danger', deleteForever]])));
+    $('trash-empty').hidden = trash.length > 0;
+    $('empty-trash').hidden = trash.length === 0;
+  }
+
+  // 지운 줄에 있던 포커스는 이웃 줄로, 이웃이 없으면 목록 제목으로 보낸다
+  function focusAfterRemoval(listId, headingId, index) {
+    const buttons = [...$(listId).querySelectorAll('li')];
+    const target = buttons[Math.min(index, buttons.length - 1)];
+    if (target) target.querySelector('button').focus();
+    else $(headingId).focus();
+  }
+
+  function focusFile(name) {
+    const li = [...$('file-list').children].find((el) => el.dataset.name === name);
+    if (li) li.querySelector('button').focus();
+  }
+
+  /* 휴지통으로 옮기기: 묻지 않고 바로 옮긴 뒤 실행 취소를 준다 */
+  function moveToTrash(name) {
+    const index = files.indexOf(name);
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    const entry = { name, index, mode, done: false, timer: null };
+    files.splice(index, 1);
+    if (mode === 'now') {
+      trash.push(name);
+      log(`휴지통으로 옮기기: ${name}`);
+    } else {
+      // 화면에서는 바로 사라지지만 요청은 기다렸다가 보낸다
+      entry.timer = setTimeout(() => commit(entry), DELAY);
+    }
+    undoStack.push(entry);
+    render();
+    focusAfterRemoval('file-list', 'files-title', index);
+    showSnack(entry);
+  }
+
+  function commit(entry) {
+    entry.timer = null;
+    // 목록을 다시 그리면 그 안의 버튼이 새로 만들어진다. 포커스가 목록이나 스낵바에 있었다면 같은 자리로 돌려준다
+    const a = document.activeElement;
+    const label = a && a.closest('#file-list, #trash-list') ? a.getAttribute('aria-label') : null;
+    const inSnack = a && a.closest('#snackbar');
+    trash.push(entry.name);
+    log(`휴지통으로 옮기기: ${entry.name}`);
+    const i = undoStack.indexOf(entry);
+    if (i >= 0) undoStack.splice(i, 1);
+    if (snackFor === entry) hideSnack();
+    render();
+    if (label) {
+      const again = document.querySelector(`button[aria-label="${label}"]`);
+      if (again) again.focus();
+    } else if (inSnack) {
+      $('files-title').focus();
+    }
+  }
+
+  function undo(entry) {
+    if (!entry || entry.done) return;
+    entry.done = true;
+    if (entry.mode === 'now') {
+      trash = trash.filter((n) => n !== entry.name);
+      log(`복원: ${entry.name}`);
+    } else {
+      clearTimeout(entry.timer);
+    }
+    files.splice(Math.min(entry.index, files.length), 0, entry.name);
+    const i = undoStack.indexOf(entry);
+    if (i >= 0) undoStack.splice(i, 1);
+    if (snackFor === entry) hideSnack();
+    render();
+    announce(`${entry.name}을(를) 되돌렸습니다`);
+    return entry.name;
+  }
+
+  // 휴지통에서 복원하거나 영구 삭제한 파일은 더는 실행 취소 대상이 아니다
+  function forget(name) {
+    for (let i = undoStack.length - 1; i >= 0; i--) {
+      if (undoStack[i].name === name) undoStack.splice(i, 1);
+    }
+    if (snackFor && snackFor.name === name) hideSnack();
+  }
+
+  function showSnack(entry) {
+    snackFor = entry;
+    const text = entry.mode === 'now'
+      ? `${entry.name}을(를) 휴지통으로 옮겼습니다`
+      : `${entry.name}을(를) 휴지통으로 옮깁니다. 8초 안에 실행 취소할 수 있습니다`;
+    $('snack-text').textContent = text;
+    $('snackbar').hidden = false;
+    announce(text);
+  }
+
+  function hideSnack() {
+    $('snackbar').hidden = true;
+    snackFor = null;
+  }
+
+  $('snack-undo').addEventListener('click', () => {
+    const name = undo(snackFor);
+    if (name) focusFile(name);
+  });
+  $('snack-close').addEventListener('click', () => {
+    hideSnack();
+    $('files-title').focus();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() !== 'z' || !(e.ctrlKey || e.metaKey) || e.shiftKey) return;
+    // 글자를 고치는 칸 안에서는 브라우저의 실행 취소를 그대로 둔다
+    if (e.target.closest('textarea, input')) return;
+    if ($('confirm').open) return;
+    const entry = undoStack[undoStack.length - 1];
+    if (!entry) { announce('되돌릴 이동이 없습니다'); return; }
+    e.preventDefault();
+    focusFile(undo(entry));
+  });
+
+  /* 확인 대화 상자: 결과를 Promise로 돌려준다 */
+  function confirmDialog({ title, desc, items, okLabel, cancelLabel }) {
+    const dlg = $('confirm');
+    $('confirm-title').textContent = title;
+    const d = $('confirm-desc');
+    d.textContent = '';
+    const p = document.createElement('p');
+    p.textContent = desc;
+    d.append(p);
+    if (items && items.length) {
+      const ul = document.createElement('ul');
+      items.forEach((n) => { const li = document.createElement('li'); li.textContent = n; ul.append(li); });
+      d.append(ul);
+    }
+    $('confirm-ok').textContent = okLabel;
+    $('confirm-cancel').textContent = cancelLabel;
+    // showModal()은 지난번 returnValue를 그대로 남긴다. 지난 확인 값이 섞이지 않도록 열 때마다 비운다
+    dlg.returnValue = '';
+    dlg.showModal();
+    return new Promise((resolve) => {
+      dlg.addEventListener('close', () => resolve(dlg.returnValue === 'confirm'), { once: true });
+    });
+  }
+
+  function restore(name) {
+    const index = trash.indexOf(name);
+    trash.splice(index, 1);
+    files.push(name);
+    forget(name);
+    log(`복원: ${name}`);
+    render();
+    focusAfterRemoval('trash-list', 'trash-title', index);
+    announce(`${name}을(를) 파일로 복원했습니다`);
+  }
+
+  async function deleteForever(name) {
+    const ok = await confirmDialog({
+      title: `${name}을(를) 영구 삭제할까요?`,
+      desc: '영구 삭제한 파일은 휴지통에서도 사라지고 되돌릴 수 없습니다.',
+      okLabel: '영구 삭제',
+      cancelLabel: '취소',
+    });
+    // 취소하면 포커스는 dialog가 연 버튼으로 돌려준다
+    if (!ok) return;
+    const index = trash.indexOf(name);
+    trash.splice(index, 1);
+    forget(name);
+    log(`영구 삭제: ${name}`);
+    render();
+    focusAfterRemoval('trash-list', 'trash-title', index);
+    announce(`${name}을(를) 영구 삭제했습니다`);
+  }
+
+  $('empty-trash').addEventListener('click', async () => {
+    const names = [...trash];
+    const ok = await confirmDialog({
+      title: '휴지통을 비울까요?',
+      desc: `아래 파일 ${names.length}개가 영구 삭제되고 되돌릴 수 없습니다.`,
+      items: names,
+      okLabel: `파일 ${names.length}개 영구 삭제`,
+      cancelLabel: '취소',
+    });
+    if (!ok) return;
+    names.forEach((n) => { forget(n); log(`영구 삭제: ${n}`); });
+    trash = [];
+    render();
+    $('trash-title').focus();
+    announce(`파일 ${names.length}개를 영구 삭제했습니다`);
+  });
+
+  /* 메모: 저장하지 않은 변경 사항 지키기 */
+  let saved = $('memo').value;
+  const isDirty = () => $('memo').value !== saved;
+
+  function onBeforeUnload(e) {
+    e.preventDefault();
+    e.returnValue = true;
+  }
+  function syncDirty() {
+    const dirty = isDirty();
+    $('memo-state').textContent = dirty ? '저장하지 않은 변경 사항이 있습니다' : '';
+    // 고친 내용이 있을 때만 페이지를 떠날 때 묻는다
+    if (dirty) window.addEventListener('beforeunload', onBeforeUnload);
+    else window.removeEventListener('beforeunload', onBeforeUnload);
+  }
+  $('memo').addEventListener('input', syncDirty);
+  $('memo-save').addEventListener('click', () => {
+    saved = $('memo').value;
+    log('메모 저장');
+    syncDirty();
+    announce('메모를 저장했습니다');
+  });
+  $('memo-cancel').addEventListener('click', async () => {
+    if (!isDirty()) return;
+    const ok = await confirmDialog({
+      title: '저장하지 않은 변경 사항을 버릴까요?',
+      desc: '마지막으로 저장한 뒤 고친 내용이 사라집니다.',
+      okLabel: '변경 사항 버리기',
+      cancelLabel: '계속 편집',
+    });
+    if (!ok) { $('memo').focus(); return; }
+    $('memo').value = saved;
+    syncDirty();
+    $('memo').focus();
+  });
+
+  render();
+</script>
+</body>
+</html>
