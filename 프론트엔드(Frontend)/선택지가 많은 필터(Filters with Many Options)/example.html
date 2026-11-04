@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>상품 목록 - 예제 상점</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --text: #1d2129;
+    --muted: #5b6270;
+    --line: #d3d7de;
+    --accent: #1f4fbf;
+    --focus: #f2b600;
+    --hover: #e8eefc;
+    --radius: 8px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .layout {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: 280px minmax(0, 1fr); align-items: start; }
+    .panel { position: sticky; top: 16px; }
+  }
+  h1, h2 { line-height: 1.3; }
+  h1 { font-size: 1.6rem; margin: 0 0 8px; }
+  h2 { font-size: 1.15rem; margin: 0 0 8px; }
+  :focus-visible, [tabindex="-1"]:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+  button { font: inherit; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--accent); background: var(--surface); color: var(--accent); cursor: pointer; }
+
+  /* 조작판: 예제 바깥이라는 것이 보이도록 점선 테두리 */
+  .panel {
+    background: var(--surface);
+    border: 2px dashed var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .panel fieldset { border: 0; padding: 0; margin: 0; }
+  .panel legend { font-weight: 600; padding: 0; }
+  .panel .opt { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .panel .opt input { width: 18px; height: 18px; margin: 0; }
+  .panel dl { margin: 12px 0 0; font-size: 0.95rem; }
+  .panel dt { font-weight: 600; margin-top: 8px; }
+  .panel dd { margin: 0; color: var(--muted); }
+
+  main {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px 16px; min-width: 0;
+  }
+  .group { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px 16px; margin: 0 0 16px; max-width: 420px; }
+  .group legend { font-weight: 600; padding: 0 4px; }
+  .picked { margin: 0 0 8px; color: var(--muted); font-size: 0.95rem; }
+  .search-row { display: flex; gap: 6px; align-items: center; }
+  .search-row input, .combo input { font: inherit; flex: 1; min-width: 0; padding: 6px 8px; border: 1px solid var(--muted); border-radius: 6px; }
+  .search-row button { padding: 6px 10px; }
+  .search-row button[hidden] { display: none; }
+  /* 직접 만든 지우기 버튼과 겹치지 않게 브라우저 기본 지우기 버튼을 숨긴다 */
+  input[type="search"]::-webkit-search-cancel-button { display: none; }
+  .note { margin: 6px 0 0; font-size: 0.95rem; color: var(--muted); }
+  .opts { list-style: none; margin: 8px 0 0; padding: 0; }
+  .opts li { padding: 2px 0; }
+  .opts label { display: flex; gap: 8px; align-items: center; }
+  .opts input { width: 18px; height: 18px; margin: 0; flex: none; }
+  .opts .count { color: var(--muted); margin-left: auto; }
+  .typed { font-weight: 400; }
+  .rest { font-weight: 700; }
+  .sub { font-size: 0.95rem; color: var(--muted); margin: 10px 0 0; }
+  .more { margin-top: 8px; }
+  .more[hidden], .opts[hidden], .sub[hidden], .view[hidden] { display: none; }
+
+  /* 콤보박스 */
+  .combo { position: relative; }
+  .combo label { display: block; margin-bottom: 2px; }
+  .combo input { width: 100%; }
+  [role="listbox"] {
+    list-style: none; margin: 4px 0 0; padding: 4px 0; border: 1px solid var(--muted); border-radius: 6px;
+    background: var(--surface); max-height: 240px; overflow-y: auto;
+  }
+  [role="listbox"][hidden] { display: none; }
+  [role="option"] { display: flex; justify-content: space-between; gap: 8px; padding: 6px 10px; cursor: pointer; }
+  [role="option"].active { background: var(--hover); outline: 2px solid var(--accent); outline-offset: -2px; }
+  [role="option"] .count { color: var(--muted); }
+  .chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 8px 0 0; }
+  .chips button { border-radius: 999px; padding: 2px 10px; }
+
+  .result { margin: 0; }
+  .vh {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="panel" aria-labelledby="panel-title">
+    <h2 id="panel-title">조작판</h2>
+    <fieldset>
+      <legend>브랜드 고르는 방식</legend>
+      <label class="opt"><input type="radio" name="mode" value="list" checked> 더 보기와 목록 안 검색</label>
+      <label class="opt"><input type="radio" name="mode" value="combo"> 자동 완성(콤보박스)</label>
+    </fieldset>
+    <dl>
+      <dt>고른 브랜드</dt><dd id="out-picked"></dd>
+      <dt>보이는 선택지 수</dt><dd id="out-visible"></dd>
+      <dt>포커스가 있는 곳</dt><dd id="out-focus"></dd>
+      <dt>aria-activedescendant</dt><dd id="out-active"></dd>
+      <dt>상태 알림 글자</dt><dd id="out-status"></dd>
+    </dl>
+  </aside>
+
+  <main>
+    <h1 id="results-title" tabindex="-1">상품 목록</h1>
+
+    <!-- 방식 1: 더 보기와 목록 안 검색 -->
+    <fieldset class="group view" id="view-list">
+      <legend>브랜드</legend>
+      <p class="picked" id="picked-list"></p>
+      <div class="search-row">
+        <label class="vh" for="brand-search">브랜드 검색</label>
+        <input id="brand-search" type="search" placeholder="브랜드 검색" autocomplete="off" aria-describedby="search-hint">
+        <button type="button" id="search-clear" aria-label="검색어 지우기" hidden>×</button>
+      </div>
+      <p class="note" id="search-hint">한글, 영문, 초성(예: ㄱㄹ)으로 찾을 수 있습니다.</p>
+      <!-- 검색 결과 수를 알리는 상태 영역 -->
+      <p class="vh" id="search-status" role="status"></p>
+      <p class="sub" id="top-title">상품이 많은 브랜드</p>
+      <ul class="opts" id="opts-top" aria-labelledby="top-title"></ul>
+      <p class="sub" id="rest-title" hidden>나머지 브랜드 (가나다순)</p>
+      <ul class="opts" id="opts-rest" aria-labelledby="rest-title" hidden></ul>
+      <ul class="opts" id="opts-search" aria-label="검색 결과" hidden></ul>
+      <p class="note" id="no-match" hidden></p>
+      <button type="button" class="more" id="more" aria-expanded="false" aria-controls="opts-rest"></button>
+    </fieldset>
+
+    <!-- 방식 2: 자동 완성 -->
+    <div class="group view" id="view-combo" hidden>
+      <div class="combo">
+        <label for="combo-input" id="combo-label">브랜드</label>
+        <input id="combo-input" type="text" role="combobox" autocomplete="off"
+               aria-autocomplete="list" aria-expanded="false" aria-describedby="combo-hint">
+        <ul role="listbox" id="combo-list" aria-labelledby="combo-label" hidden></ul>
+      </div>
+      <p class="note" id="combo-hint">브랜드 이름이나 초성을 치고 아래 화살표로 고른 뒤 Enter를 누르세요.</p>
+      <p class="vh" id="combo-status" role="status"></p>
+      <h2 class="sub" id="chips-title">고른 브랜드</h2>
+      <ul class="chips" id="chips" aria-labelledby="chips-title"></ul>
+    </div>
+
+    <p class="result" id="result"></p>
+    <!-- 고른 브랜드가 바뀐 결과를 알리는 상태 영역 -->
+    <p class="vh" id="status" role="status"></p>
+  </main>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const NAMES = [
+    ['가람', 'Garam'], ['가온', 'Gaon'], ['나래', 'Narae'], ['누리', 'Nuri'], ['다솜', 'Dasom'],
+    ['단비', 'Danbi'], ['라온', 'Raon'], ['로아', 'Roa'], ['마루', 'Maru'], ['미리내', 'Mirinae'],
+    ['바다', 'Bada'], ['별빛', 'Byeolbit'], ['보람', 'Boram'], ['빛나', 'Bitna'], ['새봄', 'Saebom'],
+    ['솔빛', 'Solbit'], ['수리', 'Suri'], ['아라', 'Ara'], ['온새', 'Onsae'], ['윤슬', 'Yunseul'],
+    ['은솔', 'Eunsol'], ['이든', 'Eden'], ['자람', 'Jaram'], ['조아', 'Joa'], ['지음', 'Jieum'],
+    ['차오름', 'Chaoreum'], ['초롱', 'Chorong'], ['하늬', 'Hanui'], ['한울', 'Hanul'], ['해솔', 'Haesol'],
+    ['햇살', 'Haetsal'], ['호수', 'Hosu'], ['늘봄', 'Neulbom'], ['도담', 'Dodam'], ['들꽃', 'Deulkkot'],
+    ['모아', 'Moa'], ['버들', 'Beodeul'], ['세움', 'Seum'], ['시루', 'Siru'], ['품새', 'Pumsae'],
+  ];
+  const BRANDS = NAMES.map(([name, en], i) => ({ id: `b${i}`, name, en, count: ((i * 37) % 29) + 1 }));
+  const TOP = 8;   // 접혀 있을 때 보여 주는 수
+  const byCount = [...BRANDS].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ko'));
+  const TOP_IDS = new Set(byCount.slice(0, TOP).map((b) => b.id));
+  const restByName = BRANDS.filter((b) => !TOP_IDS.has(b.id)).sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+
+  const picked = new Set();
+  let expanded = false;
+  let searchTimer = null;
+
+  /* 검색: 대소문자와 띄어쓰기를 무시하고, 한글 이름, 영문 이름, 초성으로 찾는다 */
+  const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+  function chosung(text) {
+    return [...text].map((ch) => {
+      const c = ch.charCodeAt(0);
+      return c >= 0xac00 && c <= 0xd7a3 ? CHO[Math.floor((c - 0xac00) / 588)] : ch;
+    }).join('');
+  }
+  const norm = (t) => t.toLowerCase().replace(/\s+/g, '');
+  const onlyCho = (t) => t.length > 0 && [...t].every((ch) => CHO.includes(ch));
+  function match(b, query) {
+    const q = norm(query);
+    if (!q) return { ok: true };
+    // prefix: 이름의 처음부터 맞으면 true. 처음부터 맞는 것을 앞에 보여 주는 데 쓴다
+    if (onlyCho(q)) { const at = chosung(b.name).indexOf(q); return { ok: at >= 0, how: 'cho', prefix: at === 0 }; }
+    const at = b.name.indexOf(q);
+    if (at >= 0) return { ok: true, how: 'name', at, len: q.length, prefix: at === 0 };
+    const enAt = b.en.toLowerCase().indexOf(q);
+    return { ok: enAt >= 0, how: 'en', prefix: enAt === 0 };
+  }
+  // 맞는 것을 처음부터 맞는 것, 중간에서 맞는 것 순으로, 각각 가나다순으로 늘어놓는다
+  function ranked(list, query) {
+    return list.map((b) => [b, match(b, query)]).filter(([, m]) => m.ok)
+      .sort(([a, ma], [b, mb]) => (mb.prefix - ma.prefix) || a.name.localeCompare(b.name, 'ko'));
+  }
+
+  /* 방식 1: 체크박스 목록 */
+  function optionLi(b, m) {
+    const li = document.createElement('li');
+    const label = document.createElement('label');
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.value = b.id;
+    box.checked = picked.has(b.id);
+    box.addEventListener('change', () => {
+      if (box.checked) picked.add(b.id); else picked.delete(b.id);
+      afterPick();
+    });
+    const name = document.createElement('span');
+    // 이름으로 찾았다면 사용자가 치지 않은 부분을 굵게 보여 준다
+    if (m && m.how === 'name') {
+      const parts = [b.name.slice(0, m.at), b.name.slice(m.at, m.at + m.len), b.name.slice(m.at + m.len)];
+      parts.forEach((t, i) => { if (!t) return; const s = document.createElement('span'); s.className = i === 1 ? 'typed' : 'rest'; s.textContent = t; name.append(s); });
+    } else {
+      name.textContent = b.name;
+    }
+    if (m && m.how === 'en') name.append(` (${b.en})`);
+    const count = document.createElement('span');
+    count.className = 'count';
+    // 앞에 띄어쓰기를 두어 접근 가능한 이름이 "가람1개"가 아니라 "가람 1개"로 읽히게 한다
+    count.textContent = ` ${b.count}개`;
+    label.append(box, name, count);
+    li.append(label);
+    return li;
+  }
+
+  function renderList() {
+    const q = $('brand-search').value;
+    const searching = norm(q) !== '';
+    $('search-clear').hidden = !searching;
+    $('opts-top').hidden = searching;
+    $('top-title').hidden = searching;
+    $('opts-search').hidden = !searching;
+    if (searching) {
+      $('rest-title').hidden = true;
+      $('opts-rest').hidden = true;
+      $('more').hidden = true;
+      // 검색 중에는 접힘과 상관없이 맞는 것을 모두 보여 준다
+      const found = ranked(BRANDS, q);
+      const ul = $('opts-search');
+      ul.textContent = '';
+      found.forEach(([b, m]) => ul.append(optionLi(b, m)));
+      $('no-match').hidden = found.length > 0;
+      // 검색어 끝 글자에 따라 조사가 바뀌지 않도록 "에"를 쓴다
+      $('no-match').textContent = found.length ? '' : `'${q.trim()}'에 맞는 브랜드가 없습니다. 검색어를 줄여 보세요.`;
+      return found.length;
+    }
+    $('no-match').hidden = true;
+    // 검색이 끝나면 검색 결과 목록을 비운다. 숨겨 두기만 하면 같은 브랜드의 체크박스가 두 벌 남는다
+    $('opts-search').textContent = '';
+    const top = $('opts-top');
+    top.textContent = '';
+    byCount.slice(0, TOP).forEach((b) => top.append(optionLi(b)));
+    const rest = $('opts-rest');
+    rest.textContent = '';
+    restByName.forEach((b) => rest.append(optionLi(b)));
+    rest.hidden = !expanded;
+    $('rest-title').hidden = !expanded;
+    $('more').hidden = false;
+    $('more').setAttribute('aria-expanded', String(expanded));
+    $('more').textContent = expanded ? '브랜드 접기' : `브랜드 ${restByName.length}개 더 보기`;
+    return expanded ? BRANDS.length : TOP;
+  }
+
+  $('more').addEventListener('click', () => {
+    expanded = !expanded;
+    renderList();
+    // 펼치면 새로 보인 첫 브랜드로 포커스를 옮겨 이어서 고를 수 있게 한다. 접으면 버튼에 둔다
+    if (expanded) $('opts-rest').querySelector('input').focus();
+    report();
+  });
+
+  $('brand-search').addEventListener('input', () => {
+    const n = renderList();
+    // 치는 동안 글자마다 알리지 않고 0.5초 멈추면 결과 수를 알린다
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      const text = norm($('brand-search').value) ? (n ? `브랜드 ${n}개` : '맞는 브랜드 없음') : '';
+      if ($('search-status').textContent !== text) $('search-status').textContent = text;
+      report();
+    }, 500);
+    report();
+  });
+  $('search-clear').addEventListener('click', () => {
+    // 기다리던 결과 수 알림이 "검색어를 지웠습니다"를 덮어쓰지 않게 먼저 버린다
+    clearTimeout(searchTimer);
+    $('brand-search').value = '';
+    renderList();
+    $('search-status').textContent = '검색어를 지웠습니다';
+    // 누른 버튼이 숨겨지므로 검색 칸으로 옮긴다
+    $('brand-search').focus();
+    report();
+  });
+
+  /* 방식 2: 콤보박스 */
+  let suggestions = [];
+  let activeIndex = -1;
+  let comboTimer = null;
+  const input = $('combo-input');
+  const listbox = $('combo-list');
+
+  function openList() {
+    const q = input.value;
+    // 이미 고른 브랜드는 다시 보여 주지 않는다
+    suggestions = ranked(BRANDS.filter((b) => !picked.has(b.id)), q).map(([b]) => b);
+    listbox.textContent = '';
+    suggestions.forEach((b, i) => {
+      const li = document.createElement('li');
+      li.id = `opt-${b.id}`;
+      li.setAttribute('role', 'option');
+      li.setAttribute('aria-selected', 'false');
+      const name = document.createElement('span');
+      name.textContent = match(b, q).how === 'en' ? `${b.name} (${b.en})` : b.name;
+      const count = document.createElement('span');
+      count.className = 'count';
+      count.textContent = ` ${b.count}개`;
+      li.append(name, count);
+      // 마우스로 누를 때 입력란이 포커스를 잃지 않게 한다
+      li.addEventListener('mousedown', (e) => e.preventDefault());
+      li.addEventListener('click', () => accept(i));
+      listbox.append(li);
+    });
+    activeIndex = -1;
+    input.removeAttribute('aria-activedescendant');
+    const show = suggestions.length > 0;
+    listbox.hidden = !show;
+    input.setAttribute('aria-expanded', String(show));
+    if (show) input.setAttribute('aria-controls', 'combo-list'); else input.removeAttribute('aria-controls');
+    report();
+  }
+  function closeList() {
+    // 팝업이 닫히면 기다리던 추천 수 알림을 버리고 알림 글도 비운다.
+    // 비워 두어야 다시 열었을 때 같은 수라도 다시 읽힌다
+    clearTimeout(comboTimer);
+    $('combo-status').textContent = '';
+    listbox.hidden = true;
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-controls');
+    input.removeAttribute('aria-activedescendant');
+    activeIndex = -1;
+    report();
+  }
+  function setActive(i) {
+    [...listbox.children].forEach((li, k) => { li.classList.toggle('active', k === i); li.setAttribute('aria-selected', String(k === i)); });
+    activeIndex = i;
+    if (i >= 0) {
+      input.setAttribute('aria-activedescendant', listbox.children[i].id);
+      listbox.children[i].scrollIntoView({ block: 'nearest' });
+    } else {
+      input.removeAttribute('aria-activedescendant');
+    }
+    report();
+  }
+  function accept(i) {
+    const b = suggestions[i];
+    if (!b) return;
+    picked.add(b.id);
+    input.value = '';
+    closeList();
+    afterPick();
+    input.focus();
+  }
+
+  input.addEventListener('input', () => {
+    if (input.value.trim() === '') { closeList(); return; }
+    openList();
+    clearTimeout(comboTimer);
+    comboTimer = setTimeout(() => {
+      const n = suggestions.length;
+      const text = n ? `추천 브랜드 ${n}개. 아래 화살표로 고르세요` : '맞는 브랜드 없음';
+      if ($('combo-status').textContent !== text) $('combo-status').textContent = text;
+      report();
+    }, 500);
+  });
+  input.addEventListener('keydown', (e) => {
+    // 한글을 조합하는 중에 누른 화살표와 Enter는 입력기가 처리하므로 건드리지 않는다
+    if (e.isComposing) return;
+    const open = !listbox.hidden;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (!open) { openList(); if (suggestions.length) setActive(0); return; }
+      setActive(Math.min(activeIndex + 1, suggestions.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      if (!open) return;
+      e.preventDefault();
+      setActive(Math.max(activeIndex - 1, 0));
+    } else if (e.key === 'Enter') {
+      if (open && activeIndex >= 0) { e.preventDefault(); accept(activeIndex); }
+    } else if (e.key === 'Escape') {
+      // 목록이 열려 있으면 닫기만 하고, 닫혀 있으면 입력란을 비운다
+      if (open) { e.preventDefault(); closeList(); }
+      else { input.value = ''; }
+    }
+  });
+  input.addEventListener('blur', () => setTimeout(closeList, 0));
+
+  function renderChips() {
+    const ul = $('chips');
+    ul.textContent = '';
+    const list = BRANDS.filter((b) => picked.has(b.id));
+    $('chips-title').hidden = list.length === 0;
+    list.forEach((b, index) => {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = `${b.name} ×`;
+      btn.setAttribute('aria-label', `${b.name} 필터 지우기`);
+      btn.addEventListener('click', () => {
+        picked.delete(b.id);
+        afterPick();
+        // 누른 칩이 사라지므로 다음 칩, 없으면 앞 칩, 그것도 없으면 입력란으로 옮긴다
+        const left = [...$('chips').querySelectorAll('button')];
+        (left[index] || left[index - 1] || input).focus();
+      });
+      li.append(btn);
+      ul.append(li);
+    });
+  }
+
+  /* 공통: 고른 브랜드가 바뀌었을 때 */
+  function afterPick() {
+    const list = BRANDS.filter((b) => picked.has(b.id));
+    const total = list.length ? list.reduce((s, b) => s + b.count, 0) : BRANDS.reduce((s, b) => s + b.count, 0);
+    // 검색으로 가려졌거나 접혀서 안 보이는 선택도 놓치지 않게 고른 것을 위에 늘 적어 둔다
+    $('picked-list').textContent = list.length ? `고른 브랜드 ${list.length}개: ${list.map((b) => b.name).join(', ')}` : '고른 브랜드 없음';
+    $('result').textContent = list.length ? `${list.map((b) => b.name).join(', ')} 상품 ${total}개` : `전체 상품 ${total}개`;
+    $('status').textContent = list.length ? `${list.map((b) => b.name).join(', ')} 브랜드로 상품 ${total}개를 보여 줍니다` : `전체 상품 ${total}개를 보여 줍니다`;
+    // 체크 상태를 두 방식 사이에서 맞춘다
+    document.querySelectorAll('#view-list input[type="checkbox"]').forEach((c) => { c.checked = picked.has(c.value); });
+    renderChips();
+    report();
+  }
+
+  document.querySelectorAll('input[name="mode"]').forEach((r) => r.addEventListener('change', () => {
+    const combo = r.value === 'combo' && r.checked;
+    $('view-list').hidden = combo;
+    $('view-combo').hidden = !combo;
+    closeList();
+    // 숨겨지는 쪽의 기다리던 알림과 알림 글을 지운다. 검색어와 펼침 상태는 그대로 둔다
+    clearTimeout(searchTimer);
+    $('search-status').textContent = '';
+    report();
+  }));
+
+  function describe(el) {
+    if (!el || el === document.body) return 'body (문서 처음)';
+    const label = el.labels && el.labels[0] ? el.labels[0].textContent : '';
+    return `${el.tagName.toLowerCase()} "${(label || el.getAttribute('aria-label') || el.textContent).trim().slice(0, 24)}"`;
+  }
+  function visibleCount() {
+    if (!$('view-combo').hidden) return listbox.hidden ? 0 : listbox.children.length;
+    return [...document.querySelectorAll('#view-list .opts:not([hidden]) li')].length;
+  }
+  function report() {
+    const list = BRANDS.filter((b) => picked.has(b.id));
+    $('out-picked').textContent = list.length ? list.map((b) => b.name).join(', ') : '(없음)';
+    $('out-visible').textContent = `${visibleCount()}개`;
+    $('out-focus').textContent = describe(document.activeElement);
+    const ad = input.getAttribute('aria-activedescendant');
+    $('out-active').textContent = ad ? `${ad} (${$(ad).textContent})` : '(없음)';
+    const st = [$('search-status').textContent, $('combo-status').textContent, $('status').textContent].filter(Boolean);
+    $('out-status').textContent = st.length ? st.join(' / ') : '(비어 있음)';
+  }
+  document.addEventListener('focusin', report);
+
+  renderList();
+  afterPick();
+  $('status').textContent = '';
+  report();
+</script>
+</body>
+</html>
