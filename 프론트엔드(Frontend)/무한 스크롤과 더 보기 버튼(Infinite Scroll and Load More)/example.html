@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>상품 목록 - 예제 상점</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --text: #1d2129;
+    --muted: #5b6270;
+    --line: #d3d7de;
+    --accent: #1f4fbf;
+    --focus: #f2b600;
+    --radius: 8px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .layout {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: 280px minmax(0, 1fr); align-items: start; }
+    .panel { position: sticky; top: 16px; }
+  }
+  h1, h2 { line-height: 1.3; }
+  h1 { font-size: 1.6rem; margin: 0 0 8px; }
+  h2 { font-size: 1.15rem; margin: 0 0 8px; }
+  a { color: var(--accent); }
+  :focus-visible, [tabindex="-1"]:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+  button { font: inherit; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--accent); background: var(--surface); color: var(--accent); cursor: pointer; }
+  button[aria-disabled="true"] { cursor: progress; }
+
+  /* 조작판: 예제 바깥이라는 것이 보이도록 점선 테두리 */
+  .panel {
+    background: var(--surface);
+    border: 2px dashed var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .panel fieldset { border: 0; padding: 0; margin: 0; }
+  .panel legend { font-weight: 600; padding: 0; }
+  .panel .opt { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .panel .opt input { width: 18px; height: 18px; margin: 0; }
+  .panel dl { margin: 12px 0 0; font-size: 0.95rem; }
+  .panel dt { font-weight: 600; margin-top: 8px; }
+  .panel dd { margin: 0; color: var(--muted); }
+
+  .app { min-width: 0; }
+  main {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px 16px;
+  }
+  .meta { color: var(--muted); margin: 0 0 8px; }
+  .products { list-style: none; margin: 0; padding: 0; }
+  .products li { display: flex; justify-content: space-between; gap: 8px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .products li:first-child { border-top: 0; }
+  .more { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  .more[hidden] { display: none; }
+  .loading { color: var(--muted); }
+  .end { color: var(--muted); margin: 16px 0 0; }
+  .pagination ul { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 16px 0 0; }
+  .pagination a { display: inline-block; min-width: 2.4em; padding: 4px 8px; text-align: center; border: 1px solid var(--line); border-radius: 6px; text-decoration: none; }
+  .pagination a[aria-current="page"] { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+  #sentinel { height: 1px; }
+  .vh {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  footer {
+    margin-top: 16px; padding: 16px; border-radius: var(--radius);
+    background: #2b2f36; color: #fff;
+  }
+  footer a { color: #c9d8ff; }
+  footer ul { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 8px 0 0; padding: 0; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="panel" aria-labelledby="panel-title">
+    <h2 id="panel-title">조작판</h2>
+    <fieldset>
+      <legend>목록을 이어 보는 방식</legend>
+      <label class="opt"><input type="radio" name="mode" value="pages"> 페이지 번호</label>
+      <label class="opt"><input type="radio" name="mode" value="more" checked> 더 보기 버튼</label>
+      <label class="opt"><input type="radio" name="mode" value="infinite"> 무한 스크롤</label>
+    </fieldset>
+    <dl>
+      <dt>주소의 쿼리스트링</dt><dd id="out-url"></dd>
+      <dt>포커스가 있는 곳</dt><dd id="out-focus"></dd>
+      <dt>상태 알림 글자</dt><dd id="out-status"></dd>
+      <dt>불러온 횟수</dt><dd id="out-loads">0</dd>
+    </dl>
+  </aside>
+
+  <div class="app">
+    <main>
+      <div id="list-view">
+        <h1 id="list-title" tabindex="-1">상품 목록</h1>
+        <p class="meta" id="meta"></p>
+        <ul class="products" id="products" aria-labelledby="list-title"></ul>
+        <!-- sentinel(보초): 이 요소가 화면 가까이 오면 무한 스크롤이 다음 묶음을 부른다 -->
+        <div id="sentinel"></div>
+        <p class="loading" id="loading" hidden>불러오는 중</p>
+        <div class="more" id="more-box">
+          <button type="button" id="more">상품 더 보기</button>
+        </div>
+        <nav class="pagination" aria-label="상품 목록 페이지" id="pagination"></nav>
+        <p class="end" id="end" hidden>모든 상품을 보았습니다.</p>
+      </div>
+      <div id="detail-view" hidden>
+        <p><a href="#" id="back-link">상품 목록으로 돌아가기</a></p>
+        <h1 id="detail-title" tabindex="-1"></h1>
+        <p id="detail-price"></p>
+      </div>
+      <!-- 불러온 결과를 알리는 상태 영역. 화면에는 위의 개수 안내가 보이므로 이 글은 숨긴다 -->
+      <p class="vh" id="status" role="status"></p>
+    </main>
+    <footer id="footer">
+      <strong>예제 상점</strong>
+      <ul>
+        <li><a href="#" id="footer-contact">고객센터</a></li>
+        <li><a href="#">이용약관</a></li>
+        <li><a href="#">개인정보 처리방침</a></li>
+      </ul>
+    </footer>
+  </div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const TOTAL = 60;
+  const PER = 10;
+  const SITE = '예제 상점';
+  const PRODUCTS = Array.from({ length: TOTAL }, (_, i) => ({ id: i + 1, name: `상품 ${i + 1}`, price: ((i * 7) % 19 + 1) * 1000 }));
+
+  let shown = 0;          // 더 보기와 무한 스크롤에서 지금 보이는 개수
+  let loading = false;
+  let loads = 0;
+  let observer = null;
+
+  // 뒤로 가기에서 스크롤 위치는 목록을 다 그린 뒤 코드가 직접 되살린다
+  history.scrollRestoration = 'manual';
+
+  const mode = () => document.querySelector('input[name="mode"]:checked').value;
+  const params = () => new URLSearchParams(location.search);
+
+  function fakeFetch(from, count) {
+    return new Promise((r) => setTimeout(() => r(PRODUCTS.slice(from, from + count)), 400));
+  }
+
+  function itemLi(p) {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = `?item=${p.id}`;
+    a.textContent = p.name;
+    a.addEventListener('click', (e) => { e.preventDefault(); openDetail(p.id); });
+    const price = document.createElement('span');
+    price.textContent = `${p.price.toLocaleString('ko-KR')}원`;
+    li.append(a, price);
+    return li;
+  }
+
+  // 묶음마다 개수가 달라 글이 늘 바뀌므로 영역을 비우지 않고 바로 넣는다
+  function setStatus(text) {
+    $('status').textContent = text;
+    report();
+  }
+
+  function updateMeta(from, to) {
+    $('meta').textContent = `전체 ${TOTAL}개 가운데 ${from}~${to}번째`;
+  }
+
+  /* 더 보기와 무한 스크롤: 이어 붙이기 */
+  async function loadMore({ moveFocus }) {
+    if (loading || shown >= TOTAL) return;
+    loading = true;
+    loads += 1;
+    const list = $('products');
+    list.setAttribute('aria-busy', 'true');
+    $('more').setAttribute('aria-disabled', 'true');
+    $('loading').hidden = false;
+    const items = await fakeFetch(shown, PER);
+    const firstIndex = shown;
+    items.forEach((p) => list.append(itemLi(p)));
+    shown += items.length;
+    list.removeAttribute('aria-busy');
+    $('more').removeAttribute('aria-disabled');
+    $('loading').hidden = true;
+    loading = false;
+    // 몇 개까지 보았는지를 주소에 고쳐 써 두면, 상세에서 돌아오거나 새로 고침해도 그만큼 다시 보여 줄 수 있다
+    history.replaceState(history.state, '', `?count=${shown}`);
+    afterChange();
+    if (shown >= TOTAL) setStatus(`상품 ${items.length}개를 더 불러왔습니다. 모든 상품 ${TOTAL}개를 보았습니다`);
+    else setStatus(`상품 ${items.length}개를 더 불러왔습니다. 전체 ${TOTAL}개 가운데 ${shown}개`);
+    // 더 보기 버튼으로 불렀다면 새로 붙은 첫 상품으로 포커스를 옮긴다
+    if (moveFocus) list.children[firstIndex].querySelector('a').focus();
+    // 관찰자는 겹침 상태가 바뀔 때만 알려 준다. 붙인 뒤에도 보초가 여전히 가까이 있으면 직접 한 번 더 부른다
+    if (mode() === 'infinite') refillIfNeeded();
+  }
+
+  function refillIfNeeded() {
+    const top = $('sentinel').getBoundingClientRect().top;
+    if (top < window.innerHeight + 300) loadMore({ moveFocus: false });
+  }
+
+  function afterChange() {
+    const m = mode();
+    updateMeta(1, shown);
+    const done = shown >= TOTAL;
+    $('more-box').hidden = m !== 'more' || done;
+    $('end').hidden = !done;
+    $('more').textContent = `상품 더 보기 (${shown}/${TOTAL})`;
+    report();
+  }
+
+  /* 페이지 번호 */
+  async function showPage(page, { moveFocus } = {}) {
+    loads += 1;
+    const list = $('products');
+    list.setAttribute('aria-busy', 'true');
+    const items = await fakeFetch((page - 1) * PER, PER);
+    list.textContent = '';
+    items.forEach((p) => list.append(itemLi(p)));
+    list.removeAttribute('aria-busy');
+    shown = 0;
+    updateMeta((page - 1) * PER + 1, (page - 1) * PER + items.length);
+    renderPagination(page);
+    $('end').hidden = true;
+    document.title = `상품 목록 ${page}/${TOTAL / PER}쪽 - ${SITE}`;
+    if (moveFocus) {
+      $('list-title').focus({ preventScroll: true });
+      $('list-title').scrollIntoView({ block: 'start' });
+    }
+    report();
+  }
+
+  function renderPagination(page) {
+    const nav = $('pagination');
+    nav.textContent = '';
+    const ul = document.createElement('ul');
+    for (let i = 1; i <= TOTAL / PER; i++) {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `?page=${i}`;
+      a.textContent = String(i);
+      a.setAttribute('aria-label', `${i}쪽`);
+      if (i === page) a.setAttribute('aria-current', 'page');
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (i === page) return;
+        history.pushState(null, '', `?page=${i}`);
+        showPage(i, { moveFocus: true });
+      });
+      li.append(a);
+      ul.append(li);
+    }
+    nav.append(ul);
+  }
+
+  /* 상세 화면과 돌아오기 */
+  function openDetail(id) {
+    // 떠나기 전 목록 상태(보이던 개수, 스크롤 위치)를 지금 기록 항목에 적어 둔다
+    history.replaceState({ scrollY: window.scrollY, returnTo: id }, '', location.search || location.pathname);
+    history.pushState(null, '', `?item=${id}`);
+    renderDetail(id);
+  }
+
+  function renderDetail(id) {
+    const p = PRODUCTS.find((x) => x.id === id);
+    $('list-view').hidden = true;
+    $('detail-view').hidden = false;
+    $('detail-title').textContent = p.name;
+    $('detail-price').textContent = `가격 ${p.price.toLocaleString('ko-KR')}원`;
+    document.title = `${p.name} - ${SITE}`;
+    window.scrollTo(0, 0);
+    $('detail-title').focus();
+    report();
+  }
+
+  $('back-link').addEventListener('click', (e) => { e.preventDefault(); history.back(); });
+
+  // 주소에서 목록 상태를 읽어 다시 그린다. 처음 열 때와 뒤로 가기에서 함께 쓴다
+  async function restore() {
+    const p = params();
+    const item = Number(p.get('item'));
+    // 다시 그리는 동안 관찰자가 끼어들지 않게 먼저 떼고, 다 그린 뒤에 붙인다
+    if (observer) { observer.disconnect(); observer = null; }
+    if (item) { renderDetail(item); return; }
+    $('detail-view').hidden = true;
+    $('list-view').hidden = false;
+    loading = true;
+    shown = 0;
+    $('pagination').hidden = mode() !== 'pages';
+    $('more-box').hidden = true;
+    if (mode() === 'pages') {
+      const asked = Math.max(1, Number(p.get('page')) || 1);
+      const pageNo = Math.min(asked, TOTAL / PER);
+      // 범위를 넘는 쪽 번호로 열었다면 주소도 실제로 그린 쪽으로 고쳐 쓴다
+      if (asked !== pageNo) history.replaceState(history.state, '', pageNo > 1 ? `?page=${pageNo}` : location.pathname);
+      await showPage(pageNo);
+    } else {
+      const want = Math.min(Math.max(PER, Number(p.get('count')) || PER), TOTAL);
+      // 보던 개수만큼 한 번에 다시 받아 그린다
+      const list = $('products');
+      list.textContent = '';
+      list.setAttribute('aria-busy', 'true');
+      loads += 1;
+      const items = await fakeFetch(0, want);
+      items.forEach((x) => list.append(itemLi(x)));
+      list.removeAttribute('aria-busy');
+      shown = items.length;
+      document.title = `상품 목록 - ${SITE}`;
+      afterChange();
+    }
+    const st = history.state || {};
+    window.scrollTo(0, typeof st.scrollY === 'number' ? st.scrollY : 0);
+    // 상세에서 돌아왔다면 눌렀던 상품으로 포커스를 돌려준다
+    if (st.returnTo) {
+      const a = $('products').querySelector(`a[href="?item=${st.returnTo}"]`);
+      if (a) a.focus({ preventScroll: true });
+    }
+    loading = false;
+    applyMode();
+    report();
+  }
+
+  function applyMode() {
+    const m = mode();
+    $('pagination').hidden = m !== 'pages';
+    $('more-box').hidden = m !== 'more' || shown >= TOTAL;
+    if (observer) { observer.disconnect(); observer = null; }
+    if (m === 'infinite') {
+      // 보초가 화면 아래 300px 안으로 들어오면 다음 묶음을 불러온다
+      observer = new IntersectionObserver((entries) => {
+        if (entries.some((en) => en.isIntersecting) && !$('list-view').hidden) loadMore({ moveFocus: false });
+      }, { rootMargin: '0px 0px 300px 0px' });
+      observer.observe($('sentinel'));
+    }
+  }
+
+  $('more').addEventListener('click', () => loadMore({ moveFocus: true }));
+
+  document.querySelectorAll('input[name="mode"]').forEach((r) => r.addEventListener('change', () => {
+    history.replaceState(null, '', location.pathname);
+    window.scrollTo(0, 0);
+    restore();
+  }));
+
+  window.addEventListener('popstate', restore);
+
+  function describe(el) {
+    if (!el || el === document.body) return 'body (문서 처음)';
+    return `${el.tagName.toLowerCase()} "${(el.getAttribute('aria-label') || el.textContent).trim().slice(0, 24)}"`;
+  }
+  function report() {
+    $('out-url').textContent = location.search || '(없음)';
+    $('out-focus').textContent = describe(document.activeElement);
+    $('out-status').textContent = $('status').textContent || '(비어 있음)';
+    $('out-loads').textContent = String(loads);
+  }
+  document.addEventListener('focusin', report);
+
+  restore();
+</script>
+</body>
+</html>
