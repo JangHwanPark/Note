@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>상품 목록 - 예제 상점</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --text: #1d2129;
+    --muted: #5b6270;
+    --line: #d3d7de;
+    --accent: #1f4fbf;
+    --focus: #f2b600;
+    --error: #b42318;
+    --radius: 8px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .layout {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: 280px minmax(0, 1fr); align-items: start; }
+    .panel { position: sticky; top: 16px; }
+  }
+  h1, h2 { line-height: 1.3; }
+  h1 { font-size: 1.6rem; margin: 0 0 8px; }
+  h2 { font-size: 1.15rem; margin: 0 0 8px; }
+  :focus-visible, [tabindex="-1"]:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+  button { font: inherit; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+
+  /* 조작판: 예제 바깥이라는 것이 보이도록 점선 테두리 */
+  .panel {
+    background: var(--surface);
+    border: 2px dashed var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .panel fieldset { border: 0; padding: 0; margin: 0; }
+  .panel legend { font-weight: 600; padding: 0; }
+  .panel .opt { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .panel .opt input { width: 18px; height: 18px; margin: 0; }
+  .panel dl { margin: 12px 0 0; font-size: 0.95rem; }
+  .panel dt { font-weight: 600; margin-top: 8px; }
+  .panel dd { margin: 0; color: var(--muted); }
+
+  main {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px 16px; min-width: 0;
+  }
+  .price { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px 16px; margin: 0 0 16px; }
+  .price legend { font-weight: 600; padding: 0 4px; }
+  .fields { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: end; }
+  .field { display: grid; gap: 2px; }
+  .field label { font-size: 0.95rem; }
+  .field input { font: inherit; width: 9em; padding: 6px 8px; border: 1px solid var(--muted); border-radius: 6px; }
+  .field input[aria-invalid="true"] { border: 2px solid var(--error); }
+  .error { color: var(--error); margin: 8px 0 0; font-weight: 600; }
+  .error[hidden] { display: none; }
+
+  /* 손잡이 두 개짜리 슬라이더. 막대 어디를 눌러도 가까운 손잡이가 그 자리로 온다 */
+  .slider { position: relative; height: 44px; margin: 12px 14px 0; touch-action: none; cursor: pointer; }
+  .rail { position: absolute; left: 0; right: 0; top: 20px; height: 4px; background: #8a919e; border-radius: 2px; }
+  .range { position: absolute; top: 20px; height: 4px; background: var(--accent); }
+  .thumb {
+    position: absolute; top: 8px; width: 28px; height: 28px; margin-left: -14px;
+    border-radius: 50%; background: var(--surface); border: 3px solid var(--accent);
+    cursor: grab; touch-action: none;
+  }
+  .thumb.dragging { cursor: grabbing; }
+  .scale { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.85rem; margin: 0 0 0; }
+  .actions { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  .preview { margin: 0; }
+
+  .meta { color: var(--muted); margin: 0 0 8px; }
+  .products { list-style: none; margin: 0; padding: 0; }
+  .products li { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); }
+  .products li:first-child { border-top: 0; }
+  .vh {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="panel" aria-labelledby="panel-title">
+    <h2 id="panel-title">조작판</h2>
+    <fieldset>
+      <legend>적용 시점</legend>
+      <label class="opt"><input type="radio" name="when" value="button" checked> 모두 적용 버튼으로</label>
+      <label class="opt"><input type="radio" name="when" value="settle"> 슬라이더는 손을 떼면 바로</label>
+    </fieldset>
+    <dl>
+      <dt>주소의 쿼리스트링</dt><dd id="out-url"></dd>
+      <dt>적용된 범위</dt><dd id="out-applied"></dd>
+      <dt>고르는 중인 범위</dt><dd id="out-draft"></dd>
+      <dt>슬라이더 값이 바뀐 횟수</dt><dd id="out-moves">0</dd>
+      <dt>적용한 횟수</dt><dd id="out-applies">0</dd>
+      <dt>포커스가 있는 곳</dt><dd id="out-focus"></dd>
+      <dt>상태 알림 글자</dt><dd id="out-status"></dd>
+    </dl>
+  </aside>
+
+  <main>
+    <h1 id="results-title" tabindex="-1">상품 목록</h1>
+
+    <form id="price-form" novalidate>
+      <fieldset class="price">
+        <legend>가격</legend>
+        <div class="fields">
+          <div class="field">
+            <label for="min-input">최소 가격(원)</label>
+            <input id="min-input" type="text" inputmode="numeric" autocomplete="off" aria-describedby="price-error">
+          </div>
+          <div class="field">
+            <label for="max-input">최대 가격(원)</label>
+            <input id="max-input" type="text" inputmode="numeric" autocomplete="off" aria-describedby="price-error">
+          </div>
+        </div>
+        <p class="error" id="price-error" hidden></p>
+
+        <div class="slider" id="slider">
+          <div class="rail"></div>
+          <div class="range" id="range"></div>
+          <div class="thumb" id="thumb-min" role="slider" tabindex="0" aria-label="최소 가격"></div>
+          <div class="thumb" id="thumb-max" role="slider" tabindex="0" aria-label="최대 가격"></div>
+        </div>
+        <p class="scale" aria-hidden="true"><span id="scale-min"></span><span id="scale-max"></span></p>
+
+        <div class="actions" id="actions">
+          <button type="submit" id="apply">적용</button>
+          <p class="preview" id="preview" role="status"></p>
+        </div>
+      </fieldset>
+    </form>
+
+    <p class="meta" id="meta"></p>
+    <ul class="products" id="products" aria-labelledby="results-title"></ul>
+    <!-- 적용한 결과를 알리는 상태 영역. 화면에는 위의 개수 안내가 보이므로 이 글은 숨긴다 -->
+    <p class="vh" id="status" role="status"></p>
+  </main>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const MIN = 0;
+  const MAX = 300000;
+  const STEP = 10000;        // 화살표 한 번
+  const BIG = 50000;         // Page Up, Page Down 한 번
+  const PRODUCTS = Array.from({ length: 60 }, (_, i) => ({ id: i + 1, price: 5000 + ((i * 53) % 60) * 4900 }));
+  PRODUCTS.forEach((p) => { p.name = `상품 ${p.id}`; });
+
+  let applied = { min: MIN, max: MAX };
+  let draft = { min: MIN, max: MAX };
+  let moves = 0;
+  let applies = 0;
+  let keyTimer = null;
+
+  const won = (n) => `${n.toLocaleString('ko-KR')}원`;
+  const when = () => document.querySelector('input[name="when"]:checked').value;
+  const count = (r) => PRODUCTS.filter((p) => p.price >= r.min && p.price <= r.max).length;
+  const describe = (r) => (r.min === MIN && r.max === MAX ? '전체 가격' : `${won(r.min)}부터 ${won(r.max)}까지`);
+
+  /* 주소 */
+  function toQuery(r) {
+    const q = new URLSearchParams();
+    if (r.min !== MIN) q.set('min', String(r.min));
+    if (r.max !== MAX) q.set('max', String(r.max));
+    const s = q.toString();
+    return s ? `?${s}` : location.pathname;
+  }
+  function fromUrl() {
+    const q = new URLSearchParams(location.search);
+    // 값이 없거나 빈 글자(?max=)면 기본값을 쓴다. Number('')는 0이라 따로 걸러야 한다
+    const num = (k, d) => { const t = q.get(k); const n = Number(t); return t !== null && t !== '' && Number.isFinite(n) ? n : d; };
+    let min = Math.min(Math.max(num('min', MIN), MIN), MAX);
+    let max = Math.min(Math.max(num('max', MAX), MIN), MAX);
+    // 주소는 사용자가 친 값이 아니므로, 최소가 최대보다 크면 오류 대신 둘을 바꿔 그린다
+    if (min > max) [min, max] = [max, min];
+    return { min, max };
+  }
+
+  /* 슬라이더 그리기 */
+  const pct = (v) => ((v - MIN) / (MAX - MIN)) * 100;
+  function paintSlider() {
+    const lo = $('thumb-min');
+    const hi = $('thumb-max');
+    lo.style.left = `${pct(draft.min)}%`;
+    hi.style.left = `${pct(draft.max)}%`;
+    $('range').style.left = `${pct(draft.min)}%`;
+    $('range').style.width = `${pct(draft.max) - pct(draft.min)}%`;
+    // 손잡이는 서로 넘지 못한다. 아래 손잡이의 최댓값은 위 손잡이의 값, 위 손잡이의 최솟값은 아래 손잡이의 값
+    lo.setAttribute('aria-valuemin', String(MIN));
+    lo.setAttribute('aria-valuemax', String(draft.max));
+    lo.setAttribute('aria-valuenow', String(draft.min));
+    lo.setAttribute('aria-valuetext', won(draft.min));
+    hi.setAttribute('aria-valuemin', String(draft.min));
+    hi.setAttribute('aria-valuemax', String(MAX));
+    hi.setAttribute('aria-valuenow', String(draft.max));
+    hi.setAttribute('aria-valuetext', won(draft.max));
+  }
+  function writeInputs() {
+    $('min-input').value = draft.min.toLocaleString('ko-KR');
+    $('max-input').value = draft.max.toLocaleString('ko-KR');
+    clearError();
+  }
+
+  // 고르는 중인 범위가 바뀌었을 때. 슬라이더와 입력란을 서로 맞추고 미리 보기 수를 바꾼다
+  function setDraft(next, { from }) {
+    draft = next;
+    paintSlider();
+    if (from !== 'input') writeInputs();
+    const text = `이 범위면 상품 ${count(draft)}개`;
+    if ($('preview').textContent !== text) $('preview').textContent = text;
+    report();
+  }
+
+  /* 적용 */
+  function commit() {
+    if (draft.min === applied.min && draft.max === applied.max) return;
+    applied = { ...draft };
+    history.pushState(null, '', toQuery(applied));
+    applies += 1;
+    renderResults();
+  }
+  function renderResults() {
+    const items = PRODUCTS.filter((p) => p.price >= applied.min && p.price <= applied.max).sort((a, b) => a.price - b.price);
+    const list = $('products');
+    list.textContent = '';
+    items.forEach((p) => {
+      const li = document.createElement('li');
+      const name = document.createElement('span');
+      name.textContent = p.name;
+      const price = document.createElement('span');
+      price.textContent = won(p.price);
+      li.append(name, price);
+      list.append(li);
+    });
+    $('meta').textContent = `${describe(applied)}, 상품 ${items.length}개`;
+    $('status').textContent = `${describe(applied)}, 상품 ${items.length}개를 보여 줍니다`;
+    report();
+  }
+
+  /* 슬라이더: 키보드 */
+  function keyStep(e, which) {
+    const now = draft[which];
+    const lo = which === 'min' ? MIN : draft.min;
+    const hi = which === 'min' ? draft.max : MAX;
+    let v = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') v = now + STEP;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') v = now - STEP;
+    else if (e.key === 'PageUp') v = now + BIG;
+    else if (e.key === 'PageDown') v = now - BIG;
+    else if (e.key === 'Home') v = lo;
+    else if (e.key === 'End') v = hi;
+    if (v === null) return;
+    e.preventDefault();
+    v = Math.min(Math.max(v, lo), hi);
+    move(which, v);
+    // 키를 누를 때마다 적용하면 화살표 다섯 번에 요청 다섯 번이 나간다. 0.5초 멈추면 적용한다
+    if (when() === 'settle') {
+      clearTimeout(keyTimer);
+      keyTimer = setTimeout(commit, 500);
+    }
+  }
+  function move(which, v) {
+    if (v === draft[which]) return;
+    moves += 1;
+    setDraft({ ...draft, [which]: v }, { from: 'slider' });
+  }
+  $('thumb-min').addEventListener('keydown', (e) => keyStep(e, 'min'));
+  $('thumb-max').addEventListener('keydown', (e) => keyStep(e, 'max'));
+
+  /* 슬라이더: 끌기와 막대 누르기 */
+  function valueAt(clientX) {
+    const r = $('slider').getBoundingClientRect();
+    const ratio = Math.min(Math.max((clientX - r.left) / r.width, 0), 1);
+    return Math.round((MIN + ratio * (MAX - MIN)) / STEP) * STEP;
+  }
+  function moveTo(which, v) {
+    const lo = which === 'min' ? MIN : draft.min;
+    const hi = which === 'min' ? draft.max : MAX;
+    move(which, Math.min(Math.max(v, lo), hi));
+  }
+  let drag = null;   // { which, startX, offset, moved }
+  $('slider').addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    const t = e.target;
+    if (t === $('thumb-min') || t === $('thumb-max')) {
+      // 손잡이를 잡기만 해서는 값을 바꾸지 않는다. 손잡이 가운데와 누른 자리의 차이를 기억해 두고 끄는 만큼만 옮긴다
+      const r = t.getBoundingClientRect();
+      const which = t === $('thumb-min') ? 'min' : 'max';
+      // 두 손잡이가 겹쳐 있으면 어느 쪽을 잡았는지 알 수 없으므로 처음 끄는 방향으로 정한다
+      drag = { which: draft.min === draft.max ? null : which, startX: e.clientX, offset: e.clientX - (r.left + r.width / 2), moved: false };
+      t.focus();
+    } else {
+      // 막대를 누르면 가까운 손잡이를 그 자리로 옮긴다. 끌지 않고 한 번 눌러도 값을 바꿀 수 있다
+      const v = valueAt(e.clientX);
+      const dMin = Math.abs(v - draft.min);
+      const dMax = Math.abs(v - draft.max);
+      const which = dMin < dMax ? 'min' : dMax < dMin ? 'max' : (v < draft.min ? 'min' : 'max');
+      drag = { which, startX: e.clientX, offset: 0, moved: true };
+      $(`thumb-${which}`).focus();
+      moveTo(which, v);
+    }
+    if (drag.which) $(`thumb-${drag.which}`).classList.add('dragging');
+    $('slider').setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  $('slider').addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    const dx = e.clientX - drag.startX;
+    // 3px 안의 손 떨림은 끈 것으로 보지 않는다
+    if (!drag.moved && Math.abs(dx) < 3) return;
+    if (!drag.which) {
+      drag.which = dx < 0 ? 'min' : 'max';
+      $(`thumb-${drag.which}`).classList.add('dragging');
+      $(`thumb-${drag.which}`).focus();
+    }
+    drag.moved = true;
+    moveTo(drag.which, valueAt(e.clientX - drag.offset));
+  });
+  function endDrag() {
+    if (!drag) return;
+    if (drag.which) $(`thumb-${drag.which}`).classList.remove('dragging');
+    const moved = drag.moved;
+    drag = null;
+    // 끄는 동안에는 적용하지 않고 손을 뗄 때 한 번 적용한다
+    if (moved && when() === 'settle') commit();
+  }
+  $('slider').addEventListener('pointerup', endDrag);
+  $('slider').addEventListener('pointercancel', endDrag);
+
+  /* 입력란 */
+  function parse(text) {
+    const t = text.replace(/[,\s원]/g, '');
+    if (t === '') return { empty: true };
+    if (!/^\d+$/.test(t)) return { bad: true };
+    return { value: Number(t) };
+  }
+  function showError(msg, field) {
+    // 폼 설계 노트의 예제처럼 화면에 보이지 않는 "오류: "를 앞에 붙인다
+    const hidden = document.createElement('span');
+    hidden.className = 'vh';
+    hidden.textContent = '오류: ';
+    $('price-error').textContent = '';
+    $('price-error').append(hidden, msg);
+    $('price-error').hidden = false;
+    $('min-input').setAttribute('aria-invalid', String(field === 'min' || field === 'both'));
+    $('max-input').setAttribute('aria-invalid', String(field === 'max' || field === 'both'));
+  }
+  function clearError() {
+    $('price-error').hidden = true;
+    $('price-error').textContent = '';
+    $('min-input').removeAttribute('aria-invalid');
+    $('max-input').removeAttribute('aria-invalid');
+  }
+  // 입력란 두 개를 읽어 범위로 만든다. 틀렸으면 오류 문구를 돌려준다
+  function readInputs() {
+    const a = parse($('min-input').value);
+    const b = parse($('max-input').value);
+    if (a.bad) return { error: '최소 가격은 숫자로 입력해 주세요. 예: 30000', field: 'min' };
+    if (b.bad) return { error: '최대 가격은 숫자로 입력해 주세요. 예: 120000', field: 'max' };
+    const min = a.empty ? MIN : a.value;
+    const max = b.empty ? MAX : b.value;
+    if (min > MAX) return { error: `최소 가격은 ${won(MAX)} 이하로 입력해 주세요`, field: 'min' };
+    if (max > MAX) return { error: `최대 가격은 ${won(MAX)} 이하로 입력해 주세요`, field: 'max' };
+    if (min > max) return { error: '최소 가격이 최대 가격보다 큽니다. 최소 가격을 줄이거나 최대 가격을 늘려 주세요', field: 'both' };
+    return { range: { min, max } };
+  }
+  // 입력란은 치는 동안이 아니라 한 칸을 마쳤을 때(change) 읽어 슬라이더와 미리 보기만 맞춘다.
+  // 오류는 적용할 때 처음 보여 준다. 최소를 고치고 최대로 넘어가는 사이에 꾸짖지 않으려는 것이다.
+  // 이미 오류가 보이는 중이라면 고친 결과를 바로 반영한다
+  ['min-input', 'max-input'].forEach((id) => $(id).addEventListener('change', () => {
+    const r = readInputs();
+    if (r.range) {
+      clearError();
+      setDraft(r.range, { from: 'input' });
+    } else if (!$('price-error').hidden) {
+      showError(r.error, r.field);
+    }
+  }));
+
+  // 입력란은 어느 방식이든 적용 버튼이나 Enter로만 적용한다.
+  // 칸을 떠날 때마다 적용하면 최소를 고치고 최대로 넘어가는 사이의 범위가 한 번 적용되기 때문이다
+  $('price-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const r = readInputs();
+    if (!r.range) {
+      showError(r.error, r.field);
+      // 틀린 입력란으로 포커스를 옮겨 바로 고칠 수 있게 한다
+      document.querySelector('#price-form [aria-invalid="true"]').focus();
+      return;
+    }
+    clearError();
+    if (r.range.min !== draft.min || r.range.max !== draft.max) setDraft(r.range, { from: 'input' });
+    commit();
+  });
+
+  // 방식을 바꿀 때 기다리던 키보드 적용은 버린다
+  document.querySelectorAll('input[name="when"]').forEach((r) => r.addEventListener('change', () => {
+    clearTimeout(keyTimer);
+    report();
+  }));
+
+  /* 처음 열 때와 뒤로 가기 */
+  function restore() {
+    applied = fromUrl();
+    // 범위를 벗어난 값으로 열었다면 주소도 실제로 적용한 범위로 고쳐 쓴다
+    const fixed = toQuery(applied);
+    if ((location.search || location.pathname) !== fixed) history.replaceState(null, '', fixed);
+    setDraft({ ...applied }, { from: 'url' });
+    renderResults();
+  }
+  window.addEventListener('popstate', restore);
+
+  function describeFocus(el) {
+    if (!el || el === document.body) return 'body (문서 처음)';
+    const label = el.labels && el.labels[0] ? el.labels[0].textContent : '';
+    return `${el.tagName.toLowerCase()} "${(label || el.getAttribute('aria-label') || el.textContent).trim().slice(0, 24)}"`;
+  }
+  function report() {
+    $('out-url').textContent = location.search || '(없음)';
+    $('out-applied').textContent = describe(applied);
+    $('out-draft').textContent = draft.min === applied.min && draft.max === applied.max ? '적용된 범위와 같음' : describe(draft);
+    $('out-moves').textContent = String(moves);
+    $('out-applies').textContent = String(applies);
+    $('out-focus').textContent = describeFocus(document.activeElement);
+    $('out-status').textContent = $('status').textContent || '(비어 있음)';
+  }
+  document.addEventListener('focusin', report);
+
+  $('scale-min').textContent = won(MIN);
+  $('scale-max').textContent = won(MAX);
+  restore();
+</script>
+</body>
+</html>
