@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>상품 목록 - 예제 상점</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --text: #1d2129;
+    --muted: #5b6270;
+    --line: #d3d7de;
+    --accent: #1f4fbf;
+    --focus: #f2b600;
+    --warn-bg: #fff6db;
+    --radius: 8px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: 260px minmax(0, 1fr); align-items: start; }
+    .panel { position: sticky; top: 16px; }
+  }
+  h1, h2 { line-height: 1.3; }
+  h1 { font-size: 1.6rem; margin: 0 0 8px; }
+  h2 { font-size: 1.15rem; margin: 0 0 8px; }
+  a { color: var(--accent); }
+  :focus-visible, [tabindex="-1"]:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+  button { font: inherit; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--accent); background: var(--surface); color: var(--accent); cursor: pointer; }
+  button.primary { background: var(--accent); color: #fff; }
+  button.link { border: 0; padding: 0; background: none; text-decoration: underline; }
+
+  /* 조작판: 예제 바깥이라는 것이 보이도록 점선 테두리 */
+  .panel {
+    background: var(--surface);
+    border: 2px dashed var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .panel dl { margin: 0; font-size: 0.95rem; }
+  .panel dt { font-weight: 600; margin-top: 8px; }
+  .panel dt:first-child { margin-top: 0; }
+  .panel dd { margin: 0; color: var(--muted); }
+
+  main {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px 16px; min-width: 0;
+  }
+  .shop { display: grid; gap: 16px; }
+  /* 넓은 화면에서는 필터를 옆에 두고, 좁은 화면에서는 필터 버튼으로 대화 상자를 연다 */
+  @media (min-width: 1100px) {
+    .shop { grid-template-columns: 240px minmax(0, 1fr); align-items: start; }
+    #open-filters { display: none; }
+  }
+  @media (max-width: 1099px) {
+    #filter-side { display: none; }
+  }
+
+  .filters fieldset { border: 0; padding: 0; margin: 0 0 16px; }
+  .filters legend { font-weight: 600; padding: 0; margin-bottom: 4px; }
+  .filters .opt { display: flex; gap: 8px; align-items: center; padding: 2px 0; }
+  .filters .opt input { width: 18px; height: 18px; margin: 0; flex: none; }
+  .filters .count { color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+  /* 지금 조건에서 0개인 선택지는 흐리게만 한다. 고를 수는 있다 */
+  .filters .opt.zero { color: var(--muted); }
+  .apply-box { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 8px; }
+  .apply-box button.primary { width: 100%; }
+  .preview { margin: 0; font-size: 0.95rem; }
+  .busy { color: var(--muted); font-size: 0.9rem; }
+  .dirty { margin: 0; padding: 6px 8px; background: var(--warn-bg); border-radius: 6px; font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+  .dirty[hidden] { display: none; }
+
+  dialog.tray {
+    width: min(100vw - 16px, 480px); max-height: calc(100vh - 16px);
+    margin: auto 0 0 auto; padding: 0; border: 0; border-radius: var(--radius) var(--radius) 0 0;
+  }
+  dialog.tray::backdrop { background: rgba(0, 0, 0, 0.4); }
+  .tray-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .tray-head h2 { margin: 0; }
+  .tray-body { padding: 16px; }
+  /* 대화 상자 안에서는 적용 버튼을 아래에 붙여 둔다 */
+  .tray-body .apply-box { position: sticky; bottom: 0; background: var(--surface); padding-bottom: 12px; }
+
+  .head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 0; padding: 0; list-style: none; }
+  .chips button { padding: 2px 10px; border-radius: 999px; font-size: 0.95rem; }
+  .applied[hidden] { display: none; }
+  .meta { color: var(--muted); margin: 8px 0; }
+  .products { list-style: none; margin: 0; padding: 0; }
+  .products[aria-busy="true"] { opacity: 0.5; }
+  .products li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 8px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .products li:first-child { border-top: 0; }
+  .products .sub { color: var(--muted); font-size: 0.95rem; }
+  .empty { padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); }
+  .empty[hidden] { display: none; }
+  .vh {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="panel" aria-labelledby="panel-title">
+    <h2 id="panel-title">조작판</h2>
+    <dl>
+      <dt>주소의 쿼리스트링</dt><dd id="out-url"></dd>
+      <dt>적용된 조건</dt><dd id="out-applied"></dd>
+      <dt>고르는 중인 조건</dt><dd id="out-draft"></dd>
+      <dt>방문 기록 항목 수</dt><dd id="out-history"></dd>
+      <dt>포커스가 있는 곳</dt><dd id="out-focus"></dd>
+      <dt>미리 보기 알림 글자</dt><dd id="out-preview"></dd>
+      <dt>결과 알림 글자</dt><dd id="out-status"></dd>
+      <dt>개수 요청</dt><dd id="out-requests"></dd>
+    </dl>
+  </aside>
+
+  <main>
+    <div class="shop">
+      <div id="filter-side" aria-label="필터" role="region"></div>
+
+      <div>
+        <div class="head">
+          <h1 id="results-title" tabindex="-1">상품 목록</h1>
+          <button type="button" id="open-filters" aria-haspopup="dialog">필터</button>
+        </div>
+
+        <section class="applied" id="applied" aria-labelledby="applied-title" hidden>
+          <h2 id="applied-title" class="vh">적용된 필터</h2>
+          <ul class="chips" id="chips"></ul>
+        </section>
+
+        <p class="meta" id="meta"></p>
+        <ul class="products" id="products" aria-labelledby="results-title"></ul>
+        <div class="empty" id="empty" hidden>
+          <p>조건에 맞는 상품이 없습니다. 필터를 하나씩 지우거나 모두 지워 보세요.</p>
+          <button type="button" id="empty-clear">필터 모두 지우기</button>
+        </div>
+        <!-- 적용한 결과를 알리는 상태 영역. 화면에는 위의 개수 안내가 보이므로 이 글은 숨긴다 -->
+        <p class="vh" id="status" role="status"></p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<dialog class="tray" id="tray" aria-labelledby="tray-title">
+  <div class="tray-head">
+    <h2 id="tray-title">필터</h2>
+    <button type="button" id="close-tray">닫기</button>
+  </div>
+  <div class="tray-body" id="tray-body"></div>
+</dialog>
+
+<!-- 필터 폼은 하나만 두고, 화면 너비에 따라 옆 칸이나 대화 상자 안으로 옮긴다 -->
+<template id="form-tpl">
+  <form class="filters" id="filters" novalidate>
+    <fieldset>
+      <legend>분류</legend>
+      <div data-group="cat"></div>
+    </fieldset>
+    <fieldset>
+      <legend>브랜드</legend>
+      <div data-group="brand"></div>
+    </fieldset>
+    <fieldset>
+      <legend>가격</legend>
+      <div data-group="price"></div>
+    </fieldset>
+    <fieldset>
+      <legend>재고</legend>
+      <div data-group="stock"></div>
+    </fieldset>
+    <div class="apply-box">
+      <!-- 고를 때마다 바뀌는 예상 결과 수. 고르는 사용자가 듣도록 폼 안에 둔다 -->
+      <p class="preview" id="preview" role="status"></p>
+      <p class="dirty" id="dirty" hidden>
+        <span>적용하지 않은 변경이 있습니다.</span>
+        <button type="button" class="link" id="revert">변경 취소</button>
+      </p>
+      <button type="submit" class="primary" id="apply">결과 보기</button>
+      <span class="busy" id="counting" hidden>개수를 세는 중</span>
+    </div>
+  </form>
+</template>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const SITE = '예제 상점';
+  const CATS = ['키보드', '마우스', '모니터', '헤드셋'];
+  const BRANDS = ['가람', '나래', '다솜', '라온'];
+  const PRICES = [
+    { value: 'all', label: '전체', test: () => true },
+    { value: 'low', label: '5만 원 미만', test: (p) => p < 50000 },
+    { value: 'mid', label: '5만~10만 원', test: (p) => p >= 50000 && p < 100000 },
+    { value: 'high', label: '10만 원 이상', test: (p) => p >= 100000 },
+  ];
+  const PRODUCTS = Array.from({ length: 40 }, (_, i) => ({
+    id: i + 1,
+    cat: CATS[i % 4],
+    brand: BRANDS[Math.floor(i / 4) % 4],
+    price: 20000 + ((i * 37) % 15) * 10000,
+    stock: i % 3 !== 0,
+  }));
+  PRODUCTS.forEach((p) => { p.name = `${p.brand} ${p.cat} ${p.id}`; });
+
+  const wide = window.matchMedia('(min-width: 1100px)');
+  $('filter-side').append($('form-tpl').content.cloneNode(true));
+  const form = $('filters');
+
+  let applied = empty();   // 주소에 담긴, 결과에 반영된 조건
+  let draft = empty();     // 폼에서 고르는 중인 조건
+  let sent = 0;            // 보낸 개수 요청 수
+  let dropped = 0;         // 늦게 와서 버린 응답 수
+  let countSeq = 0;
+  let resultSeq = 0;
+  let countTimer = null;
+
+  function empty() { return { cat: [], brand: [], price: 'all', stock: false }; }
+  function copy(f) { return { cat: [...f.cat], brand: [...f.brand], price: f.price, stock: f.stock }; }
+  function same(a, b) { return toQuery(a) === toQuery(b); }
+
+  /* 주소와 조건 */
+  function toQuery(f) {
+    const q = new URLSearchParams();
+    if (f.cat.length) q.set('cat', CATS.filter((c) => f.cat.includes(c)).join(','));
+    if (f.brand.length) q.set('brand', BRANDS.filter((b) => f.brand.includes(b)).join(','));
+    if (f.price !== 'all') q.set('price', f.price);
+    if (f.stock) q.set('stock', '1');
+    const s = q.toString();
+    return s ? `?${s}` : '';
+  }
+  function fromUrl() {
+    const q = new URLSearchParams(location.search);
+    const list = (k, allowed) => (q.get(k) || '').split(',').filter((v) => allowed.includes(v));
+    const price = PRICES.some((p) => p.value === q.get('price')) ? q.get('price') : 'all';
+    return { cat: list('cat', CATS), brand: list('brand', BRANDS), price, stock: q.get('stock') === '1' };
+  }
+  function describeFilter(f) {
+    const parts = [...f.cat, ...f.brand];
+    if (f.price !== 'all') parts.push(PRICES.find((p) => p.value === f.price).label);
+    if (f.stock) parts.push('재고 있음');
+    return parts.length ? parts.join(', ') : '(조건 없음)';
+  }
+
+  /* 서버 흉내: 같은 그룹 안은 "또는", 그룹 사이는 "그리고"로 거른다 */
+  function matches(p, f, skip) {
+    if (skip !== 'cat' && f.cat.length && !f.cat.includes(p.cat)) return false;
+    if (skip !== 'brand' && f.brand.length && !f.brand.includes(p.brand)) return false;
+    if (skip !== 'price' && !PRICES.find((x) => x.value === f.price).test(p.price)) return false;
+    if (skip !== 'stock' && f.stock && !p.stock) return false;
+    return true;
+  }
+  // 응답 시간이 요청마다 달라서 앞 요청이 뒤 요청보다 늦게 올 수 있다
+  const DELAYS = [450, 150, 300];
+  let delayIndex = 0;
+  function wait() { const d = DELAYS[delayIndex++ % DELAYS.length]; return new Promise((r) => setTimeout(r, d)); }
+
+  async function fakeCount(f) {
+    await wait();
+    // 선택지마다 "이 그룹은 이 값만 고르고 나머지 그룹은 지금 조건 그대로"일 때의 수를 센다
+    const facet = (group, test) => PRODUCTS.filter((p) => matches(p, f, group) && test(p)).length;
+    return {
+      total: PRODUCTS.filter((p) => matches(p, f)).length,
+      cat: Object.fromEntries(CATS.map((c) => [c, facet('cat', (p) => p.cat === c)])),
+      brand: Object.fromEntries(BRANDS.map((b) => [b, facet('brand', (p) => p.brand === b)])),
+      price: Object.fromEntries(PRICES.map((x) => [x.value, facet('price', (p) => x.test(p.price))])),
+      stock: facet('stock', (p) => p.stock),
+    };
+  }
+  async function fakeResults(f) {
+    await wait();
+    return PRODUCTS.filter((p) => matches(p, f));
+  }
+
+  /* 폼 그리기 */
+  function buildForm() {
+    const box = (g) => form.querySelector(`[data-group="${g}"]`);
+    const opt = (type, name, value, label) => {
+      const l = document.createElement('label');
+      l.className = 'opt';
+      l.dataset.value = String(value);
+      const i = document.createElement('input');
+      i.type = type; i.name = name; i.value = String(value);
+      const t = document.createElement('span');
+      t.textContent = label;
+      const c = document.createElement('span');
+      c.className = 'count';
+      l.append(i, t, c);
+      return l;
+    };
+    CATS.forEach((c) => box('cat').append(opt('checkbox', 'cat', c, c)));
+    BRANDS.forEach((b) => box('brand').append(opt('checkbox', 'brand', b, b)));
+    PRICES.forEach((p) => box('price').append(opt('radio', 'price', p.value, p.label)));
+    box('stock').append(opt('checkbox', 'stock', '1', '재고 있는 상품만'));
+  }
+
+  // 조건을 폼에 옮겨 적는다
+  function writeForm(f) {
+    form.querySelectorAll('input[name="cat"]').forEach((i) => { i.checked = f.cat.includes(i.value); });
+    form.querySelectorAll('input[name="brand"]').forEach((i) => { i.checked = f.brand.includes(i.value); });
+    form.querySelectorAll('input[name="price"]').forEach((i) => { i.checked = i.value === f.price; });
+    form.querySelector('input[name="stock"]').checked = f.stock;
+  }
+  function readForm() {
+    const checked = (n) => [...form.querySelectorAll(`input[name="${n}"]:checked`)].map((i) => i.value);
+    return { cat: checked('cat'), brand: checked('brand'), price: checked('price')[0] || 'all', stock: checked('stock').length > 0 };
+  }
+
+  form.addEventListener('change', () => {
+    draft = readForm();
+    afterDraftChange();
+  });
+
+  function afterDraftChange() {
+    $('dirty').hidden = same(draft, applied);
+    scheduleCount();
+    report();
+  }
+
+  /* 결과 수 미리 보기 */
+  function scheduleCount() {
+    clearTimeout(countTimer);
+    $('counting').hidden = false;
+    // 번호는 요청을 보낼 때가 아니라 조건이 바뀔 때 올린다.
+    // 그래야 다음 요청을 기다리는 동안 도착한 이전 조건의 응답도 버릴 수 있다
+    const seq = ++countSeq;
+    // 체크박스를 빠르게 여러 개 누르는 동안에는 묻지 않고, 0.2초 멈추면 묻는다
+    countTimer = setTimeout(() => requestCount(seq), 200);
+  }
+  async function requestCount(seq) {
+    sent += 1;
+    report();
+    const asked = copy(draft);
+    const r = await fakeCount(asked);
+    // 그 사이 다른 요청을 보냈다면 이 응답은 낡았으므로 버린다
+    if (seq !== countSeq) { dropped += 1; report(); return; }
+    $('counting').hidden = true;
+    paintCounts(r);
+  }
+  function paintCounts(r) {
+    const put = (group, value, n) => {
+      const l = form.querySelector(`[data-group="${group}"] .opt[data-value="${value}"]`);
+      l.querySelector('.count').textContent = `${n}개`;
+      l.classList.toggle('zero', n === 0);
+    };
+    CATS.forEach((c) => put('cat', c, r.cat[c]));
+    BRANDS.forEach((b) => put('brand', b, r.brand[b]));
+    PRICES.forEach((p) => put('price', p.value, r.price[p.value]));
+    put('stock', '1', r.stock);
+    $('apply').textContent = r.total ? `상품 ${r.total}개 보기` : '결과 보기 (0개)';
+    const text = r.total ? `이 조건이면 상품 ${r.total}개` : '이 조건에 맞는 상품이 없습니다';
+    // 글이 그대로면 다시 넣지 않는다. 같은 수를 매번 다시 읽게 하지 않으려는 것이다
+    if ($('preview').textContent !== text) $('preview').textContent = text;
+    report();
+  }
+
+  /* 적용과 결과 */
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const changed = !same(draft, applied);
+    if (changed) {
+      applied = copy(draft);
+      history.pushState(null, '', toQuery(applied) || location.pathname);
+      loadResults();
+    }
+    if ($('tray').open) $('tray').close('apply');
+    $('dirty').hidden = true;
+    report();
+  });
+
+  async function loadResults() {
+    const seq = ++resultSeq;
+    const list = $('products');
+    list.setAttribute('aria-busy', 'true');
+    renderChips();
+    updateFilterButton();
+    const items = await fakeResults(applied);
+    if (seq !== resultSeq) return;
+    list.textContent = '';
+    items.forEach((p) => {
+      const li = document.createElement('li');
+      const name = document.createElement('span');
+      name.textContent = p.name;
+      const sub = document.createElement('span');
+      sub.className = 'sub';
+      sub.textContent = `${p.price.toLocaleString('ko-KR')}원, ${p.stock ? '재고 있음' : '품절'}`;
+      li.append(name, sub);
+      list.append(li);
+    });
+    list.removeAttribute('aria-busy');
+    const n = items.length;
+    $('meta').textContent = n ? `상품 ${n}개` : '상품 0개';
+    $('empty').hidden = n > 0;
+    // 조건을 바꿔도 수가 같을 수 있으므로 적용된 조건을 함께 넣어 알림 글이 달라지게 한다
+    const cond = chipList(applied).length ? `${describeFilter(applied)} 조건으로 ` : '전체 ';
+    $('status').textContent = n ? `${cond}상품 ${n}개를 보여 줍니다` : `${describeFilter(applied)} 조건에 맞는 상품이 없습니다`;
+    report();
+  }
+
+  /* 적용된 필터 칩 */
+  function chipList(f) {
+    const out = [];
+    f.cat.forEach((v) => out.push({ group: 'cat', value: v, label: v }));
+    f.brand.forEach((v) => out.push({ group: 'brand', value: v, label: v }));
+    if (f.price !== 'all') out.push({ group: 'price', value: f.price, label: PRICES.find((p) => p.value === f.price).label });
+    if (f.stock) out.push({ group: 'stock', value: '1', label: '재고 있음' });
+    return out;
+  }
+  function without(f, group, value) {
+    const n = copy(f);
+    if (group === 'cat' || group === 'brand') n[group] = n[group].filter((v) => v !== value);
+    // 가격은 하나만 고르는 값이라, 고르던 값이 지우는 칩과 다를 때는 남긴다
+    if (group === 'price' && n.price === value) n.price = 'all';
+    if (group === 'stock') n.stock = false;
+    return n;
+  }
+  function renderChips() {
+    const chips = chipList(applied);
+    const ul = $('chips');
+    ul.textContent = '';
+    $('applied').hidden = chips.length === 0;
+    chips.forEach((c, index) => {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = `${c.label} ×`;
+      b.setAttribute('aria-label', `${c.label} 필터 지우기`);
+      b.addEventListener('click', () => removeChip(c, index));
+      li.append(b);
+      ul.append(li);
+    });
+    if (chips.length > 1) {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'link';
+      b.id = 'clear-all';
+      b.textContent = '모두 지우기';
+      b.addEventListener('click', clearAll);
+      li.append(b);
+      ul.append(li);
+    }
+  }
+  // 칩을 지우는 것은 그 자리에서 바로 적용한다. 고르는 중이던 다른 변경은 남긴다
+  function removeChip(c, index) {
+    applied = without(applied, c.group, c.value);
+    draft = without(draft, c.group, c.value);
+    writeForm(draft);
+    history.pushState(null, '', toQuery(applied) || location.pathname);
+    loadResults();
+    afterDraftChange();
+    // 누른 칩이 사라졌으므로 같은 자리의 다음 칩, 없으면 앞 칩, 그것도 없으면 결과 제목으로 옮긴다
+    const left = [...$('chips').querySelectorAll('button:not(.link)')];
+    const next = left[index] || left[index - 1];
+    if (next) next.focus();
+    else $('results-title').focus();
+  }
+  function clearAll() {
+    applied = empty();
+    draft = empty();
+    writeForm(draft);
+    history.pushState(null, '', location.pathname);
+    loadResults();
+    afterDraftChange();
+    $('results-title').focus();
+  }
+  $('empty-clear').addEventListener('click', clearAll);
+
+  $('revert').addEventListener('click', () => {
+    draft = copy(applied);
+    writeForm(draft);
+    afterDraftChange();
+    // 누른 버튼이 숨겨지므로 적용 버튼으로 옮긴다
+    $('apply').focus();
+  });
+
+  function updateFilterButton() {
+    const n = chipList(applied).length;
+    $('open-filters').textContent = n ? `필터 (${n}개 적용)` : '필터';
+  }
+
+  /* 좁은 화면: 대화 상자 */
+  $('open-filters').addEventListener('click', () => {
+    $('tray-body').append(form);
+    // returnValue는 다시 열어도 앞 값이 남아 있으므로(Chrome 156에서 확인) 열 때 비운다
+    $('tray').returnValue = '';
+    $('tray').showModal();
+    report();
+  });
+  $('close-tray').addEventListener('click', () => $('tray').close('cancel'));
+  $('tray').addEventListener('close', () => {
+    // 적용하지 않고 닫았다면(닫기 버튼, Esc) 고르던 것을 버리고 적용된 조건으로 되돌린다
+    if ($('tray').returnValue !== 'apply' && $('tray').returnValue !== 'resize') {
+      draft = copy(applied);
+      writeForm(draft);
+      afterDraftChange();
+    }
+    $('filter-side').append(form);
+    // 넓어지며 닫혔다면 연 버튼(필터 버튼)이 숨겨져 포커스를 돌려받을 곳이 없으므로 옆 칸의 적용 버튼으로 옮긴다
+    if ($('tray').returnValue === 'resize' && wide.matches) $('apply').focus();
+    report();
+  });
+  // 대화 상자가 열린 채로 화면이 넓어지면 폼을 옆 칸으로 돌려놓는다. 고르던 것은 그대로 둔다
+  wide.addEventListener('change', () => {
+    if (wide.matches && $('tray').open) $('tray').close('resize');
+    // 옆 칸에 포커스가 있던 채로 좁아지면 옆 칸이 숨겨지므로 필터 버튼으로 옮긴다.
+    // 이 이벤트가 올 때는 브라우저가 이미 포커스를 body로 떨어뜨렸으므로, 마지막 포커스 위치로 판단한다
+    if (!wide.matches && lastFocusInForm && document.activeElement === document.body) $('open-filters').focus();
+  });
+  let lastFocusInForm = false;
+  document.addEventListener('focusin', (e) => { lastFocusInForm = form.contains(e.target); });
+
+  /* 처음 열 때와 뒤로 가기 */
+  function restore() {
+    applied = fromUrl();
+    draft = copy(applied);
+    if ($('tray').open) $('tray').close('resize');
+    writeForm(draft);
+    $('dirty').hidden = true;
+    loadResults();
+    scheduleCount();
+    document.title = `상품 목록 - ${SITE}`;
+    report();
+  }
+  window.addEventListener('popstate', restore);
+
+  function describe(el) {
+    if (!el || el === document.body) return 'body (문서 처음)';
+    const label = el.labels && el.labels[0] ? el.labels[0].querySelector('span').textContent : '';
+    return `${el.tagName.toLowerCase()} "${(label || el.getAttribute('aria-label') || el.textContent).trim().slice(0, 24)}"`;
+  }
+  function report() {
+    $('out-url').textContent = location.search ? decodeURIComponent(location.search) : '(없음)';
+    $('out-applied').textContent = describeFilter(applied);
+    $('out-draft').textContent = same(draft, applied) ? '적용된 조건과 같음' : describeFilter(draft);
+    $('out-history').textContent = String(history.length);
+    $('out-focus').textContent = describe(document.activeElement);
+    $('out-preview').textContent = $('preview').textContent || '(비어 있음)';
+    $('out-status').textContent = $('status').textContent || '(비어 있음)';
+    $('out-requests').textContent = `보냄 ${sent}번, 늦게 와서 버림 ${dropped}번`;
+  }
+  document.addEventListener('focusin', report);
+
+  buildForm();
+  restore();
+</script>
+</body>
+</html>
