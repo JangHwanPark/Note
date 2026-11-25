@@ -59,8 +59,10 @@ argument-hint: "[주제] [카테고리 또는 이어 쓸 노트]"
 
 커밋과 push는 사용자가 그 자리에서 명령형으로 맡겼을 때만 한다. 맡았을 때는 아래처럼 단계마다 별도 명령으로 실행하고 결과를 보고 다음으로 넘어간다.
 
-1. `git fetch`, 현재 브랜치 확인, `git diff --cached --name-only`로 미리 스테이징된 파일 확인
+이 레포는 브랜치를 나누지 않고 `main`에 바로 커밋한다(`.claude/CLAUDE.md` 파일 구조 참고).
+
+1. `git fetch origin main`, 현재 브랜치가 `main`인지 확인(아니면 `git switch main` 후 `git pull --ff-only origin main`), `git diff --cached --name-only`로 미리 스테이징된 파일 확인
 2. 노트 폴더만 `git add`, 스테이징 목록 확인
 3. `git commit`
-4. `git log origin/<브랜치>..<브랜치>`로 나갈 커밋 확인. 내 커밋이 아닌 것이 있으면 push하지 말고 묻는다
-5. `git push`, 다시 fetch해서 동기화 확인
+4. `git log origin/main..main`으로 나갈 커밋 확인. 내 커밋이 아닌 것이 있으면 push하지 말고 묻는다
+5. `git push origin main`, 다시 fetch해서 동기화 확인
