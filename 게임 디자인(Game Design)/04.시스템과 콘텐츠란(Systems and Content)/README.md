@@ -86,4 +86,4 @@ MDA 논문은 처음에는 이 생각을 지지하는 듯 보인다. 논문은 �
 
 <br/>
 
-[목차](../README.md) | [이전: 게임관이란 무엇인가](../03.게임관이란%20무엇인가(What%20Is%20a%20Game%20Philosophy)/README.md)
+[목차](../README.md) | [이전: 게임관이란 무엇인가](../03.게임관이란%20무엇인가(What%20Is%20a%20Game%20Philosophy)/README.md) | [다음: MDA 프레임워크](../05.MDA%20프레임워크(MDA%20Framework)/README.md)
