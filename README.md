@@ -52,6 +52,7 @@
 | [SoftwareTest](./SoftwareTest) | QA 이론과 관점, 게임 QA, 리비전, 테스트 자동화, 부하와 API 테스트 |
 | [인공지능(Artificial Intelligence)](./인공지능(Artificial%20Intelligence)) | AI 기초 개념과 프롬프트, 컨텍스트, 에이전트 같은 AI 활용법 |
 | [게임 디자인(Game Design)](./게임%20디자인(Game%20Design)) | 재미, 게임관, 시스템과 콘텐츠 같은 게임 디자인 이론 |
+| [게임 프로그래밍(Game Programming)](./게임%20프로그래밍(Game%20Programming)) | 게임 루프와 시간 처리처럼 엔진들이 공통으로 쓰는 구조 |
 
 <br/>
 
