@@ -16,7 +16,7 @@ MDA 논문은 이 문제를 직접 짚는다. 게임과 놀이를 이야기하�
 
 ## 재미는 여러 가지다 : MDA 프레임워크
 ### MDA란
-로빈 휴니키(Robin Hunicke), 마크 르블랑(Marc LeBlanc), 로버트 주벡(Robert Zubek)이 쓴 논문 「MDA: A Formal Approach to Game Design and Game Research」에서 정리한 틀이다. 2001년부터 2004년까지 게임 개발자 콘퍼런스(GDC)의 Game Design and Tuning Workshop에서 가르친 내용이다. 이름은 게임을 나누는 세 층에서 따왔다.
+로빈 휴니키(Robin Hunicke), 마크 르블랑(Marc LeBlanc), 로버트 주벡(Robert Zubek)이 쓴 논문 「MDA: A Formal Approach to Game Design and Game Research」에서 정리한 틀이다. 2001년부터 2004년까지 게임 개발자 콘퍼런스(GDC)의 Game Design and Tuning Workshop에서 가르친 내용이다. 이름은 게임을 나누는 세 레이어(Layer)에서 따왔다.
 
 - 메커닉스(Mechanics)는 게임을 이루는 구성 요소다. 논문은 데이터 표현과 알고리즘 수준의 구성 요소라고 쓴다. 보드게임이라면 말, 주사위, 규칙서다.
 - 다이내믹스(Dynamics)는 메커닉스가 플레이어의 입력과 서로의 출력에 반응하며 시간에 따라 만들어 내는 실행 중의 행동이다. 주사위를 굴리고 말을 옮기며 실제로 벌어지는 판의 흐름이다.
